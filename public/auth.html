@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MenuCraft — Sign In</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --orange: #E85D2C; --orange-dark: #D14A1C; --cream: #FFFBF7; --charcoal: #1A1A1A; --gray: #6B7280; }
+    body { font-family: 'Inter', sans-serif; background: var(--cream); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+    .auth-container { width: 100%; max-width: 400px; }
+    .auth-logo { text-align: center; margin-bottom: 32px; }
+    .auth-logo a { font-size: 28px; font-weight: 800; color: var(--orange); text-decoration: none; }
+    .auth-logo a span { color: var(--charcoal); }
+    .auth-card { background: #fff; border-radius: 20px; padding: 36px; border: 1px solid #F3F4F6; box-shadow: 0 4px 24px rgba(0,0,0,0.04); }
+    .auth-card h2 { font-size: 24px; font-weight: 800; margin-bottom: 8px; text-align: center; }
+    .auth-card .sub { text-align: center; color: var(--gray); font-size: 14px; margin-bottom: 28px; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #374151; }
+    .form-group input {
+      width: 100%; padding: 12px 14px; border: 1.5px solid #E5E7EB; border-radius: 10px;
+      font-size: 15px; font-family: inherit; outline: none; transition: border-color 0.2s;
+    }
+    .form-group input:focus { border-color: var(--orange); }
+    .btn {
+      width: 100%; padding: 14px; border-radius: 12px; font-weight: 700;
+      font-size: 15px; border: none; cursor: pointer; font-family: inherit;
+      background: var(--orange); color: #fff; transition: all 0.2s;
+      margin-top: 8px;
+    }
+    .btn:hover { background: var(--orange-dark); }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .error { background: #FEE2E2; color: #DC2626; padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 16px; display: none; }
+    .switch { text-align: center; margin-top: 20px; font-size: 14px; color: var(--gray); }
+    .switch a { color: var(--orange); font-weight: 600; text-decoration: none; }
+    .switch a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<div class="auth-container">
+  <div class="auth-logo"><a href="/">Menu<span>Craft</span></a></div>
+  <div class="auth-card">
+    <h2 id="auth-title">Create your account</h2>
+    <p class="sub" id="auth-sub">Start building your digital menu in minutes</p>
+    <div class="error" id="error"></div>
+    <form id="auth-form" onsubmit="handleSubmit(event)">
+      <div class="form-group" id="name-group">
+        <label>Restaurant Name</label>
+        <input type="text" id="restaurant-name" placeholder="e.g. Bella Cucina">
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="email" placeholder="you@restaurant.com" required>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="password" placeholder="At least 6 characters" required minlength="6">
+      </div>
+      <button type="submit" class="btn" id="submit-btn">Create Account</button>
+    </form>
+    <div class="switch" id="switch-text">
+      Already have an account? <a href="/login">Log in</a>
+    </div>
+  </div>
+</div>
+
+<script>
+const isLogin = window.location.pathname === '/login';
+
+if (isLogin) {
+  document.getElementById('auth-title').textContent = 'Welcome back';
+  document.getElementById('auth-sub').textContent = 'Log in to manage your menus';
+  document.getElementById('name-group').style.display = 'none';
+  document.getElementById('submit-btn').textContent = 'Log In';
+  document.getElementById('switch-text').innerHTML = 'Don\'t have an account? <a href="/signup">Sign up</a>';
+}
+
+async function handleSubmit(e) {
+  e.preventDefault();
+  const btn = document.getElementById('submit-btn');
+  const errEl = document.getElementById('error');
+  btn.disabled = true;
+  errEl.style.display = 'none';
+  
+  const body = {
+    email: document.getElementById('email').value,
+    password: document.getElementById('password').value,
+  };
+  if (!isLogin) body.restaurantName = document.getElementById('restaurant-name').value;
+  
+  try {
+    const res = await fetch(isLogin ? '/api/auth/login' : '/api/auth/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Something went wrong');
+    
+    // Check if there's a plan in URL params
+    const params = new URLSearchParams(window.location.search);
+    const plan = params.get('plan');
+    if (plan && !isLogin) {
+      const checkoutRes = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan }),
+      });
+      const checkoutData = await checkoutRes.json();
+      if (checkoutData.url) {
+        window.location.href = checkoutData.url;
+        return;
+      }
+    }
+    
+    window.location.href = '/dashboard';
+  } catch (err) {
+    errEl.textContent = err.message;
+    errEl.style.display = 'block';
+    btn.disabled = false;
+  }
+}
+</script>
+
+</body>
+</html>

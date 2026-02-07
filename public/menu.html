@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Menu</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&family=Lora:wght@400;600;700&family=Georgia&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font, 'Inter'), -apple-system, sans-serif;
+      background: var(--bg, #FFFBF7);
+      color: #1A1A1A;
+      min-height: 100vh;
+    }
+    .menu-header {
+      background: linear-gradient(135deg, var(--primary, #E85D2C), color-mix(in srgb, var(--primary, #E85D2C) 70%, #F59E0B));
+      padding: 48px 24px 32px;
+      text-align: center;
+      color: #fff;
+    }
+    .menu-header h1 {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+    }
+    .menu-header p {
+      font-size: 14px;
+      opacity: 0.85;
+    }
+    .menu-nav {
+      position: sticky; top: 0; z-index: 10;
+      background: var(--bg, #FFFBF7);
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .menu-nav::-webkit-scrollbar { display: none; }
+    .menu-nav-inner {
+      display: flex; gap: 4px; padding: 8px 16px;
+      max-width: 600px; margin: 0 auto;
+    }
+    .menu-nav a {
+      padding: 8px 16px; border-radius: 100px;
+      font-size: 13px; font-weight: 600;
+      text-decoration: none; color: #6B7280;
+      white-space: nowrap; transition: all 0.2s;
+    }
+    .menu-nav a.active, .menu-nav a:hover {
+      background: var(--primary, #E85D2C);
+      color: #fff;
+    }
+    .menu-body {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+    .category-section {
+      margin-bottom: 32px;
+    }
+    .category-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--primary, #E85D2C);
+      margin-bottom: 4px;
+      padding-top: 16px;
+    }
+    .category-desc {
+      font-size: 13px;
+      color: #9CA3AF;
+      margin-bottom: 16px;
+    }
+    .menu-item {
+      display: flex;
+      gap: 16px;
+      padding: 16px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.04);
+      align-items: flex-start;
+    }
+    .menu-item:last-child { border-bottom: none; }
+    .menu-item-info { flex: 1; min-width: 0; }
+    .menu-item-name {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .menu-item-desc {
+      font-size: 13px;
+      color: #6B7280;
+      line-height: 1.5;
+      margin-bottom: 6px;
+    }
+    .menu-item-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+    .menu-tag {
+      display: inline-flex; align-items: center; gap: 3px;
+      font-size: 11px; font-weight: 600; padding: 3px 8px;
+      border-radius: 6px; background: #ECFDF5; color: #059669;
+    }
+    .menu-tag.spicy { background: #FEF2F2; color: #DC2626; }
+    .menu-tag.nuts { background: #FEF3C7; color: #92400E; }
+    .menu-item-price {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--primary, #E85D2C);
+      white-space: nowrap;
+      padding-top: 2px;
+    }
+    .menu-item-img {
+      width: 80px; height: 80px;
+      border-radius: 12px;
+      object-fit: cover;
+    }
+    .menu-footer {
+      text-align: center;
+      padding: 32px 16px;
+      font-size: 12px;
+      color: #9CA3AF;
+    }
+    .menu-footer a { color: var(--primary, #E85D2C); text-decoration: none; font-weight: 600; }
+    .unavailable { opacity: 0.4; }
+    .loading {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 60vh; font-size: 16px; color: #9CA3AF;
+    }
+    .not-found { text-align: center; padding: 80px 24px; }
+    .not-found h2 { font-size: 24px; margin-bottom: 8px; }
+    .not-found p { color: #6B7280; }
+  </style>
+</head>
+<body>
+
+<div id="menu-container">
+  <div class="loading">Loading menu...</div>
+</div>
+
+<script>
+const slug = window.location.pathname.split('/m/')[1];
+
+async function loadMenu() {
+  try {
+    const res = await fetch(`/api/public/menu/${slug}`);
+    if (!res.ok) throw new Error('not found');
+    const { menu } = await res.json();
+    
+    // Set CSS vars
+    document.documentElement.style.setProperty('--primary', menu.primary_color || '#E85D2C');
+    document.documentElement.style.setProperty('--bg', menu.bg_color || '#FFFBF7');
+    document.documentElement.style.setProperty('--font', menu.font || 'Inter');
+    document.title = (menu.restaurant_name || menu.name) + ' — Menu';
+    
+    const tagIcons = {
+      vegetarian: '🌱', vegan: '🥬', 'gluten-free': 'GF', spicy: '🌶️',
+      nuts: '🥜', 'dairy-free': '🥛'
+    };
+    const tagClass = t => t === 'spicy' ? 'spicy' : t === 'nuts' ? 'nuts' : '';
+    
+    let html = `
+      <div class="menu-header">
+        <h1>${esc(menu.restaurant_name || menu.name)}</h1>
+        ${menu.description ? `<p>${esc(menu.description)}</p>` : ''}
+      </div>
+    `;
+    
+    // Category nav
+    if (menu.categories.length > 1) {
+      html += `<div class="menu-nav"><div class="menu-nav-inner">`;
+      menu.categories.forEach((cat, i) => {
+        html += `<a href="#cat-${i}" ${i === 0 ? 'class="active"' : ''}>${esc(cat.name)}</a>`;
+      });
+      html += `</div></div>`;
+    }
+    
+    html += `<div class="menu-body">`;
+    menu.categories.forEach((cat, i) => {
+      if (cat.items.length === 0) return;
+      html += `
+        <div class="category-section" id="cat-${i}">
+          <div class="category-title">${esc(cat.name)}</div>
+          ${cat.description ? `<div class="category-desc">${esc(cat.description)}</div>` : ''}
+          ${cat.items.map(item => `
+            <div class="menu-item">
+              <div class="menu-item-info">
+                <div class="menu-item-name">${esc(item.name)}</div>
+                ${item.description ? `<div class="menu-item-desc">${esc(item.description)}</div>` : ''}
+                <div class="menu-item-tags">
+                  ${(item.tags || []).map(t => `<span class="menu-tag ${tagClass(t)}">${tagIcons[t] || ''} ${t.replace('-', ' ')}</span>`).join('')}
+                </div>
+              </div>
+              ${item.image_url ? `<img class="menu-item-img" src="${item.image_url}" alt="${esc(item.name)}">` : ''}
+              <div class="menu-item-price">$${Number(item.price).toFixed(2)}</div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    });
+    html += `</div>`;
+    html += `<div class="menu-footer">Powered by <a href="/">MenuCraft</a></div>`;
+    
+    document.getElementById('menu-container').innerHTML = html;
+    
+    // Scroll spy for nav
+    const navLinks = document.querySelectorAll('.menu-nav a');
+    if (navLinks.length > 0) {
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            navLinks.forEach(l => l.classList.remove('active'));
+            const link = document.querySelector(`.menu-nav a[href="#${entry.target.id}"]`);
+            if (link) link.classList.add('active');
+          }
+        });
+      }, { rootMargin: '-50% 0px' });
+      document.querySelectorAll('.category-section').forEach(s => observer.observe(s));
+      
+      navLinks.forEach(link => {
+        link.addEventListener('click', e => {
+          e.preventDefault();
+          document.querySelector(link.getAttribute('href'))?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      });
+    }
+  } catch (e) {
+    document.getElementById('menu-container').innerHTML = '<div class="not-found"><h2>Menu not found</h2><p>This menu may have been removed or the link is incorrect.</p></div>';
+  }
+}
+
+function esc(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+
+loadMenu();
+</script>
+
+</body>
+</html>

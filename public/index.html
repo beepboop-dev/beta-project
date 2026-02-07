@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MenuCraft — Beautiful Digital Menus for Restaurants</title>
+  <meta name="description" content="Create a stunning digital menu for your restaurant in minutes. QR code included. No technical skills needed. From $9/mo.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    :root {
+      --orange: #E85D2C;
+      --orange-dark: #D14A1C;
+      --cream: #FFFBF7;
+      --charcoal: #1A1A1A;
+      --gray: #6B7280;
+      --light-gray: #F3F4F6;
+      --green: #10B981;
+    }
+    
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      color: var(--charcoal);
+      background: var(--cream);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; width: 100%; z-index: 100;
+      background: rgba(255,251,247,0.9);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+      padding: 0 24px;
+    }
+    .nav-inner {
+      max-width: 1200px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 64px;
+    }
+    .logo {
+      font-size: 22px; font-weight: 800; color: var(--orange);
+      text-decoration: none; letter-spacing: -0.5px;
+    }
+    .logo span { color: var(--charcoal); }
+    .nav-links { display: flex; gap: 32px; align-items: center; }
+    .nav-links a { text-decoration: none; color: var(--gray); font-size: 14px; font-weight: 500; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--charcoal); }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 10px 24px; border-radius: 10px; font-weight: 600;
+      font-size: 14px; text-decoration: none; transition: all 0.2s;
+      border: none; cursor: pointer; font-family: inherit;
+    }
+    .btn-primary { background: var(--orange); color: #fff; }
+    .btn-primary:hover { background: var(--orange-dark); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(232,93,44,0.3); }
+    .btn-outline { background: transparent; color: var(--charcoal); border: 1.5px solid #E5E7EB; }
+    .btn-outline:hover { border-color: var(--charcoal); }
+    .btn-large { padding: 14px 32px; font-size: 16px; border-radius: 12px; }
+
+    /* HERO */
+    .hero {
+      padding: 140px 24px 80px;
+      text-align: center;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #FEF3C7; color: #92400E; border-radius: 100px;
+      padding: 6px 16px; font-size: 13px; font-weight: 600;
+      margin-bottom: 24px;
+    }
+    .badge::before { content: '✨'; }
+    .hero h1 {
+      font-size: clamp(36px, 6vw, 64px);
+      font-weight: 800;
+      line-height: 1.08;
+      letter-spacing: -2px;
+      margin-bottom: 20px;
+    }
+    .hero h1 em {
+      font-style: normal;
+      background: linear-gradient(135deg, var(--orange), #F59E0B);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero p {
+      font-size: 18px;
+      color: var(--gray);
+      max-width: 520px;
+      margin: 0 auto 32px;
+      line-height: 1.7;
+    }
+    .hero-buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .hero-sub { font-size: 13px; color: #9CA3AF; margin-top: 16px; }
+
+    /* PHONE MOCKUP */
+    .mockup-section {
+      max-width: 1000px; margin: 0 auto; padding: 0 24px 80px;
+      display: flex; justify-content: center;
+    }
+    .phone-frame {
+      width: 300px; height: 600px;
+      background: #fff;
+      border-radius: 36px;
+      border: 8px solid #1A1A1A;
+      overflow: hidden;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.05);
+      position: relative;
+    }
+    .phone-notch {
+      width: 120px; height: 24px; background: #1A1A1A;
+      border-radius: 0 0 16px 16px; margin: 0 auto;
+      position: relative; z-index: 2;
+    }
+    .phone-content {
+      height: 100%; overflow-y: auto; padding: 0;
+      font-size: 13px;
+    }
+    .phone-content::-webkit-scrollbar { display: none; }
+    .mock-header {
+      background: linear-gradient(135deg, var(--orange), #F59E0B);
+      padding: 32px 20px 20px;
+      color: #fff;
+      text-align: center;
+    }
+    .mock-header h3 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+    .mock-header p { font-size: 11px; opacity: 0.85; }
+    .mock-cat { padding: 16px 20px 8px; font-size: 14px; font-weight: 700; color: var(--orange); }
+    .mock-item {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      padding: 8px 20px; gap: 12px;
+    }
+    .mock-item-name { font-size: 13px; font-weight: 600; }
+    .mock-item-desc { font-size: 11px; color: var(--gray); margin-top: 2px; }
+    .mock-item-price { font-size: 13px; font-weight: 700; color: var(--orange); white-space: nowrap; }
+    .mock-tag {
+      display: inline-block; font-size: 9px; padding: 2px 6px;
+      background: #ECFDF5; color: #059669; border-radius: 4px;
+      margin-top: 4px; font-weight: 600;
+    }
+
+    /* FEATURES */
+    .features {
+      max-width: 1100px; margin: 0 auto; padding: 80px 24px;
+    }
+    .features-header {
+      text-align: center; margin-bottom: 60px;
+    }
+    .features-header h2 {
+      font-size: 36px; font-weight: 800; letter-spacing: -1px; margin-bottom: 12px;
+    }
+    .features-header p { color: var(--gray); font-size: 16px; }
+    .features-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+    }
+    .feature-card {
+      background: #fff; border-radius: 16px; padding: 32px;
+      border: 1px solid #F3F4F6;
+      transition: all 0.3s;
+    }
+    .feature-card:hover {
+      border-color: #E5E7EB;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.06);
+      transform: translateY(-2px);
+    }
+    .feature-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; margin-bottom: 16px;
+    }
+    .feature-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+    .feature-card p { color: var(--gray); font-size: 14px; line-height: 1.6; }
+
+    /* HOW IT WORKS */
+    .how-it-works {
+      background: #fff;
+      padding: 80px 24px;
+    }
+    .how-inner {
+      max-width: 900px; margin: 0 auto; text-align: center;
+    }
+    .how-inner h2 { font-size: 36px; font-weight: 800; letter-spacing: -1px; margin-bottom: 48px; }
+    .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 40px; }
+    .step-num {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--orange); color: #fff; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 16px; font-size: 18px;
+    }
+    .step h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+    .step p { font-size: 14px; color: var(--gray); }
+
+    /* PRICING */
+    .pricing {
+      max-width: 1000px; margin: 0 auto; padding: 80px 24px;
+    }
+    .pricing-header { text-align: center; margin-bottom: 48px; }
+    .pricing-header h2 { font-size: 36px; font-weight: 800; letter-spacing: -1px; margin-bottom: 12px; }
+    .pricing-header p { color: var(--gray); font-size: 16px; }
+    .pricing-toggle {
+      display: flex; justify-content: center; gap: 4px;
+      background: var(--light-gray); border-radius: 10px;
+      padding: 4px; width: fit-content; margin: 0 auto 40px;
+    }
+    .pricing-toggle button {
+      padding: 8px 20px; border-radius: 8px; border: none;
+      font-family: inherit; font-size: 14px; font-weight: 600;
+      cursor: pointer; background: transparent; color: var(--gray);
+      transition: all 0.2s;
+    }
+    .pricing-toggle button.active { background: #fff; color: var(--charcoal); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .pricing-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; max-width: 700px; margin: 0 auto; }
+    .pricing-card {
+      background: #fff; border-radius: 20px; padding: 36px;
+      border: 2px solid #F3F4F6;
+      position: relative;
+    }
+    .pricing-card.featured {
+      border-color: var(--orange);
+      box-shadow: 0 8px 32px rgba(232,93,44,0.12);
+    }
+    .popular-badge {
+      position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+      background: var(--orange); color: #fff; font-size: 12px; font-weight: 700;
+      padding: 4px 16px; border-radius: 100px;
+    }
+    .pricing-card h3 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+    .pricing-card .price { font-size: 48px; font-weight: 800; letter-spacing: -2px; margin: 16px 0 4px; }
+    .pricing-card .price span { font-size: 16px; color: var(--gray); font-weight: 500; }
+    .pricing-card .price-note { font-size: 13px; color: var(--gray); margin-bottom: 24px; }
+    .pricing-card ul { list-style: none; margin-bottom: 28px; }
+    .pricing-card li {
+      padding: 8px 0; font-size: 14px; color: #374151;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .pricing-card li::before { content: '✓'; color: var(--green); font-weight: 700; }
+    .pricing-card .btn { width: 100%; }
+
+    /* SOCIAL PROOF */
+    .social-proof {
+      background: #fff; padding: 60px 24px;
+    }
+    .sp-inner {
+      max-width: 800px; margin: 0 auto; text-align: center;
+    }
+    .sp-inner h2 { font-size: 28px; font-weight: 800; margin-bottom: 32px; letter-spacing: -0.5px; }
+    .testimonials { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; }
+    .testimonial {
+      background: var(--cream); border-radius: 16px; padding: 24px;
+      text-align: left;
+    }
+    .testimonial .stars { color: #F59E0B; margin-bottom: 12px; letter-spacing: 2px; }
+    .testimonial p { font-size: 14px; color: #374151; margin-bottom: 16px; line-height: 1.6; font-style: italic; }
+    .testimonial .author { font-size: 13px; font-weight: 700; }
+    .testimonial .role { font-size: 12px; color: var(--gray); }
+
+    /* CTA */
+    .final-cta {
+      text-align: center; padding: 80px 24px;
+      max-width: 600px; margin: 0 auto;
+    }
+    .final-cta h2 { font-size: 36px; font-weight: 800; letter-spacing: -1px; margin-bottom: 16px; }
+    .final-cta p { color: var(--gray); font-size: 16px; margin-bottom: 32px; }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid #F3F4F6;
+      padding: 40px 24px;
+      text-align: center;
+    }
+    footer p { font-size: 13px; color: var(--gray); }
+
+    @media (max-width: 640px) {
+      .nav-links a:not(.btn) { display: none; }
+      .hero { padding: 120px 20px 60px; }
+      .features-grid { grid-template-columns: 1fr; }
+      .pricing-cards { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="logo">Menu<span>Craft</span></a>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
+      <a href="/login" class="btn btn-outline">Log In</a>
+      <a href="/signup" class="btn btn-primary">Get Started Free</a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="badge">Used by 200+ restaurants</div>
+  <h1>Your menu, <em>beautifully online</em> in&nbsp;5&nbsp;minutes</h1>
+  <p>Create a stunning digital menu your guests will love. Share it with a QR code. Update prices instantly. No tech skills needed.</p>
+  <div class="hero-buttons">
+    <a href="/signup" class="btn btn-primary btn-large">Create Your Menu — Free</a>
+    <a href="#demo" class="btn btn-outline btn-large">See Demo ↓</a>
+  </div>
+  <p class="hero-sub">No credit card required · Set up in under 5 minutes</p>
+</section>
+
+<section class="mockup-section" id="demo">
+  <div class="phone-frame">
+    <div class="phone-notch"></div>
+    <div class="phone-content">
+      <div class="mock-header">
+        <h3>🍽️ Bella Cucina</h3>
+        <p>Italian Restaurant · Downtown</p>
+      </div>
+      <div class="mock-cat">Starters</div>
+      <div class="mock-item">
+        <div>
+          <div class="mock-item-name">Bruschetta</div>
+          <div class="mock-item-desc">Fresh tomatoes, basil & olive oil</div>
+          <span class="mock-tag">🌱 Vegetarian</span>
+        </div>
+        <div class="mock-item-price">$8.50</div>
+      </div>
+      <div class="mock-item">
+        <div>
+          <div class="mock-item-name">Soup of the Day</div>
+          <div class="mock-item-desc">Ask your server for today's pick</div>
+          <span class="mock-tag">GF</span>
+        </div>
+        <div class="mock-item-price">$7.00</div>
+      </div>
+      <div class="mock-cat">Mains</div>
+      <div class="mock-item">
+        <div>
+          <div class="mock-item-name">Grilled Salmon</div>
+          <div class="mock-item-desc">Lemon butter, seasonal vegetables</div>
+          <span class="mock-tag">GF</span>
+        </div>
+        <div class="mock-item-price">$24.00</div>
+      </div>
+      <div class="mock-item">
+        <div>
+          <div class="mock-item-name">Mushroom Risotto</div>
+          <div class="mock-item-desc">Wild mushrooms & parmesan</div>
+          <span class="mock-tag">🌱 Vegetarian</span>
+        </div>
+        <div class="mock-item-price">$18.00</div>
+      </div>
+      <div class="mock-cat">Desserts</div>
+      <div class="mock-item">
+        <div>
+          <div class="mock-item-name">Tiramisu</div>
+          <div class="mock-item-desc">Classic coffee-flavored dessert</div>
+        </div>
+        <div class="mock-item-price">$10.00</div>
+      </div>
+      <div class="mock-item">
+        <div>
+          <div class="mock-item-name">Chocolate Lava Cake</div>
+          <div class="mock-item-desc">Warm with a molten center</div>
+          <span class="mock-tag">🌱 Vegetarian</span>
+        </div>
+        <div class="mock-item-price">$12.00</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="features" id="features">
+  <div class="features-header">
+    <h2>Everything you need, nothing you don't</h2>
+    <p>Built for restaurant owners who want things simple and beautiful</p>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon" style="background:#FEF3C7;">📱</div>
+      <h3>Mobile-Perfect Menus</h3>
+      <p>Your menu looks gorgeous on every phone, tablet, and screen. Guests just scan and browse — no app download needed.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:#ECFDF5;">⚡</div>
+      <h3>Update in Real-Time</h3>
+      <p>86'd the salmon? Price change? Update your menu instantly from any device. No reprinting, no waiting.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:#EDE9FE;">📷</div>
+      <h3>QR Code Included</h3>
+      <p>Get a beautiful, print-ready QR code for your tables. Guests scan → menu appears. That simple.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:#FCE7F3;">🏷️</div>
+      <h3>Dietary Tags</h3>
+      <p>Mark items as vegetarian, vegan, gluten-free, or spicy. Help guests find exactly what they need.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:#DBEAFE;">🎨</div>
+      <h3>Your Brand, Your Colors</h3>
+      <p>Match your menu to your restaurant's look and feel. Custom colors, fonts, and logo — no design skills needed.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:#FEE2E2;">🚀</div>
+      <h3>5-Minute Setup</h3>
+      <p>Sign up, add your items, and you're live. We even give you sample items to start with. It's that easy.</p>
+    </div>
+  </div>
+</section>
+
+<section class="how-it-works">
+  <div class="how-inner">
+    <h2>How it works</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h3>Sign up free</h3>
+        <p>Create your account in 30 seconds. No credit card, no commitment.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h3>Add your menu</h3>
+        <p>Type in your items, prices, and descriptions. Drag to reorder. Add photos if you want.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h3>Share your QR code</h3>
+        <p>Print the QR code, put it on your tables, and watch guests scan. Done.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="social-proof">
+  <div class="sp-inner">
+    <h2>Restaurant owners love MenuCraft</h2>
+    <div class="testimonials">
+      <div class="testimonial">
+        <div class="stars">★★★★★</div>
+        <p>"We replaced our $150/mo menu service with MenuCraft. Looks better, costs less, and I can update it myself."</p>
+        <div class="author">Maria Santos</div>
+        <div class="role">Owner, Casa Verde</div>
+      </div>
+      <div class="testimonial">
+        <div class="stars">★★★★★</div>
+        <p>"Set up our whole menu during a slow Tuesday lunch. Guests compliment how clean it looks on their phone."</p>
+        <div class="author">James Park</div>
+        <div class="role">Manager, Seoul Kitchen</div>
+      </div>
+      <div class="testimonial">
+        <div class="stars">★★★★★</div>
+        <p>"No more printing menus every time we change a price. This pays for itself in a week."</p>
+        <div class="author">Lisa Chen</div>
+        <div class="role">Owner, Dumpling House</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="pricing" id="pricing">
+  <div class="pricing-header">
+    <h2>Simple, honest pricing</h2>
+    <p>Start free. Upgrade when you're ready.</p>
+  </div>
+  <div class="pricing-toggle">
+    <button class="active" onclick="togglePricing('monthly')">Monthly</button>
+    <button onclick="togglePricing('yearly')">Yearly <span style="color:var(--green);font-size:12px;">Save 27%</span></button>
+  </div>
+  <div class="pricing-cards">
+    <div class="pricing-card">
+      <h3>Starter</h3>
+      <p style="font-size:14px;color:var(--gray);">Perfect for single-location restaurants</p>
+      <div class="price" id="starter-price">$9<span>/mo</span></div>
+      <div class="price-note" id="starter-note">Billed monthly</div>
+      <ul>
+        <li>1 menu</li>
+        <li>Up to 50 items</li>
+        <li>QR code generator</li>
+        <li>Custom colors & logo</li>
+        <li>Dietary tags</li>
+        <li>Mobile-optimized</li>
+      </ul>
+      <button class="btn btn-outline" style="width:100%" onclick="startCheckout('starter')">Get Started</button>
+    </div>
+    <div class="pricing-card featured">
+      <div class="popular-badge">Most Popular</div>
+      <h3>Pro</h3>
+      <p style="font-size:14px;color:var(--gray);">For restaurants that want it all</p>
+      <div class="price" id="pro-price">$29<span>/mo</span></div>
+      <div class="price-note" id="pro-note">Billed monthly</div>
+      <ul>
+        <li>Unlimited menus</li>
+        <li>Unlimited items</li>
+        <li>Photo uploads</li>
+        <li>Custom fonts</li>
+        <li>Priority support</li>
+        <li>Menu analytics</li>
+      </ul>
+      <button class="btn btn-primary" style="width:100%" onclick="startCheckout('pro')">Get Started</button>
+    </div>
+  </div>
+</section>
+
+<section class="final-cta">
+  <h2>Ready to ditch paper menus?</h2>
+  <p>Join hundreds of restaurants already using MenuCraft. Set up your digital menu in 5 minutes — free.</p>
+  <a href="/signup" class="btn btn-primary btn-large">Create Your Menu — Free</a>
+</section>
+
+<footer>
+  <p>© 2026 MenuCraft. Built with ❤️ for restaurants.</p>
+</footer>
+
+<script>
+let billingPeriod = 'monthly';
+
+function togglePricing(period) {
+  billingPeriod = period;
+  document.querySelectorAll('.pricing-toggle button').forEach(b => b.classList.remove('active'));
+  event.target.closest('button').classList.add('active');
+  
+  if (period === 'yearly') {
+    document.getElementById('starter-price').innerHTML = '$6.58<span>/mo</span>';
+    document.getElementById('starter-note').textContent = '$79 billed yearly';
+    document.getElementById('pro-price').innerHTML = '$20.75<span>/mo</span>';
+    document.getElementById('pro-note').textContent = '$249 billed yearly';
+  } else {
+    document.getElementById('starter-price').innerHTML = '$9<span>/mo</span>';
+    document.getElementById('starter-note').textContent = 'Billed monthly';
+    document.getElementById('pro-price').innerHTML = '$29<span>/mo</span>';
+    document.getElementById('pro-note').textContent = 'Billed monthly';
+  }
+}
+
+function startCheckout(plan) {
+  window.location.href = '/signup?plan=' + plan + '_' + billingPeriod;
+}
+</script>
+
+</body>
+</html>
