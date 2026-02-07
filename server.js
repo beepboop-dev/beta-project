@@ -1,7 +1,8 @@
 const express = require('express');
 const stripe = require('stripe');
 const QRCode = require('qrcode');
-const { v4: uuidv4 } = require('uuid');
+const crypto = require('crypto');
+const uuidv4 = () => crypto.randomUUID();
 const bcrypt = require('bcryptjs');
 const session = require('cookie-session');
 const path = require('path');
