@@ -1,5 +1,4 @@
 const express = require('express');
-const Database = require('better-sqlite3');
 const stripe = require('stripe');
 const QRCode = require('qrcode');
 const { v4: uuidv4 } = require('uuid');
@@ -8,81 +7,27 @@ const session = require('cookie-session');
 const path = require('path');
 const multer = require('multer');
 const fs = require('fs');
+const { load, save } = require('./db');
 
 const app = express();
 const PORT = process.env.PORT || 3002;
 const BASE_URL = process.env.BASE_URL || 'https://beta.abapture.ai';
 const STRIPE_SK = process.env.STRIPE_SECRET_KEY || '';
 const STRIPE_PK = process.env.STRIPE_PUBLISHABLE_KEY || '';
-const stripeClient = stripe(STRIPE_SK);
+const stripeClient = STRIPE_SK ? stripe(STRIPE_SK) : null;
 
-// Ensure uploads dir
+// Ensure dirs
 const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 
-const upload = multer({ 
-  dest: uploadsDir, 
+const upload = multer({
+  dest: uploadsDir,
   limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     if (file.mimetype.startsWith('image/')) cb(null, true);
     else cb(new Error('Only images allowed'));
   }
 });
-
-// Database
-const db = new Database(path.join(__dirname, 'menucraft.db'));
-db.pragma('journal_mode = WAL');
-db.pragma('foreign_keys = ON');
-
-// Create tables
-db.exec(`
-  CREATE TABLE IF NOT EXISTS users (
-    id TEXT PRIMARY KEY,
-    email TEXT UNIQUE NOT NULL,
-    password_hash TEXT NOT NULL,
-    restaurant_name TEXT DEFAULT '',
-    plan TEXT DEFAULT 'free',
-    stripe_customer_id TEXT,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  );
-  
-  CREATE TABLE IF NOT EXISTS menus (
-    id TEXT PRIMARY KEY,
-    user_id TEXT NOT NULL,
-    name TEXT DEFAULT 'Main Menu',
-    slug TEXT UNIQUE NOT NULL,
-    description TEXT DEFAULT '',
-    logo_url TEXT DEFAULT '',
-    primary_color TEXT DEFAULT '#E85D2C',
-    bg_color TEXT DEFAULT '#FFFBF7',
-    font TEXT DEFAULT 'Inter',
-    is_active INTEGER DEFAULT 1,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id)
-  );
-  
-  CREATE TABLE IF NOT EXISTS categories (
-    id TEXT PRIMARY KEY,
-    menu_id TEXT NOT NULL,
-    name TEXT NOT NULL,
-    description TEXT DEFAULT '',
-    sort_order INTEGER DEFAULT 0,
-    FOREIGN KEY (menu_id) REFERENCES menus(id) ON DELETE CASCADE
-  );
-  
-  CREATE TABLE IF NOT EXISTS items (
-    id TEXT PRIMARY KEY,
-    category_id TEXT NOT NULL,
-    name TEXT NOT NULL,
-    description TEXT DEFAULT '',
-    price REAL NOT NULL DEFAULT 0,
-    image_url TEXT DEFAULT '',
-    tags TEXT DEFAULT '[]',
-    is_available INTEGER DEFAULT 1,
-    sort_order INTEGER DEFAULT 0,
-    FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
-  );
-`);
 
 // Middleware
 app.use(express.json());
@@ -95,52 +40,72 @@ app.use(session({
   maxAge: 30 * 24 * 60 * 60 * 1000
 }));
 
-// Auth middleware
 function requireAuth(req, res, next) {
   if (!req.session.userId) return res.status(401).json({ error: 'Not authenticated' });
   next();
 }
 
-// ============ AUTH ROUTES ============
+// Helper: get all categories for a menu
+function getMenuCategories(menuId) {
+  const db = load();
+  const cats = Object.values(db.categories)
+    .filter(c => c.menu_id === menuId)
+    .sort((a, b) => a.sort_order - b.sort_order);
+  for (const cat of cats) {
+    cat.items = Object.values(db.items)
+      .filter(i => i.category_id === cat.id)
+      .sort((a, b) => a.sort_order - b.sort_order)
+      .map(i => ({ ...i, tags: typeof i.tags === 'string' ? JSON.parse(i.tags) : (i.tags || []) }));
+  }
+  return cats;
+}
+
+// ============ AUTH ============
 
 app.post('/api/auth/signup', (req, res) => {
   try {
     const { email, password, restaurantName } = req.body;
     if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
-    
-    const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(email);
+
+    const db = load();
+    const existing = Object.values(db.users).find(u => u.email === email);
     if (existing) return res.status(400).json({ error: 'Email already registered' });
-    
+
     const id = uuidv4();
-    const hash = bcrypt.hashSync(password, 10);
-    db.prepare('INSERT INTO users (id, email, password_hash, restaurant_name) VALUES (?, ?, ?, ?)').run(id, email, hash, restaurantName || '');
-    
-    // Create default menu
+    db.users[id] = { id, email, password_hash: bcrypt.hashSync(password, 10), restaurant_name: restaurantName || '', plan: 'free', created_at: new Date().toISOString() };
+
+    // Default menu
     const menuId = uuidv4();
     const slug = (restaurantName || email.split('@')[0]).toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 30) + '-' + id.slice(0, 6);
-    db.prepare('INSERT INTO menus (id, user_id, slug, name) VALUES (?, ?, ?, ?)').run(menuId, id, slug, 'Main Menu');
-    
-    // Create sample categories and items
-    const catId1 = uuidv4();
-    const catId2 = uuidv4();
-    const catId3 = uuidv4();
-    db.prepare('INSERT INTO categories (id, menu_id, name, description, sort_order) VALUES (?, ?, ?, ?, ?)').run(catId1, menuId, 'Starters', 'Begin your meal right', 0);
-    db.prepare('INSERT INTO categories (id, menu_id, name, description, sort_order) VALUES (?, ?, ?, ?, ?)').run(catId2, menuId, 'Mains', 'Our signature dishes', 1);
-    db.prepare('INSERT INTO categories (id, menu_id, name, description, sort_order) VALUES (?, ?, ?, ?, ?)').run(catId3, menuId, 'Desserts', 'Sweet endings', 2);
-    
-    const sampleItems = [
-      [catId1, 'Bruschetta', 'Toasted bread with fresh tomatoes, basil & olive oil', 8.50, '["vegetarian"]'],
-      [catId1, 'Soup of the Day', 'Ask your server for today\'s selection', 7.00, '["gluten-free"]'],
-      [catId2, 'Grilled Salmon', 'Atlantic salmon with lemon butter sauce & seasonal vegetables', 24.00, '["gluten-free"]'],
-      [catId2, 'Mushroom Risotto', 'Creamy arborio rice with wild mushrooms & parmesan', 18.00, '["vegetarian"]'],
-      [catId3, 'Tiramisu', 'Classic Italian coffee-flavored dessert', 10.00, '[]'],
-      [catId3, 'Chocolate Lava Cake', 'Warm chocolate cake with a molten center', 12.00, '["vegetarian"]'],
+    db.menus[menuId] = { id: menuId, user_id: id, name: 'Main Menu', slug, description: '', logo_url: '', primary_color: '#E85D2C', bg_color: '#FFFBF7', font: 'Inter', is_active: 1, created_at: new Date().toISOString() };
+
+    // Sample data
+    const cats = [
+      { name: 'Starters', description: 'Begin your meal right', sort_order: 0 },
+      { name: 'Mains', description: 'Our signature dishes', sort_order: 1 },
+      { name: 'Desserts', description: 'Sweet endings', sort_order: 2 },
     ];
-    const insertItem = db.prepare('INSERT INTO items (id, category_id, name, description, price, tags, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)');
-    sampleItems.forEach(([catId, name, desc, price, tags], i) => {
-      insertItem.run(uuidv4(), catId, name, desc, price, tags, i % 2);
-    });
-    
+    const catIds = [];
+    for (const c of cats) {
+      const cid = uuidv4();
+      catIds.push(cid);
+      db.categories[cid] = { id: cid, menu_id: menuId, ...c };
+    }
+
+    const sampleItems = [
+      { category_id: catIds[0], name: 'Bruschetta', description: 'Toasted bread with fresh tomatoes, basil & olive oil', price: 8.50, tags: ['vegetarian'], sort_order: 0 },
+      { category_id: catIds[0], name: 'Soup of the Day', description: "Ask your server for today's selection", price: 7.00, tags: ['gluten-free'], sort_order: 1 },
+      { category_id: catIds[1], name: 'Grilled Salmon', description: 'Atlantic salmon with lemon butter sauce & seasonal vegetables', price: 24.00, tags: ['gluten-free'], sort_order: 0 },
+      { category_id: catIds[1], name: 'Mushroom Risotto', description: 'Creamy arborio rice with wild mushrooms & parmesan', price: 18.00, tags: ['vegetarian'], sort_order: 1 },
+      { category_id: catIds[2], name: 'Tiramisu', description: 'Classic Italian coffee-flavored dessert', price: 10.00, tags: [], sort_order: 0 },
+      { category_id: catIds[2], name: 'Chocolate Lava Cake', description: 'Warm chocolate cake with a molten center', price: 12.00, tags: ['vegetarian'], sort_order: 1 },
+    ];
+    for (const item of sampleItems) {
+      const iid = uuidv4();
+      db.items[iid] = { id: iid, ...item, image_url: '', is_available: 1 };
+    }
+
+    save(db);
     req.session.userId = id;
     res.json({ success: true, user: { id, email, restaurantName } });
   } catch (e) {
@@ -151,7 +116,8 @@ app.post('/api/auth/signup', (req, res) => {
 
 app.post('/api/auth/login', (req, res) => {
   const { email, password } = req.body;
-  const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
+  const db = load();
+  const user = Object.values(db.users).find(u => u.email === email);
   if (!user || !bcrypt.compareSync(password, user.password_hash)) {
     return res.status(401).json({ error: 'Invalid credentials' });
   }
@@ -165,108 +131,118 @@ app.post('/api/auth/logout', (req, res) => {
 });
 
 app.get('/api/auth/me', requireAuth, (req, res) => {
-  const user = db.prepare('SELECT id, email, restaurant_name, plan, created_at FROM users WHERE id = ?').get(req.session.userId);
+  const db = load();
+  const user = db.users[req.session.userId];
   if (!user) return res.status(404).json({ error: 'User not found' });
-  res.json({ user: { ...user, restaurantName: user.restaurant_name } });
+  res.json({ user: { id: user.id, email: user.email, restaurantName: user.restaurant_name, plan: user.plan, created_at: user.created_at } });
 });
 
-// ============ MENU ROUTES ============
+// ============ MENUS ============
 
 app.get('/api/menus', requireAuth, (req, res) => {
-  const menus = db.prepare('SELECT * FROM menus WHERE user_id = ?').all(req.session.userId);
+  const db = load();
+  const menus = Object.values(db.menus).filter(m => m.user_id === req.session.userId);
   res.json({ menus });
 });
 
 app.put('/api/menus/:id', requireAuth, (req, res) => {
-  const menu = db.prepare('SELECT * FROM menus WHERE id = ? AND user_id = ?').get(req.params.id, req.session.userId);
-  if (!menu) return res.status(404).json({ error: 'Menu not found' });
-  
+  const db = load();
+  const menu = db.menus[req.params.id];
+  if (!menu || menu.user_id !== req.session.userId) return res.status(404).json({ error: 'Menu not found' });
+
   const { name, description, primary_color, bg_color, font } = req.body;
-  db.prepare('UPDATE menus SET name = COALESCE(?, name), description = COALESCE(?, description), primary_color = COALESCE(?, primary_color), bg_color = COALESCE(?, bg_color), font = COALESCE(?, font) WHERE id = ?')
-    .run(name, description, primary_color, bg_color, font, req.params.id);
-  
-  const updated = db.prepare('SELECT * FROM menus WHERE id = ?').get(req.params.id);
-  res.json({ menu: updated });
+  if (name !== undefined) menu.name = name;
+  if (description !== undefined) menu.description = description;
+  if (primary_color !== undefined) menu.primary_color = primary_color;
+  if (bg_color !== undefined) menu.bg_color = bg_color;
+  if (font !== undefined) menu.font = font;
+  save(db);
+  res.json({ menu });
 });
 
-// ============ CATEGORY ROUTES ============
+// ============ CATEGORIES ============
 
 app.get('/api/menus/:menuId/categories', requireAuth, (req, res) => {
-  const menu = db.prepare('SELECT * FROM menus WHERE id = ? AND user_id = ?').get(req.params.menuId, req.session.userId);
-  if (!menu) return res.status(404).json({ error: 'Menu not found' });
-  
-  const categories = db.prepare('SELECT * FROM categories WHERE menu_id = ? ORDER BY sort_order').all(req.params.menuId);
-  for (const cat of categories) {
-    cat.items = db.prepare('SELECT * FROM items WHERE category_id = ? ORDER BY sort_order').all(cat.id);
-    cat.items.forEach(item => { try { item.tags = JSON.parse(item.tags); } catch { item.tags = []; } });
-  }
-  res.json({ categories });
+  const db = load();
+  const menu = db.menus[req.params.menuId];
+  if (!menu || menu.user_id !== req.session.userId) return res.status(404).json({ error: 'Menu not found' });
+  res.json({ categories: getMenuCategories(req.params.menuId) });
 });
 
 app.post('/api/menus/:menuId/categories', requireAuth, (req, res) => {
-  const menu = db.prepare('SELECT * FROM menus WHERE id = ? AND user_id = ?').get(req.params.menuId, req.session.userId);
-  if (!menu) return res.status(404).json({ error: 'Menu not found' });
-  
-  const { name, description } = req.body;
-  const maxOrder = db.prepare('SELECT MAX(sort_order) as m FROM categories WHERE menu_id = ?').get(req.params.menuId);
+  const db = load();
+  const menu = db.menus[req.params.menuId];
+  if (!menu || menu.user_id !== req.session.userId) return res.status(404).json({ error: 'Menu not found' });
+
+  const existingCats = Object.values(db.categories).filter(c => c.menu_id === req.params.menuId);
+  const maxOrder = existingCats.reduce((m, c) => Math.max(m, c.sort_order), -1);
   const id = uuidv4();
-  db.prepare('INSERT INTO categories (id, menu_id, name, description, sort_order) VALUES (?, ?, ?, ?, ?)').run(id, req.params.menuId, name || 'New Category', description || '', (maxOrder?.m ?? -1) + 1);
-  
-  const cat = db.prepare('SELECT * FROM categories WHERE id = ?').get(id);
-  cat.items = [];
-  res.json({ category: cat });
+  db.categories[id] = { id, menu_id: req.params.menuId, name: req.body.name || 'New Category', description: req.body.description || '', sort_order: maxOrder + 1 };
+  save(db);
+  res.json({ category: { ...db.categories[id], items: [] } });
 });
 
 app.put('/api/categories/:id', requireAuth, (req, res) => {
+  const db = load();
+  const cat = db.categories[req.params.id];
+  if (!cat) return res.status(404).json({ error: 'Not found' });
   const { name, description, sort_order } = req.body;
-  db.prepare('UPDATE categories SET name = COALESCE(?, name), description = COALESCE(?, description), sort_order = COALESCE(?, sort_order) WHERE id = ?')
-    .run(name, description, sort_order, req.params.id);
+  if (name !== undefined) cat.name = name;
+  if (description !== undefined) cat.description = description;
+  if (sort_order !== undefined) cat.sort_order = sort_order;
+  save(db);
   res.json({ success: true });
 });
 
 app.delete('/api/categories/:id', requireAuth, (req, res) => {
-  db.prepare('DELETE FROM categories WHERE id = ?').run(req.params.id);
+  const db = load();
+  // Delete items in this category
+  Object.keys(db.items).forEach(k => { if (db.items[k].category_id === req.params.id) delete db.items[k]; });
+  delete db.categories[req.params.id];
+  save(db);
   res.json({ success: true });
 });
 
-// ============ ITEM ROUTES ============
+// ============ ITEMS ============
 
 app.post('/api/categories/:catId/items', requireAuth, (req, res) => {
+  const db = load();
   const { name, description, price, tags } = req.body;
-  const maxOrder = db.prepare('SELECT MAX(sort_order) as m FROM items WHERE category_id = ?').get(req.params.catId);
+  const existingItems = Object.values(db.items).filter(i => i.category_id === req.params.catId);
+  const maxOrder = existingItems.reduce((m, i) => Math.max(m, i.sort_order), -1);
   const id = uuidv4();
-  db.prepare('INSERT INTO items (id, category_id, name, description, price, tags, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)')
-    .run(id, req.params.catId, name || 'New Item', description || '', price || 0, JSON.stringify(tags || []), (maxOrder?.m ?? -1) + 1);
-  
-  const item = db.prepare('SELECT * FROM items WHERE id = ?').get(id);
-  try { item.tags = JSON.parse(item.tags); } catch { item.tags = []; }
-  res.json({ item });
+  db.items[id] = { id, category_id: req.params.catId, name: name || 'New Item', description: description || '', price: price || 0, tags: tags || [], image_url: '', is_available: 1, sort_order: maxOrder + 1 };
+  save(db);
+  res.json({ item: db.items[id] });
 });
 
 app.put('/api/items/:id', requireAuth, (req, res) => {
+  const db = load();
+  const item = db.items[req.params.id];
+  if (!item) return res.status(404).json({ error: 'Not found' });
   const { name, description, price, tags, is_available, sort_order, image_url } = req.body;
-  db.prepare(`UPDATE items SET 
-    name = COALESCE(?, name), 
-    description = COALESCE(?, description), 
-    price = COALESCE(?, price), 
-    tags = COALESCE(?, tags),
-    is_available = COALESCE(?, is_available),
-    sort_order = COALESCE(?, sort_order),
-    image_url = COALESCE(?, image_url)
-    WHERE id = ?`)
-    .run(name, description, price, tags ? JSON.stringify(tags) : null, is_available, sort_order, image_url, req.params.id);
+  if (name !== undefined) item.name = name;
+  if (description !== undefined) item.description = description;
+  if (price !== undefined) item.price = price;
+  if (tags !== undefined) item.tags = tags;
+  if (is_available !== undefined) item.is_available = is_available;
+  if (sort_order !== undefined) item.sort_order = sort_order;
+  if (image_url !== undefined) item.image_url = image_url;
+  save(db);
   res.json({ success: true });
 });
 
 app.delete('/api/items/:id', requireAuth, (req, res) => {
-  db.prepare('DELETE FROM items WHERE id = ?').run(req.params.id);
+  const db = load();
+  delete db.items[req.params.id];
+  save(db);
   res.json({ success: true });
 });
 
-// ============ IMAGE UPLOAD ============
+// ============ UPLOAD ============
 
 app.post('/api/upload', requireAuth, upload.single('image'), (req, res) => {
-  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+  if (!req.file) return res.status(400).json({ error: 'No file' });
   const ext = path.extname(req.file.originalname) || '.jpg';
   const newName = req.file.filename + ext;
   fs.renameSync(req.file.path, path.join(uploadsDir, newName));
@@ -276,47 +252,47 @@ app.post('/api/upload', requireAuth, upload.single('image'), (req, res) => {
 // ============ QR CODE ============
 
 app.get('/api/menus/:id/qr', requireAuth, async (req, res) => {
-  const menu = db.prepare('SELECT * FROM menus WHERE id = ? AND user_id = ?').get(req.params.id, req.session.userId);
-  if (!menu) return res.status(404).json({ error: 'Menu not found' });
-  
+  const db = load();
+  const menu = db.menus[req.params.id];
+  if (!menu || menu.user_id !== req.session.userId) return res.status(404).json({ error: 'Menu not found' });
   const url = `${BASE_URL}/m/${menu.slug}`;
   const qr = await QRCode.toDataURL(url, { width: 512, margin: 2, color: { dark: '#000', light: '#fff' } });
   res.json({ qr, url });
 });
 
-// ============ PUBLIC MENU (customer-facing) ============
+// ============ PUBLIC MENU ============
 
 app.get('/api/public/menu/:slug', (req, res) => {
-  const menu = db.prepare('SELECT m.*, u.restaurant_name FROM menus m JOIN users u ON m.user_id = u.id WHERE m.slug = ? AND m.is_active = 1').get(req.params.slug);
+  const db = load();
+  const menu = Object.values(db.menus).find(m => m.slug === req.params.slug && m.is_active);
   if (!menu) return res.status(404).json({ error: 'Menu not found' });
-  
-  const categories = db.prepare('SELECT * FROM categories WHERE menu_id = ? ORDER BY sort_order').all(menu.id);
-  for (const cat of categories) {
-    cat.items = db.prepare('SELECT * FROM items WHERE category_id = ? AND is_available = 1 ORDER BY sort_order').all(cat.id);
-    cat.items.forEach(item => { try { item.tags = JSON.parse(item.tags); } catch { item.tags = []; } });
-  }
-  
-  res.json({ menu: { ...menu, categories } });
+  const user = db.users[menu.user_id];
+  const categories = getMenuCategories(menu.id).filter(c => c.items.length > 0);
+  // Filter unavailable items for public view
+  categories.forEach(cat => { cat.items = cat.items.filter(i => i.is_available); });
+  res.json({ menu: { ...menu, restaurant_name: user?.restaurant_name || '', categories } });
 });
 
 // ============ STRIPE ============
 
 app.post('/api/checkout', requireAuth, async (req, res) => {
+  if (!stripeClient) return res.status(500).json({ error: 'Stripe not configured' });
   try {
     const { plan } = req.body;
-    const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.session.userId);
-    
+    const db = load();
+    const user = db.users[req.session.userId];
+
     const prices = {
       starter_monthly: { amount: 900, name: 'MenuCraft Starter — Monthly', interval: 'month' },
       starter_yearly: { amount: 7900, name: 'MenuCraft Starter — Yearly', interval: 'year' },
       pro_monthly: { amount: 2900, name: 'MenuCraft Pro — Monthly', interval: 'month' },
       pro_yearly: { amount: 24900, name: 'MenuCraft Pro — Yearly', interval: 'year' },
     };
-    
+
     const selected = prices[plan];
     if (!selected) return res.status(400).json({ error: 'Invalid plan' });
-    
-    const session = await stripeClient.checkout.sessions.create({
+
+    const checkoutSession = await stripeClient.checkout.sessions.create({
       payment_method_types: ['card'],
       mode: 'subscription',
       customer_email: user.email,
@@ -332,15 +308,13 @@ app.post('/api/checkout', requireAuth, async (req, res) => {
       success_url: `${BASE_URL}/dashboard?upgraded=true`,
       cancel_url: `${BASE_URL}/dashboard?cancelled=true`,
     });
-    
-    res.json({ url: session.url });
+
+    res.json({ url: checkoutSession.url });
   } catch (e) {
     console.error(e);
-    res.status(500).json({ error: 'Failed to create checkout session' });
+    res.status(500).json({ error: 'Failed to create checkout' });
   }
 });
-
-// ============ STRIPE CONFIG (for frontend) ============
 
 app.get('/api/config', (req, res) => {
   res.json({ stripePublishableKey: STRIPE_PK, baseUrl: BASE_URL });
@@ -348,22 +322,9 @@ app.get('/api/config', (req, res) => {
 
 // ============ SPA ROUTES ============
 
-app.get('/m/:slug', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'menu.html'));
-});
+app.get('/m/:slug', (req, res) => res.sendFile(path.join(__dirname, 'public', 'menu.html')));
+app.get('/dashboard', (req, res) => res.sendFile(path.join(__dirname, 'public', 'dashboard.html')));
+app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'public', 'auth.html')));
+app.get('/signup', (req, res) => res.sendFile(path.join(__dirname, 'public', 'auth.html')));
 
-app.get('/dashboard{/*path}', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
-});
-
-app.get('/login', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'auth.html'));
-});
-
-app.get('/signup', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'auth.html'));
-});
-
-app.listen(PORT, () => {
-  console.log(`MenuCraft running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`MenuCraft running on port ${PORT}`));
