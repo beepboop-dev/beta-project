@@ -12,23 +12,72 @@
       background: var(--bg, #FFFBF7);
       color: #1A1A1A;
       min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
     }
+
+    /* Loading skeleton */
+    .skeleton-container { padding: 0; }
+    .skeleton-header {
+      background: linear-gradient(135deg, #E85D2C, #F59E0B);
+      padding: 48px 24px 32px; text-align: center;
+    }
+    .skeleton-line {
+      height: 14px; border-radius: 8px; background: rgba(255,255,255,0.25);
+      margin: 0 auto; animation: shimmer 1.5s infinite;
+    }
+    .skeleton-line.title { width: 60%; height: 28px; margin-bottom: 12px; }
+    .skeleton-line.subtitle { width: 40%; height: 14px; }
+    .skeleton-nav {
+      display: flex; gap: 8px; padding: 12px 16px; border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+    .skeleton-pill { width: 72px; height: 32px; border-radius: 100px; background: #F3F4F6; animation: shimmer 1.5s infinite; }
+    .skeleton-items { padding: 20px 16px; max-width: 600px; margin: 0 auto; }
+    .skeleton-cat-title { width: 120px; height: 22px; border-radius: 8px; background: #F3F4F6; margin-bottom: 16px; animation: shimmer 1.5s infinite; }
+    .skeleton-item {
+      display: flex; gap: 16px; padding: 16px 0; border-bottom: 1px solid rgba(0,0,0,0.04);
+      align-items: flex-start;
+    }
+    .skeleton-item-text { flex: 1; }
+    .skeleton-item-name { width: 55%; height: 16px; border-radius: 6px; background: #F3F4F6; margin-bottom: 8px; animation: shimmer 1.5s infinite; }
+    .skeleton-item-desc { width: 85%; height: 12px; border-radius: 6px; background: #F3F4F6; margin-bottom: 6px; animation: shimmer 1.5s infinite; }
+    .skeleton-item-desc2 { width: 65%; height: 12px; border-radius: 6px; background: #F3F4F6; animation: shimmer 1.5s infinite; }
+    .skeleton-item-img { width: 80px; height: 80px; border-radius: 12px; background: #F3F4F6; flex-shrink: 0; animation: shimmer 1.5s infinite; }
+    .skeleton-item-price { width: 48px; height: 18px; border-radius: 6px; background: #F3F4F6; flex-shrink: 0; animation: shimmer 1.5s infinite; }
+
+    @keyframes shimmer {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* Menu header */
     .menu-header {
       background: linear-gradient(135deg, var(--primary, #E85D2C), color-mix(in srgb, var(--primary, #E85D2C) 70%, #F59E0B));
       padding: 48px 24px 32px;
       text-align: center;
       color: #fff;
     }
+    .menu-header .logo-img {
+      width: 72px; height: 72px; border-radius: 50%; object-fit: cover;
+      border: 3px solid rgba(255,255,255,0.3); margin-bottom: 12px;
+    }
     .menu-header h1 {
-      font-size: 32px;
+      font-size: 28px;
       font-weight: 800;
       letter-spacing: -0.5px;
       margin-bottom: 6px;
+      line-height: 1.2;
     }
     .menu-header p {
       font-size: 14px;
       opacity: 0.85;
     }
+    .menu-info {
+      display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+      margin-top: 12px; font-size: 13px; opacity: 0.8;
+    }
+    .menu-info span { display: flex; align-items: center; gap: 4px; }
+
+    /* Category nav - horizontally scrollable pills */
     .menu-nav {
       position: sticky; top: 0; z-index: 10;
       background: var(--bg, #FFFBF7);
@@ -47,11 +96,14 @@
       font-size: 13px; font-weight: 600;
       text-decoration: none; color: #6B7280;
       white-space: nowrap; transition: all 0.2s;
+      flex-shrink: 0;
     }
     .menu-nav a.active, .menu-nav a:hover {
       background: var(--primary, #E85D2C);
       color: #fff;
     }
+
+    /* Menu body */
     .menu-body {
       max-width: 600px;
       margin: 0 auto;
@@ -72,9 +124,11 @@
       color: #9CA3AF;
       margin-bottom: 16px;
     }
+
+    /* Menu items */
     .menu-item {
       display: flex;
-      gap: 16px;
+      gap: 12px;
       padding: 16px 0;
       border-bottom: 1px solid rgba(0,0,0,0.04);
       align-items: flex-start;
@@ -85,6 +139,7 @@
       font-size: 16px;
       font-weight: 700;
       margin-bottom: 4px;
+      line-height: 1.3;
     }
     .menu-item-desc {
       font-size: 13px;
@@ -100,18 +155,37 @@
     }
     .menu-tag.spicy { background: #FEF2F2; color: #DC2626; }
     .menu-tag.nuts { background: #FEF3C7; color: #92400E; }
+    .menu-item-right {
+      display: flex; flex-direction: column; align-items: flex-end; gap: 8px; flex-shrink: 0;
+    }
     .menu-item-price {
       font-size: 18px;
       font-weight: 800;
       color: var(--primary, #E85D2C);
       white-space: nowrap;
-      padding-top: 2px;
     }
     .menu-item-img {
       width: 80px; height: 80px;
       border-radius: 12px;
       object-fit: cover;
+      flex-shrink: 0;
     }
+
+    /* Featured item with large image */
+    .menu-item.featured {
+      flex-direction: column;
+      gap: 0;
+    }
+    .menu-item.featured .menu-item-img-large {
+      width: 100%; height: 180px;
+      border-radius: 12px;
+      object-fit: cover;
+      margin-bottom: 12px;
+    }
+    .menu-item.featured .menu-item-row {
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+
     .menu-footer {
       text-align: center;
       padding: 32px 16px;
@@ -120,19 +194,72 @@
     }
     .menu-footer a { color: var(--primary, #E85D2C); text-decoration: none; font-weight: 600; }
     .unavailable { opacity: 0.4; }
-    .loading {
-      display: flex; align-items: center; justify-content: center;
-      min-height: 60vh; font-size: 16px; color: #9CA3AF;
-    }
     .not-found { text-align: center; padding: 80px 24px; }
     .not-found h2 { font-size: 24px; margin-bottom: 8px; }
     .not-found p { color: #6B7280; }
+
+    /* Mobile optimizations */
+    @media (max-width: 480px) {
+      .menu-header { padding: 40px 20px 28px; }
+      .menu-header h1 { font-size: 24px; }
+      .menu-body { padding: 12px; }
+      .menu-item { gap: 10px; padding: 14px 0; }
+      .menu-item-name { font-size: 15px; }
+      .menu-item-desc { font-size: 12px; }
+      .menu-item-price { font-size: 16px; }
+      .menu-item-img { width: 68px; height: 68px; border-radius: 10px; }
+      .category-title { font-size: 20px; }
+    }
+
+    /* Smooth scroll */
+    html { scroll-behavior: smooth; }
   </style>
 </head>
 <body>
 
 <div id="menu-container">
-  <div class="loading">Loading menu...</div>
+  <!-- Loading skeleton -->
+  <div class="skeleton-container">
+    <div class="skeleton-header">
+      <div class="skeleton-line title"></div>
+      <div class="skeleton-line subtitle"></div>
+    </div>
+    <div class="skeleton-nav">
+      <div class="skeleton-pill"></div>
+      <div class="skeleton-pill" style="width:88px"></div>
+      <div class="skeleton-pill" style="width:64px"></div>
+      <div class="skeleton-pill" style="width:80px"></div>
+    </div>
+    <div class="skeleton-items">
+      <div class="skeleton-cat-title"></div>
+      <div class="skeleton-item">
+        <div class="skeleton-item-text">
+          <div class="skeleton-item-name"></div>
+          <div class="skeleton-item-desc"></div>
+          <div class="skeleton-item-desc2"></div>
+        </div>
+        <div class="skeleton-item-img"></div>
+        <div class="skeleton-item-price"></div>
+      </div>
+      <div class="skeleton-item">
+        <div class="skeleton-item-text">
+          <div class="skeleton-item-name"></div>
+          <div class="skeleton-item-desc"></div>
+          <div class="skeleton-item-desc2"></div>
+        </div>
+        <div class="skeleton-item-price"></div>
+      </div>
+      <div class="skeleton-item">
+        <div class="skeleton-item-text">
+          <div class="skeleton-item-name"></div>
+          <div class="skeleton-item-desc"></div>
+          <div class="skeleton-item-desc2"></div>
+        </div>
+        <div class="skeleton-item-img"></div>
+        <div class="skeleton-item-price"></div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -150,6 +277,12 @@ async function loadMenu() {
     document.documentElement.style.setProperty('--font', menu.font || 'Inter');
     document.title = (menu.restaurant_name || menu.name) + ' — Menu';
     
+    // Set theme-color for mobile browsers
+    const meta = document.createElement('meta');
+    meta.name = 'theme-color';
+    meta.content = menu.primary_color || '#E85D2C';
+    document.head.appendChild(meta);
+    
     const tagIcons = {
       vegetarian: '🌱', vegan: '🥬', 'gluten-free': 'GF', spicy: '🌶️',
       nuts: '🥜', 'dairy-free': '🥛'
@@ -158,6 +291,7 @@ async function loadMenu() {
     
     let html = `
       <div class="menu-header">
+        ${menu.logo_url ? `<img class="logo-img" src="${menu.logo_url}" alt="">` : ''}
         <h1>${esc(menu.restaurant_name || menu.name)}</h1>
         ${menu.description ? `<p>${esc(menu.description)}</p>` : ''}
       </div>
@@ -188,7 +322,7 @@ async function loadMenu() {
                   ${(item.tags || []).map(t => `<span class="menu-tag ${tagClass(t)}">${tagIcons[t] || ''} ${t.replace('-', ' ')}</span>`).join('')}
                 </div>
               </div>
-              ${item.image_url ? `<img class="menu-item-img" src="${item.image_url}" alt="${esc(item.name)}">` : ''}
+              ${item.image_url ? `<img class="menu-item-img" src="${item.image_url}" alt="${esc(item.name)}" loading="lazy">` : ''}
               <div class="menu-item-price">$${Number(item.price).toFixed(2)}</div>
             </div>
           `).join('')}
@@ -208,16 +342,25 @@ async function loadMenu() {
           if (entry.isIntersecting) {
             navLinks.forEach(l => l.classList.remove('active'));
             const link = document.querySelector(`.menu-nav a[href="#${entry.target.id}"]`);
-            if (link) link.classList.add('active');
+            if (link) {
+              link.classList.add('active');
+              // Auto-scroll nav to keep active pill visible
+              link.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            }
           }
         });
-      }, { rootMargin: '-50% 0px' });
+      }, { rootMargin: '-30% 0px -60% 0px' });
       document.querySelectorAll('.category-section').forEach(s => observer.observe(s));
       
       navLinks.forEach(link => {
         link.addEventListener('click', e => {
           e.preventDefault();
-          document.querySelector(link.getAttribute('href'))?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          const target = document.querySelector(link.getAttribute('href'));
+          if (target) {
+            const navHeight = document.querySelector('.menu-nav')?.offsetHeight || 0;
+            const y = target.getBoundingClientRect().top + window.pageYOffset - navHeight - 8;
+            window.scrollTo({ top: y, behavior: 'smooth' });
+          }
         });
       });
     }

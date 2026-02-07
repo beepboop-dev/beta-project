@@ -128,6 +128,22 @@
     .plan-card li { font-size: 13px; padding: 4px 0; color: #374151; }
     .plan-card li::before { content: '✓ '; color: var(--green); font-weight: 700; }
 
+    /* Loading spinner */
+    .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.6s linear infinite; vertical-align: middle; }
+    .spinner.dark { border-color: rgba(0,0,0,0.1); border-top-color: var(--orange); }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Skeleton loading for categories */
+    .skeleton-card { background: #fff; border-radius: 16px; border: 1px solid #E5E7EB; padding: 24px; margin-bottom: 16px; }
+    .skel-line { height: 14px; border-radius: 6px; background: #F3F4F6; animation: shimmer 1.5s infinite; margin-bottom: 12px; }
+    .skel-line.title { width: 30%; height: 20px; }
+    .skel-line.item { width: 80%; }
+    .skel-line.short { width: 50%; }
+    @keyframes shimmer { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+    /* QR loading */
+    .qr-loading { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 40px; color: var(--gray); font-size: 14px; }
+
     .toast { position: fixed; bottom: 24px; right: 24px; background: var(--charcoal); color: #fff; padding: 12px 20px; border-radius: 10px; font-size: 13px; font-weight: 600; opacity: 0; transform: translateY(10px); transition: all 0.3s; z-index: 2000; }
     .toast.show { opacity: 1; transform: translateY(0); }
 
@@ -415,6 +431,12 @@ async function init() {
 }
 
 async function loadCategories() {
+  // Show skeleton loading
+  const container = document.getElementById('categories-container');
+  container.innerHTML = `
+    <div class="skeleton-card"><div class="skel-line title"></div><div class="skel-line item"></div><div class="skel-line short"></div></div>
+    <div class="skeleton-card"><div class="skel-line title"></div><div class="skel-line item"></div><div class="skel-line item"></div><div class="skel-line short"></div></div>
+  `;
   const res = await fetch(`/api/menus/${currentMenu.id}/categories`);
   const data = await res.json();
   categories = data.categories;
@@ -566,7 +588,7 @@ async function generateAIDesc() {
   if (!name) { showToast('Enter a dish name first'); return; }
   
   btn.disabled = true;
-  btn.textContent = '✨ Writing...';
+  btn.innerHTML = '<span class="spinner"></span> Writing...';
   
   try {
     const res = await fetch('/api/ai/describe', {
@@ -636,10 +658,18 @@ async function saveDesign() {
 }
 
 async function loadQR() {
+  document.getElementById('qr-content').innerHTML = `
+    <div class="qr-loading"><div class="spinner dark" style="width:32px;height:32px;border-width:3px;"></div><p>Generating QR code...</p></div>
+  `;
   const res = await fetch(`/api/menus/${currentMenu.id}/qr`);
   const { qr, url } = await res.json();
-  document.getElementById('qr-image').src = qr;
-  document.getElementById('qr-url').textContent = url;
+  document.getElementById('qr-content').innerHTML = `
+    <h3 style="font-size:18px;font-weight:700;margin-bottom:8px;">Your QR Code</h3>
+    <p style="font-size:14px;color:var(--gray);margin-bottom:16px;">Print this and place it on your tables</p>
+    <img id="qr-image" src="${qr}" alt="QR Code" style="max-width:256px;margin:16px auto;border-radius:12px;">
+    <div class="qr-url" id="qr-url">${url}</div>
+    <button class="btn btn-primary" onclick="downloadQR()">⬇ Download QR Code</button>
+  `;
   document.getElementById('qr-modal-image').src = qr;
   document.getElementById('qr-modal-url').textContent = url;
 }

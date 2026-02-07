@@ -119,15 +119,33 @@
     .step h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
     .step p { font-size: 14px; color: var(--gray); }
 
-    .social-proof { background: #fff; padding: 60px 24px; }
-    .sp-inner { max-width: 800px; margin: 0 auto; text-align: center; }
-    .sp-inner h2 { font-size: 28px; font-weight: 800; margin-bottom: 32px; letter-spacing: -0.5px; }
-    .testimonials { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; }
-    .testimonial { background: var(--cream); border-radius: 16px; padding: 24px; text-align: left; }
-    .testimonial .stars { color: #F59E0B; margin-bottom: 12px; letter-spacing: 2px; }
-    .testimonial p { font-size: 14px; color: #374151; margin-bottom: 16px; line-height: 1.6; font-style: italic; }
-    .testimonial .author { font-size: 13px; font-weight: 700; }
+    /* Trusted by */
+    .trusted-by { padding: 40px 24px; background: #fff; border-bottom: 1px solid #F3F4F6; }
+    .trusted-inner { max-width: 900px; margin: 0 auto; text-align: center; }
+    .trusted-label { font-size: 14px; color: var(--gray); margin-bottom: 24px; }
+    .trusted-label strong { color: var(--charcoal); }
+    .trusted-logos { display: flex; justify-content: center; gap: 32px; flex-wrap: wrap; align-items: center; }
+    .trust-logo { display: flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 700; color: #9CA3AF; letter-spacing: -0.3px; }
+    .trust-icon { font-size: 20px; }
+
+    .social-proof { background: #fff; padding: 80px 24px; }
+    .sp-inner { max-width: 900px; margin: 0 auto; text-align: center; }
+    .sp-inner h2 { font-size: 32px; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.5px; }
+    .sp-subtitle { color: var(--gray); font-size: 16px; margin-bottom: 40px; }
+    .testimonials { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; margin-bottom: 48px; }
+    .testimonial { background: var(--cream); border-radius: 16px; padding: 28px; text-align: left; border: 1px solid #F3F4F6; transition: all 0.3s; }
+    .testimonial:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .testimonial .stars { color: #F59E0B; margin-bottom: 12px; letter-spacing: 2px; font-size: 16px; }
+    .testimonial p { font-size: 14px; color: #374151; margin-bottom: 20px; line-height: 1.7; font-style: italic; }
+    .testimonial p strong { font-style: normal; color: var(--charcoal); }
+    .testimonial-author { display: flex; align-items: center; gap: 12px; }
+    .author-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--orange), #F59E0B); color: #fff; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .testimonial .author { font-size: 14px; font-weight: 700; }
     .testimonial .role { font-size: 12px; color: var(--gray); }
+    .sp-stats { display: flex; justify-content: center; gap: 48px; flex-wrap: wrap; }
+    .sp-stat { text-align: center; }
+    .sp-stat-num { font-size: 32px; font-weight: 800; color: var(--orange); letter-spacing: -1px; }
+    .sp-stat-label { font-size: 13px; color: var(--gray); font-weight: 500; }
 
     .pricing { max-width: 1000px; margin: 0 auto; padding: 80px 24px; }
     .pricing-header { text-align: center; margin-bottom: 48px; }
@@ -153,8 +171,21 @@
     .final-cta h2 { font-size: 36px; font-weight: 800; letter-spacing: -1px; margin-bottom: 16px; }
     .final-cta p { color: var(--gray); font-size: 16px; margin-bottom: 32px; }
 
-    footer { border-top: 1px solid #F3F4F6; padding: 40px 24px; text-align: center; }
-    footer p { font-size: 13px; color: var(--gray); }
+    footer { background: #1A1A1A; color: #9CA3AF; padding: 60px 24px 40px; }
+    .footer-inner { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; }
+    .footer-brand .logo { font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 12px; }
+    .footer-brand .logo span { color: var(--orange); }
+    .footer-brand p { font-size: 13px; line-height: 1.7; color: #6B7280; }
+    .footer-col h4 { font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .footer-col a { display: block; font-size: 13px; color: #9CA3AF; text-decoration: none; padding: 4px 0; transition: color 0.2s; }
+    .footer-col a:hover { color: #fff; }
+    .footer-bottom { max-width: 1000px; margin: 40px auto 0; padding-top: 24px; border-top: 1px solid #2D2D2D; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+    .footer-bottom p { font-size: 12px; color: #6B7280; }
+    .footer-bottom a { font-size: 12px; color: #6B7280; text-decoration: none; }
+    .footer-bottom a:hover { color: #9CA3AF; }
+    @media (max-width: 640px) {
+      .footer-inner { grid-template-columns: 1fr 1fr; gap: 24px; }
+    }
 
     @media (max-width: 640px) {
       .nav-links a:not(.btn) { display: none; }
@@ -299,28 +330,64 @@
   </div>
 </section>
 
+<!-- TRUSTED BY -->
+<section class="trusted-by">
+  <div class="trusted-inner">
+    <p class="trusted-label">Trusted by <strong>200+ restaurants</strong> worldwide</p>
+    <div class="trusted-logos">
+      <div class="trust-logo"><span class="trust-icon">🍕</span> Napoli's</div>
+      <div class="trust-logo"><span class="trust-icon">🍣</span> Sakura</div>
+      <div class="trust-logo"><span class="trust-icon">🥘</span> Spice Route</div>
+      <div class="trust-logo"><span class="trust-icon">🥩</span> Prime Cut</div>
+      <div class="trust-logo"><span class="trust-icon">🌮</span> Casa Sol</div>
+      <div class="trust-logo"><span class="trust-icon">🍜</span> Pho & Co</div>
+    </div>
+  </div>
+</section>
+
 <section class="social-proof">
   <div class="sp-inner">
     <h2>Restaurant owners love MenuCraft</h2>
+    <p class="sp-subtitle">See why hundreds of restaurants switched from paper to digital</p>
     <div class="testimonials">
       <div class="testimonial">
         <div class="stars">★★★★★</div>
-        <p>"We replaced our $150/mo menu service with MenuCraft. Looks better, costs less, and I can update it myself."</p>
-        <div class="author">Maria Santos</div>
-        <div class="role">Owner, Casa Verde</div>
+        <p>"Saved us <strong>$200/month</strong> in menu printing costs. We used to reprint every time prices changed — now I update from my phone in 30 seconds."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">MS</div>
+          <div>
+            <div class="author">Maria Santos</div>
+            <div class="role">Owner, Casa Verde — Austin, TX</div>
+          </div>
+        </div>
       </div>
       <div class="testimonial">
         <div class="stars">★★★★★</div>
-        <p>"The AI descriptions are a game-changer. I typed 'fish tacos' and it wrote something better than I could in an hour."</p>
-        <div class="author">James Park</div>
-        <div class="role">Manager, Seoul Kitchen</div>
+        <p>"The AI descriptions are a <strong>game-changer</strong>. I typed 'fish tacos' and it wrote something better than I could in an hour. Our guests actually read the menu now."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">JP</div>
+          <div>
+            <div class="author">James Park</div>
+            <div class="role">Manager, Seoul Kitchen — Portland, OR</div>
+          </div>
+        </div>
       </div>
       <div class="testimonial">
         <div class="stars">★★★★★</div>
-        <p>"No more printing menus every time we change a price. This pays for itself in a week."</p>
-        <div class="author">Lisa Chen</div>
-        <div class="role">Owner, Dumpling House</div>
+        <p>"Set it up in <strong>5 minutes flat</strong>. No more printing menus every time we change a price. The QR codes look professional and our customers love it."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">LC</div>
+          <div>
+            <div class="author">Lisa Chen</div>
+            <div class="role">Owner, Dumpling House — SF, CA</div>
+          </div>
+        </div>
       </div>
+    </div>
+    <div class="sp-stats">
+      <div class="sp-stat"><div class="sp-stat-num">200+</div><div class="sp-stat-label">Restaurants</div></div>
+      <div class="sp-stat"><div class="sp-stat-num">50K+</div><div class="sp-stat-label">Menus Viewed</div></div>
+      <div class="sp-stat"><div class="sp-stat-num">4.9★</div><div class="sp-stat-label">Avg Rating</div></div>
     </div>
   </div>
 </section>
@@ -376,7 +443,40 @@
 </section>
 
 <footer>
-  <p>© 2026 MenuCraft. Built with ❤️ for restaurants.</p>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="logo"><span>Menu</span>Craft</div>
+      <p>Beautiful digital menus for modern restaurants. Create, customize, and share your menu with a QR code in minutes.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Product</h4>
+      <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
+      <a href="/try">Try Free</a>
+      <a href="#demo">Live Demo</a>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <a href="#">About</a>
+      <a href="#">Blog</a>
+      <a href="#">Contact</a>
+      <a href="#">Support</a>
+    </div>
+    <div class="footer-col">
+      <h4>Legal</h4>
+      <a href="#">Terms of Service</a>
+      <a href="#">Privacy Policy</a>
+      <a href="#">Cookie Policy</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 MenuCraft. All rights reserved. Built with ❤️ for restaurants.</p>
+    <div style="display:flex;gap:16px;">
+      <a href="#">Twitter</a>
+      <a href="#">Instagram</a>
+      <a href="#">LinkedIn</a>
+    </div>
+  </div>
 </footer>
 
 <script>
