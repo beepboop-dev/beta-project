@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page Not Found — MenuCraft</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #FFFBF7;
+      color: #1A1A1A;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      -webkit-font-smoothing: antialiased;
+    }
+    .container {
+      text-align: center;
+      padding: 40px 24px;
+      max-width: 480px;
+    }
+    .emoji {
+      font-size: 72px;
+      margin-bottom: 16px;
+      display: block;
+      animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    .code {
+      font-size: 80px;
+      font-weight: 800;
+      color: #E85D2C;
+      letter-spacing: -3px;
+      line-height: 1;
+      margin-bottom: 12px;
+    }
+    h1 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    p {
+      font-size: 15px;
+      color: #6B7280;
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+    .actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all 0.2s;
+      font-family: inherit;
+      border: none;
+      cursor: pointer;
+    }
+    .btn-primary {
+      background: #E85D2C;
+      color: #fff;
+    }
+    .btn-primary:hover { background: #D14A1C; }
+    .btn-outline {
+      background: #fff;
+      color: #1A1A1A;
+      border: 1.5px solid #E5E7EB;
+    }
+    .btn-outline:hover { border-color: #D1D5DB; }
+    .footer {
+      margin-top: 48px;
+      font-size: 13px;
+      color: #D1D5DB;
+    }
+    .footer a {
+      color: #E85D2C;
+      text-decoration: none;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <span class="emoji">🍽️</span>
+    <div class="code">404</div>
+    <h1>This page isn't on the menu</h1>
+    <p>The page you're looking for doesn't exist or may have been moved. Let's get you back to something delicious.</p>
+    <div class="actions">
+      <a href="/" class="btn btn-primary">← Back to Home</a>
+      <a href="/signup" class="btn btn-outline">Create a Menu</a>
+    </div>
+    <div class="footer">
+      <a href="/">Menu<span style="color:#1A1A1A;">Craft</span></a>
+    </div>
+  </div>
+</body>
+</html>

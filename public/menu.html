@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Menu</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&family=Lora:wght@400;600;700&family=Georgia&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&family=Lora:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&family=Cormorant+Garamond:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -15,248 +15,235 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* Loading skeleton */
-    .skeleton-container { padding: 0; }
-    .skeleton-header {
-      background: linear-gradient(135deg, #E85D2C, #F59E0B);
-      padding: 48px 24px 32px; text-align: center;
-    }
-    .skeleton-line {
-      height: 14px; border-radius: 8px; background: rgba(255,255,255,0.25);
-      margin: 0 auto; animation: shimmer 1.5s infinite;
-    }
-    .skeleton-line.title { width: 60%; height: 28px; margin-bottom: 12px; }
-    .skeleton-line.subtitle { width: 40%; height: 14px; }
-    .skeleton-nav {
-      display: flex; gap: 8px; padding: 12px 16px; border-bottom: 1px solid rgba(0,0,0,0.06);
-    }
-    .skeleton-pill { width: 72px; height: 32px; border-radius: 100px; background: #F3F4F6; animation: shimmer 1.5s infinite; }
-    .skeleton-items { padding: 20px 16px; max-width: 600px; margin: 0 auto; }
-    .skeleton-cat-title { width: 120px; height: 22px; border-radius: 8px; background: #F3F4F6; margin-bottom: 16px; animation: shimmer 1.5s infinite; }
-    .skeleton-item {
-      display: flex; gap: 16px; padding: 16px 0; border-bottom: 1px solid rgba(0,0,0,0.04);
-      align-items: flex-start;
-    }
-    .skeleton-item-text { flex: 1; }
-    .skeleton-item-name { width: 55%; height: 16px; border-radius: 6px; background: #F3F4F6; margin-bottom: 8px; animation: shimmer 1.5s infinite; }
-    .skeleton-item-desc { width: 85%; height: 12px; border-radius: 6px; background: #F3F4F6; margin-bottom: 6px; animation: shimmer 1.5s infinite; }
-    .skeleton-item-desc2 { width: 65%; height: 12px; border-radius: 6px; background: #F3F4F6; animation: shimmer 1.5s infinite; }
-    .skeleton-item-img { width: 80px; height: 80px; border-radius: 12px; background: #F3F4F6; flex-shrink: 0; animation: shimmer 1.5s infinite; }
-    .skeleton-item-price { width: 48px; height: 18px; border-radius: 6px; background: #F3F4F6; flex-shrink: 0; animation: shimmer 1.5s infinite; }
-
-    @keyframes shimmer {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
-    }
-
-    /* Menu header */
-    .menu-header {
+    /* ============ THEME: CLASSIC ============ */
+    .theme-classic .menu-header {
       background: linear-gradient(135deg, var(--primary, #E85D2C), color-mix(in srgb, var(--primary, #E85D2C) 70%, #F59E0B));
-      padding: 48px 24px 32px;
-      text-align: center;
-      color: #fff;
+      padding: 48px 24px 28px; text-align: center; color: #fff;
     }
-    .menu-header .logo-img {
-      width: 72px; height: 72px; border-radius: 50%; object-fit: cover;
-      border: 3px solid rgba(255,255,255,0.3); margin-bottom: 12px;
-    }
-    .menu-header h1 {
-      font-size: 28px;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-      margin-bottom: 6px;
-      line-height: 1.2;
-    }
-    .menu-header p {
-      font-size: 14px;
-      opacity: 0.85;
-    }
-    .menu-info {
-      display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
-      margin-top: 12px; font-size: 13px; opacity: 0.8;
-    }
-    .menu-info span { display: flex; align-items: center; gap: 4px; }
+    .theme-classic .menu-header h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 6px; }
+    .theme-classic .category-title { font-size: 22px; font-weight: 800; color: var(--primary); margin-bottom: 4px; padding-top: 16px; }
+    .theme-classic .menu-item { display: flex; gap: 12px; padding: 14px 0; border-bottom: 1px solid rgba(0,0,0,0.04); align-items: flex-start; }
+    .theme-classic .menu-item-name { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+    .theme-classic .menu-item-price { font-size: 18px; font-weight: 800; color: var(--primary); }
 
-    /* Category nav - horizontally scrollable pills */
+    /* ============ THEME: MODERN ============ */
+    .theme-modern .menu-header {
+      background: #111; padding: 52px 24px 32px; text-align: center; color: #fff;
+    }
+    .theme-modern .menu-header h1 { font-family: 'DM Sans', sans-serif; font-size: 32px; font-weight: 700; letter-spacing: -1px; margin-bottom: 8px; }
+    .theme-modern .menu-header .desc { font-family: 'DM Sans', sans-serif; }
+    .theme-modern .category-title { font-family: 'DM Sans', sans-serif; font-size: 20px; font-weight: 700; color: #111; margin-bottom: 8px; padding-top: 20px; text-transform: uppercase; letter-spacing: 2px; font-size: 14px; }
+    .theme-modern .category-desc { font-family: 'DM Sans', sans-serif; }
+    .theme-modern .menu-item { display: flex; gap: 12px; padding: 16px 0; border-bottom: 1px solid #eee; align-items: flex-start; }
+    .theme-modern .menu-item-name { font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+    .theme-modern .menu-item-desc { font-family: 'DM Sans', sans-serif; }
+    .theme-modern .menu-item-price { font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 700; color: #111; }
+    .theme-modern .menu-nav { background: #fff; border-bottom: 2px solid #111; }
+    .theme-modern .menu-nav a.active { background: #111; color: #fff; }
+
+    /* ============ THEME: ELEGANT ============ */
+    .theme-elegant .menu-header {
+      background: linear-gradient(135deg, #2C1810, #4A2C20); padding: 56px 24px 32px; text-align: center; color: #F5E6D3;
+    }
+    .theme-elegant .menu-header h1 { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 600; letter-spacing: 1px; margin-bottom: 8px; }
+    .theme-elegant .menu-header .desc { font-family: 'Cormorant Garamond', serif; font-size: 16px; font-style: italic; }
+    .theme-elegant .category-title { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 600; color: #2C1810; margin-bottom: 4px; padding-top: 20px; text-align: center; }
+    .theme-elegant .category-desc { text-align: center; font-family: 'Cormorant Garamond', serif; font-style: italic; }
+    .theme-elegant .menu-item { display: flex; gap: 12px; padding: 16px 0; border-bottom: 1px dashed #D4C5B5; align-items: flex-start; }
+    .theme-elegant .menu-item-name { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+    .theme-elegant .menu-item-desc { font-family: 'Cormorant Garamond', serif; font-size: 14px; font-style: italic; }
+    .theme-elegant .menu-item-price { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 700; color: #2C1810; }
+    .theme-elegant .menu-nav a.active { background: #2C1810; color: #F5E6D3; }
+    .theme-elegant .menu-nav { border-bottom: 1px solid #D4C5B5; }
+
+    /* ============ THEME: CASUAL ============ */
+    .theme-casual .menu-header {
+      background: var(--primary, #E85D2C); padding: 44px 24px 24px; text-align: left; color: #fff;
+    }
+    .theme-casual .menu-header h1 { font-size: 26px; font-weight: 800; margin-bottom: 4px; }
+    .theme-casual .category-title { font-size: 18px; font-weight: 800; color: #fff; background: var(--primary, #E85D2C); margin: 0 -16px; padding: 12px 16px; margin-bottom: 12px; margin-top: 8px; border-radius: 0; }
+    .theme-casual .menu-item { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 12px 0; border-bottom: 1px solid rgba(0,0,0,0.06); }
+    .theme-casual .menu-item-name { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+    .theme-casual .menu-item-price { font-size: 16px; font-weight: 800; color: var(--primary); align-self: start; }
+    .theme-casual .menu-nav a.active { background: var(--primary); color: #fff; }
+
+    /* ============ SHARED STYLES ============ */
+    .menu-header .desc { font-size: 14px; opacity: 0.85; margin-bottom: 12px; }
+    .menu-info { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; font-size: 12px; opacity: 0.9; margin-top: 10px; }
+    .theme-casual .menu-info { justify-content: flex-start; }
+    .menu-info-item {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: rgba(255,255,255,0.18); padding: 5px 12px; border-radius: 100px;
+      text-decoration: none; color: inherit; transition: background 0.2s;
+    }
+    .menu-info-item:hover { background: rgba(255,255,255,0.3); }
+    a.menu-info-item { cursor: pointer; }
+
+    /* ============ LANGUAGE TOGGLE ============ */
+    .lang-toggle {
+      display: flex; gap: 4px; justify-content: center; margin-top: 12px;
+    }
+    .lang-btn {
+      padding: 4px 12px; border-radius: 100px; font-size: 12px; font-weight: 600;
+      border: 1.5px solid rgba(255,255,255,0.4); background: transparent; color: rgba(255,255,255,0.8);
+      cursor: pointer; transition: all 0.2s;
+    }
+    .lang-btn.active { background: rgba(255,255,255,0.25); color: #fff; border-color: rgba(255,255,255,0.7); }
+    .lang-btn:hover { background: rgba(255,255,255,0.15); }
+
+    /* ============ FILTER BAR ============ */
+    .filter-bar {
+      display: flex; gap: 6px; padding: 10px 16px; overflow-x: auto; scrollbar-width: none;
+      max-width: 600px; margin: 0 auto; flex-wrap: wrap; justify-content: center;
+    }
+    .filter-bar::-webkit-scrollbar { display: none; }
+    .filter-btn {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 6px 14px; border-radius: 100px; font-size: 12px; font-weight: 600;
+      border: 1.5px solid #E5E7EB; background: #fff; color: #6B7280;
+      cursor: pointer; transition: all 0.2s; white-space: nowrap; flex-shrink: 0;
+    }
+    .filter-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .filter-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+    /* ============ SHARE BUTTON ============ */
+    .share-fab {
+      position: fixed; bottom: 20px; right: 20px; z-index: 50;
+      width: 48px; height: 48px; border-radius: 50%; border: none;
+      background: var(--primary, #E85D2C); color: #fff; font-size: 20px;
+      cursor: pointer; box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      display: flex; align-items: center; justify-content: center; transition: transform 0.2s;
+    }
+    .share-fab:hover { transform: scale(1.1); }
+    .share-modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100;
+      display: none; align-items: flex-end; justify-content: center;
+    }
+    .share-modal-overlay.open { display: flex; }
+    .share-modal {
+      background: #fff; border-radius: 20px 20px 0 0; padding: 24px; width: 100%; max-width: 420px;
+      animation: slideUp 0.3s ease;
+    }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .share-modal h3 { font-size: 18px; font-weight: 700; margin-bottom: 16px; text-align: center; }
+    .share-options { display: flex; flex-direction: column; gap: 10px; }
+    .share-opt {
+      display: flex; align-items: center; gap: 12px; padding: 14px 16px;
+      border-radius: 12px; border: 1.5px solid #E5E7EB; background: #fff;
+      cursor: pointer; transition: all 0.2s; font-size: 15px; font-weight: 600; color: #374151;
+    }
+    .share-opt:hover { border-color: var(--primary); background: #FFF7ED; }
+    .share-opt .share-icon { font-size: 22px; width: 32px; text-align: center; }
+    .share-opt.copied { border-color: #10B981; background: #ECFDF5; color: #059669; }
+
+    /* ============ ORDER CTA ============ */
+    .order-cta-bar {
+      position: sticky; bottom: 0; z-index: 40; padding: 12px 16px;
+      background: linear-gradient(to top, var(--bg, #FFFBF7) 80%, transparent);
+    }
+    .order-cta-btn {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      width: 100%; max-width: 600px; margin: 0 auto; padding: 14px 24px;
+      background: var(--primary, #E85D2C); color: #fff; border: none; border-radius: 14px;
+      font-size: 16px; font-weight: 700; cursor: pointer; text-decoration: none;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15); transition: transform 0.2s;
+    }
+    .order-cta-btn:hover { transform: translateY(-1px); }
+
     .menu-nav {
       position: sticky; top: 0; z-index: 10;
       background: var(--bg, #FFFBF7);
       border-bottom: 1px solid rgba(0,0,0,0.06);
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
+      overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none;
     }
     .menu-nav::-webkit-scrollbar { display: none; }
-    .menu-nav-inner {
-      display: flex; gap: 4px; padding: 8px 16px;
-      max-width: 600px; margin: 0 auto;
-    }
+    .menu-nav-inner { display: flex; gap: 4px; padding: 8px 16px; max-width: 600px; margin: 0 auto; }
     .menu-nav a {
-      padding: 8px 16px; border-radius: 100px;
-      font-size: 13px; font-weight: 600;
-      text-decoration: none; color: #6B7280;
-      white-space: nowrap; transition: all 0.2s;
-      flex-shrink: 0;
+      padding: 8px 16px; border-radius: 100px; font-size: 13px; font-weight: 600;
+      text-decoration: none; color: #6B7280; white-space: nowrap; transition: all 0.2s; flex-shrink: 0;
     }
-    .menu-nav a.active, .menu-nav a:hover {
-      background: var(--primary, #E85D2C);
-      color: #fff;
-    }
-
-    /* Menu body */
-    .menu-body {
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 16px;
-    }
-    .category-section {
-      margin-bottom: 32px;
-    }
-    .category-title {
-      font-size: 22px;
-      font-weight: 800;
-      color: var(--primary, #E85D2C);
-      margin-bottom: 4px;
-      padding-top: 16px;
-    }
-    .category-desc {
-      font-size: 13px;
-      color: #9CA3AF;
-      margin-bottom: 16px;
-    }
-
-    /* Menu items */
-    .menu-item {
-      display: flex;
-      gap: 12px;
-      padding: 16px 0;
-      border-bottom: 1px solid rgba(0,0,0,0.04);
-      align-items: flex-start;
-    }
+    .menu-nav a.active, .menu-nav a:hover { background: var(--primary, #E85D2C); color: #fff; }
+    .menu-body { max-width: 600px; margin: 0 auto; padding: 16px; padding-bottom: 80px; }
+    .category-section { margin-bottom: 32px; }
+    .category-desc { font-size: 13px; color: #9CA3AF; margin-bottom: 16px; }
     .menu-item:last-child { border-bottom: none; }
     .menu-item-info { flex: 1; min-width: 0; }
-    .menu-item-name {
-      font-size: 16px;
-      font-weight: 700;
-      margin-bottom: 4px;
-      line-height: 1.3;
-    }
-    .menu-item-desc {
-      font-size: 13px;
-      color: #6B7280;
-      line-height: 1.5;
-      margin-bottom: 6px;
-    }
-    .menu-item-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+    .menu-item-desc { font-size: 13px; color: #6B7280; line-height: 1.5; margin-bottom: 6px; }
+    .menu-item-tags { display: flex; gap: 5px; flex-wrap: wrap; }
     .menu-tag {
       display: inline-flex; align-items: center; gap: 3px;
-      font-size: 11px; font-weight: 600; padding: 3px 8px;
-      border-radius: 6px; background: #ECFDF5; color: #059669;
+      font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 6px;
     }
+    .menu-tag.vegetarian { background: #ECFDF5; color: #059669; }
+    .menu-tag.vegan { background: #D1FAE5; color: #047857; }
+    .menu-tag.gluten-free { background: #DBEAFE; color: #2563EB; }
     .menu-tag.spicy { background: #FEF2F2; color: #DC2626; }
     .menu-tag.nuts { background: #FEF3C7; color: #92400E; }
-    .menu-item-right {
-      display: flex; flex-direction: column; align-items: flex-end; gap: 8px; flex-shrink: 0;
+    .menu-tag.dairy-free { background: #F0FDFA; color: #0F766E; }
+    .menu-item-img { width: 72px; height: 72px; border-radius: 10px; object-fit: cover; flex-shrink: 0; }
+    .menu-item-price { white-space: nowrap; padding-top: 2px; flex-shrink: 0; }
+    .menu-item.sold-out { opacity: 0.5; }
+    .menu-item.sold-out .menu-item-name { text-decoration: line-through; }
+    .sold-out-badge {
+      display: inline-block; background: #EF4444; color: #fff; font-size: 10px; font-weight: 700;
+      padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px; margin-left: 8px;
+      vertical-align: middle;
     }
-    .menu-item-price {
-      font-size: 18px;
-      font-weight: 800;
-      color: var(--primary, #E85D2C);
-      white-space: nowrap;
+    .menu-item.hidden-by-filter { display: none !important; }
+    .category-section.hidden-by-filter { display: none !important; }
+    .info-section {
+      max-width: 600px; margin: 0 auto; padding: 20px 16px;
+      border-top: 1px solid rgba(0,0,0,0.06);
     }
-    .menu-item-img {
-      width: 80px; height: 80px;
-      border-radius: 12px;
-      object-fit: cover;
-      flex-shrink: 0;
+    .info-section h3 { font-size: 14px; font-weight: 700; color: #9CA3AF; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+    .info-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 14px; color: #374151; }
+    .info-row .icon { font-size: 16px; width: 20px; text-align: center; }
+    .directions-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      color: var(--primary, #E85D2C); font-weight: 600; font-size: 13px;
+      text-decoration: none; margin-top: 4px; padding: 6px 14px;
+      background: rgba(232,93,44,0.08); border-radius: 8px; transition: background 0.2s;
     }
-
-    /* Featured item with large image */
-    .menu-item.featured {
-      flex-direction: column;
-      gap: 0;
+    .directions-link:hover { background: rgba(232,93,44,0.15); }
+    .powered-footer {
+      text-align: center; padding: 32px 16px 24px;
+      border-top: 1px solid rgba(0,0,0,0.04); margin-top: 16px;
     }
-    .menu-item.featured .menu-item-img-large {
-      width: 100%; height: 180px;
-      border-radius: 12px;
-      object-fit: cover;
-      margin-bottom: 12px;
+    .powered-footer p { font-size: 12px; color: #9CA3AF; margin-bottom: 10px; }
+    .powered-footer a.brand { color: #E85D2C; text-decoration: none; font-weight: 700; }
+    .powered-footer .cta-btn {
+      display: inline-block; padding: 8px 20px; background: #E85D2C; color: #fff;
+      border-radius: 100px; font-size: 12px; font-weight: 700; text-decoration: none; transition: background 0.2s;
     }
-    .menu-item.featured .menu-item-row {
-      display: flex; gap: 12px; align-items: flex-start;
-    }
-
-    .menu-footer {
-      text-align: center;
-      padding: 32px 16px;
-      font-size: 12px;
-      color: #9CA3AF;
-    }
-    .menu-footer a { color: var(--primary, #E85D2C); text-decoration: none; font-weight: 600; }
-    .unavailable { opacity: 0.4; }
+    .powered-footer .cta-btn:hover { background: #D14A1C; }
+    .loading { display: flex; align-items: center; justify-content: center; min-height: 60vh; font-size: 16px; color: #9CA3AF; }
     .not-found { text-align: center; padding: 80px 24px; }
     .not-found h2 { font-size: 24px; margin-bottom: 8px; }
     .not-found p { color: #6B7280; }
-
-    /* Mobile optimizations */
-    @media (max-width: 480px) {
-      .menu-header { padding: 40px 20px 28px; }
-      .menu-header h1 { font-size: 24px; }
-      .menu-body { padding: 12px; }
-      .menu-item { gap: 10px; padding: 14px 0; }
-      .menu-item-name { font-size: 15px; }
-      .menu-item-desc { font-size: 12px; }
-      .menu-item-price { font-size: 16px; }
-      .menu-item-img { width: 68px; height: 68px; border-radius: 10px; }
-      .category-title { font-size: 20px; }
-    }
-
-    /* Smooth scroll */
-    html { scroll-behavior: smooth; }
   </style>
 </head>
 <body>
 
 <div id="menu-container">
-  <!-- Loading skeleton -->
-  <div class="skeleton-container">
-    <div class="skeleton-header">
-      <div class="skeleton-line title"></div>
-      <div class="skeleton-line subtitle"></div>
-    </div>
-    <div class="skeleton-nav">
-      <div class="skeleton-pill"></div>
-      <div class="skeleton-pill" style="width:88px"></div>
-      <div class="skeleton-pill" style="width:64px"></div>
-      <div class="skeleton-pill" style="width:80px"></div>
-    </div>
-    <div class="skeleton-items">
-      <div class="skeleton-cat-title"></div>
-      <div class="skeleton-item">
-        <div class="skeleton-item-text">
-          <div class="skeleton-item-name"></div>
-          <div class="skeleton-item-desc"></div>
-          <div class="skeleton-item-desc2"></div>
-        </div>
-        <div class="skeleton-item-img"></div>
-        <div class="skeleton-item-price"></div>
+  <div class="loading">Loading menu...</div>
+</div>
+
+<!-- Share Modal -->
+<div class="share-modal-overlay" id="shareOverlay" onclick="if(event.target===this)closeShare()">
+  <div class="share-modal">
+    <h3>📤 Share this menu</h3>
+    <div class="share-options">
+      <div class="share-opt" onclick="copyLink(this)">
+        <span class="share-icon">🔗</span>
+        <span>Copy link</span>
       </div>
-      <div class="skeleton-item">
-        <div class="skeleton-item-text">
-          <div class="skeleton-item-name"></div>
-          <div class="skeleton-item-desc"></div>
-          <div class="skeleton-item-desc2"></div>
-        </div>
-        <div class="skeleton-item-price"></div>
+      <div class="share-opt" onclick="shareWhatsApp()">
+        <span class="share-icon">💬</span>
+        <span>Share via WhatsApp</span>
       </div>
-      <div class="skeleton-item">
-        <div class="skeleton-item-text">
-          <div class="skeleton-item-name"></div>
-          <div class="skeleton-item-desc"></div>
-          <div class="skeleton-item-desc2"></div>
-        </div>
-        <div class="skeleton-item-img"></div>
-        <div class="skeleton-item-price"></div>
+      <div class="share-opt" onclick="shareSMS()">
+        <span class="share-icon">✉️</span>
+        <span>Share via SMS</span>
       </div>
     </div>
   </div>
@@ -264,113 +251,274 @@
 
 <script>
 const slug = window.location.pathname.split('/m/')[1];
+let menuData = null;
+let currentLang = 'default';
+let activeFilters = new Set();
+
+const tagConfig = {
+  vegetarian: { icon: '🌱', label: 'Vegetarian' },
+  vegan: { icon: '🥬', label: 'Vegan' },
+  'gluten-free': { icon: '🌾', label: 'Gluten-Free' },
+  spicy: { icon: '🌶️', label: 'Spicy' },
+  nuts: { icon: '🥜', label: 'Nuts' },
+  'dairy-free': { icon: '🥛', label: 'Dairy-Free' },
+};
+
+const tagLabels = {
+  en: { vegetarian: 'Vegetarian', vegan: 'Vegan', 'gluten-free': 'Gluten-Free', spicy: 'Spicy', nuts: 'Nuts', 'dairy-free': 'Dairy-Free' },
+  it: { vegetarian: 'Vegetariano', vegan: 'Vegano', 'gluten-free': 'Senza Glutine', spicy: 'Piccante', nuts: 'Frutta a Guscio', 'dairy-free': 'Senza Latticini' },
+  es: { vegetarian: 'Vegetariano', vegan: 'Vegano', 'gluten-free': 'Sin Gluten', spicy: 'Picante', nuts: 'Frutos Secos', 'dairy-free': 'Sin Lácteos' },
+  fr: { vegetarian: 'Végétarien', vegan: 'Végan', 'gluten-free': 'Sans Gluten', spicy: 'Épicé', nuts: 'Fruits à Coque', 'dairy-free': 'Sans Lactose' },
+};
+
+const filterLabels = {
+  en: { vegetarian: '🌱 Vegetarian', vegan: '🥬 Vegan', 'gluten-free': '🌾 Gluten-Free', 'nut-free': '🥜 Nut-Free' },
+  it: { vegetarian: '🌱 Vegetariano', vegan: '🥬 Vegano', 'gluten-free': '🌾 Senza Glutine', 'nut-free': '🥜 Senza Noci' },
+  es: { vegetarian: '🌱 Vegetariano', vegan: '🥬 Vegano', 'gluten-free': '🌾 Sin Gluten', 'nut-free': '🥜 Sin Frutos Secos' },
+  fr: { vegetarian: '🌱 Végétarien', vegan: '🥬 Végan', 'gluten-free': '🌾 Sans Gluten', 'nut-free': '🥜 Sans Noix' },
+};
+
+const uiStrings = {
+  en: { scanMenu: 'Scan for Menu', visitUs: 'Visit Us', getDirections: '🗺️ Get Directions', poweredBy: 'Powered by', createFree: 'Create your free digital menu →', soldOut: 'Sold Out', shareMenu: '📤 Share this menu', copyLink: '🔗 Copy link', shareWhatsApp: '💬 Share via WhatsApp', shareSMS: '✉️ Share via SMS', callToOrder: '📞 Call to Order', orderNow: '🛒 Order Now' },
+  it: { scanMenu: 'Scansiona per il Menu', visitUs: 'Visitaci', getDirections: '🗺️ Indicazioni', poweredBy: 'Offerto da', createFree: 'Crea il tuo menu digitale gratis →', soldOut: 'Esaurito', shareMenu: '📤 Condividi menu', copyLink: '🔗 Copia link', shareWhatsApp: '💬 Condividi su WhatsApp', shareSMS: '✉️ Condividi via SMS', callToOrder: '📞 Chiama per Ordinare', orderNow: '🛒 Ordina Ora' },
+  es: { scanMenu: 'Escanear Menú', visitUs: 'Visítanos', getDirections: '🗺️ Cómo llegar', poweredBy: 'Creado con', createFree: 'Crea tu menú digital gratis →', soldOut: 'Agotado', shareMenu: '📤 Compartir menú', copyLink: '🔗 Copiar enlace', shareWhatsApp: '💬 Compartir por WhatsApp', shareSMS: '✉️ Compartir por SMS', callToOrder: '📞 Llamar para Ordenar', orderNow: '🛒 Ordenar Ahora' },
+  fr: { scanMenu: 'Scanner le Menu', visitUs: 'Nous Rendre Visite', getDirections: '🗺️ Itinéraire', poweredBy: 'Propulsé par', createFree: 'Créez votre menu digital gratuit →', soldOut: 'Épuisé', shareMenu: '📤 Partager le menu', copyLink: '🔗 Copier le lien', shareWhatsApp: '💬 Partager sur WhatsApp', shareSMS: '✉️ Partager par SMS', callToOrder: '📞 Appeler pour Commander', orderNow: '🛒 Commander' },
+};
+
+function getUI(key) {
+  const lang = currentLang === 'default' ? 'en' : currentLang;
+  return (uiStrings[lang] || uiStrings.en)[key] || uiStrings.en[key];
+}
+
+function getFilterLabel(key) {
+  const lang = currentLang === 'default' ? 'en' : currentLang;
+  return (filterLabels[lang] || filterLabels.en)[key] || filterLabels.en[key];
+}
+
+function getTagLabel(tag) {
+  const lang = currentLang === 'default' ? 'en' : currentLang;
+  const labels = tagLabels[lang] || tagLabels.en;
+  return labels[tag] || tagConfig[tag]?.label || tag;
+}
+
+function getTranslated(itemOrCat, field) {
+  if (!menuData || !menuData.translations || currentLang === 'default') return itemOrCat[field] || '';
+  const t = menuData.translations[currentLang];
+  if (!t) return itemOrCat[field] || '';
+  const itemT = t[itemOrCat.id];
+  if (itemT && itemT[field]) return itemT[field];
+  return itemOrCat[field] || '';
+}
 
 async function loadMenu() {
   try {
     const res = await fetch(`/api/public/menu/${slug}`);
     if (!res.ok) throw new Error('not found');
     const { menu } = await res.json();
-    
-    // Set CSS vars
+    menuData = menu;
+
     document.documentElement.style.setProperty('--primary', menu.primary_color || '#E85D2C');
     document.documentElement.style.setProperty('--bg', menu.bg_color || '#FFFBF7');
     document.documentElement.style.setProperty('--font', menu.font || 'Inter');
     document.title = (menu.restaurant_name || menu.name) + ' — Menu';
-    
-    // Set theme-color for mobile browsers
-    const meta = document.createElement('meta');
-    meta.name = 'theme-color';
-    meta.content = menu.primary_color || '#E85D2C';
-    document.head.appendChild(meta);
-    
-    const tagIcons = {
-      vegetarian: '🌱', vegan: '🥬', 'gluten-free': 'GF', spicy: '🌶️',
-      nuts: '🥜', 'dairy-free': '🥛'
-    };
-    const tagClass = t => t === 'spicy' ? 'spicy' : t === 'nuts' ? 'nuts' : '';
-    
-    let html = `
-      <div class="menu-header">
-        ${menu.logo_url ? `<img class="logo-img" src="${menu.logo_url}" alt="">` : ''}
-        <h1>${esc(menu.restaurant_name || menu.name)}</h1>
-        ${menu.description ? `<p>${esc(menu.description)}</p>` : ''}
-      </div>
-    `;
-    
-    // Category nav
-    if (menu.categories.length > 1) {
-      html += `<div class="menu-nav"><div class="menu-nav-inner">`;
-      menu.categories.forEach((cat, i) => {
-        html += `<a href="#cat-${i}" ${i === 0 ? 'class="active"' : ''}>${esc(cat.name)}</a>`;
-      });
-      html += `</div></div>`;
-    }
-    
-    html += `<div class="menu-body">`;
-    menu.categories.forEach((cat, i) => {
-      if (cat.items.length === 0) return;
-      html += `
-        <div class="category-section" id="cat-${i}">
-          <div class="category-title">${esc(cat.name)}</div>
-          ${cat.description ? `<div class="category-desc">${esc(cat.description)}</div>` : ''}
-          ${cat.items.map(item => `
-            <div class="menu-item">
-              <div class="menu-item-info">
-                <div class="menu-item-name">${esc(item.name)}</div>
-                ${item.description ? `<div class="menu-item-desc">${esc(item.description)}</div>` : ''}
-                <div class="menu-item-tags">
-                  ${(item.tags || []).map(t => `<span class="menu-tag ${tagClass(t)}">${tagIcons[t] || ''} ${t.replace('-', ' ')}</span>`).join('')}
-                </div>
-              </div>
-              ${item.image_url ? `<img class="menu-item-img" src="${item.image_url}" alt="${esc(item.name)}" loading="lazy">` : ''}
-              <div class="menu-item-price">$${Number(item.price).toFixed(2)}</div>
-            </div>
-          `).join('')}
-        </div>
-      `;
-    });
-    html += `</div>`;
-    html += `<div class="menu-footer">Powered by <a href="/">MenuCraft</a></div>`;
-    
-    document.getElementById('menu-container').innerHTML = html;
-    
-    // Scroll spy for nav
-    const navLinks = document.querySelectorAll('.menu-nav a');
-    if (navLinks.length > 0) {
-      const observer = new IntersectionObserver(entries => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            navLinks.forEach(l => l.classList.remove('active'));
-            const link = document.querySelector(`.menu-nav a[href="#${entry.target.id}"]`);
-            if (link) {
-              link.classList.add('active');
-              // Auto-scroll nav to keep active pill visible
-              link.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-            }
-          }
-        });
-      }, { rootMargin: '-30% 0px -60% 0px' });
-      document.querySelectorAll('.category-section').forEach(s => observer.observe(s));
-      
-      navLinks.forEach(link => {
-        link.addEventListener('click', e => {
-          e.preventDefault();
-          const target = document.querySelector(link.getAttribute('href'));
-          if (target) {
-            const navHeight = document.querySelector('.menu-nav')?.offsetHeight || 0;
-            const y = target.getBoundingClientRect().top + window.pageYOffset - navHeight - 8;
-            window.scrollTo({ top: y, behavior: 'smooth' });
-          }
-        });
-      });
-    }
+
+    renderMenu();
   } catch (e) {
     document.getElementById('menu-container').innerHTML = '<div class="not-found"><h2>Menu not found</h2><p>This menu may have been removed or the link is incorrect.</p></div>';
   }
 }
 
-function esc(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+function renderMenu() {
+  const menu = menuData;
+  const theme = menu.theme || 'classic';
+  const mapsUrl = menu.location ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(menu.location)}` : '';
+  const langs = menu.languages || [];
 
+  let html = `<div class="theme-${theme}">`;
+
+  // Header
+  html += `<div class="menu-header">
+    <h1>${esc(menu.restaurant_name || menu.name)}</h1>
+    ${menu.description ? `<p class="desc">${esc(menu.description)}</p>` : ''}
+    <div class="menu-info">
+      ${menu.hours ? `<span class="menu-info-item">🕐 ${esc(menu.hours)}</span>` : ''}
+      ${menu.location ? `<a class="menu-info-item" href="${mapsUrl}" target="_blank" rel="noopener">📍 ${esc(menu.location)}</a>` : ''}
+      ${menu.phone ? `<a class="menu-info-item" href="tel:${esc(menu.phone)}">📞 ${esc(menu.phone)}</a>` : ''}
+    </div>`;
+
+  // Language toggle
+  if (langs.length > 0) {
+    html += `<div class="lang-toggle">
+      <button class="lang-btn${currentLang === 'default' ? ' active' : ''}" onclick="switchLang('default')">Original</button>`;
+    langs.forEach(l => {
+      const names = { en: '🇬🇧 English', it: '🇮🇹 Italiano', es: '🇪🇸 Español', fr: '🇫🇷 Français' };
+      html += `<button class="lang-btn${currentLang === l ? ' active' : ''}" onclick="switchLang('${l}')">${names[l] || l}</button>`;
+    });
+    html += `</div>`;
+  }
+
+  html += `</div>`;
+
+  // Filter bar
+  html += `<div class="filter-bar">
+    <button class="filter-btn${activeFilters.has('vegetarian') ? ' active' : ''}" data-filter="vegetarian" onclick="toggleFilter('vegetarian')">${getFilterLabel('vegetarian')}</button>
+    <button class="filter-btn${activeFilters.has('vegan') ? ' active' : ''}" data-filter="vegan" onclick="toggleFilter('vegan')">${getFilterLabel('vegan')}</button>
+    <button class="filter-btn${activeFilters.has('gluten-free') ? ' active' : ''}" data-filter="gluten-free" onclick="toggleFilter('gluten-free')">${getFilterLabel('gluten-free')}</button>
+    <button class="filter-btn${activeFilters.has('nut-free') ? ' active' : ''}" data-filter="nut-free" onclick="toggleFilter('nut-free')">${getFilterLabel('nut-free')}</button>
+  </div>`;
+
+  // Category nav
+  if (menu.categories.length > 1) {
+    html += `<div class="menu-nav"><div class="menu-nav-inner">`;
+    menu.categories.forEach((cat, i) => {
+      html += `<a href="#cat-${i}" ${i === 0 ? 'class="active"' : ''}>${esc(getTranslated(cat, 'name'))}</a>`;
+    });
+    html += `</div></div>`;
+  }
+
+  // Menu body
+  html += `<div class="menu-body">`;
+  menu.categories.forEach((cat, i) => {
+    if (cat.items.length === 0) return;
+    html += `<div class="category-section" id="cat-${i}">
+      <div class="category-title">${esc(getTranslated(cat, 'name'))}</div>
+      ${cat.description ? `<div class="category-desc">${esc(getTranslated(cat, 'description'))}</div>` : ''}
+      ${cat.items.map(item => {
+        const soldOut = !item.is_available;
+        const tags = item.tags || [];
+        // Determine filter visibility
+        let matchesFilter = true;
+        if (activeFilters.size > 0) {
+          for (const f of activeFilters) {
+            if (f === 'nut-free') {
+              if (tags.includes('nuts')) { matchesFilter = false; break; }
+            } else {
+              if (!tags.includes(f)) { matchesFilter = false; break; }
+            }
+          }
+        }
+        return `<div class="menu-item${soldOut ? ' sold-out' : ''}${!matchesFilter ? ' hidden-by-filter' : ''}" data-tags="${tags.join(',')}" data-id="${item.id}">
+          <div class="menu-item-info">
+            <div class="menu-item-name">${esc(getTranslated(item, 'name'))}${soldOut ? `<span class="sold-out-badge">${getUI('soldOut')}</span>` : ''}</div>
+            ${item.description ? `<div class="menu-item-desc">${esc(getTranslated(item, 'description'))}</div>` : ''}
+            <div class="menu-item-tags">
+              ${tags.map(t => {
+                const cfg = tagConfig[t] || { icon: '', label: t };
+                return `<span class="menu-tag ${t}">${cfg.icon} ${getTagLabel(t)}</span>`;
+              }).join('')}
+            </div>
+          </div>
+          ${item.image_url ? `<img class="menu-item-img" src="${item.image_url}" alt="${esc(item.name)}" loading="lazy">` : ''}
+          <div class="menu-item-price">$${Number(item.price).toFixed(2)}</div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  });
+  html += `</div>`;
+
+  // Visit Us section
+  if (menu.hours || menu.location || menu.phone) {
+    html += `<div class="info-section">
+      <h3>${getUI('visitUs')}</h3>
+      ${menu.hours ? `<div class="info-row"><span class="icon">🕐</span> ${esc(menu.hours)}</div>` : ''}
+      ${menu.location ? `<div class="info-row"><span class="icon">📍</span> ${esc(menu.location)}</div>` : ''}
+      ${menu.phone ? `<div class="info-row"><span class="icon">📞</span> <a href="tel:${esc(menu.phone)}" style="color:inherit;text-decoration:none;">${esc(menu.phone)}</a></div>` : ''}
+      ${mapsUrl ? `<a class="directions-link" href="${mapsUrl}" target="_blank" rel="noopener">${getUI('getDirections')}</a>` : ''}
+    </div>`;
+  }
+
+  html += `</div>`; // close theme wrapper
+
+  // Order CTA
+  if (menu.order_config && menu.order_config.enabled) {
+    const oc = menu.order_config;
+    const label = oc.type === 'phone' ? getUI('callToOrder') : getUI('orderNow');
+    const href = oc.type === 'phone' ? `tel:${oc.value}` : (oc.type === 'whatsapp' ? `https://wa.me/${oc.value.replace(/[^0-9]/g, '')}?text=${encodeURIComponent('Hi! I\'d like to place an order from your menu.')}` : '#');
+    html += `<div class="order-cta-bar">
+      <a href="${href}" class="order-cta-btn" ${oc.type !== 'disabled' ? '' : 'style="display:none"'}>${label}</a>
+    </div>`;
+  }
+
+  html += `<div class="powered-footer">
+    <p>${getUI('poweredBy')} <a href="/" class="brand">MenuCraft</a></p>
+    <a href="/signup" class="cta-btn">${getUI('createFree')}</a>
+  </div>`;
+
+  // Share FAB
+  html += `<button class="share-fab" onclick="openShare()" title="Share menu">📤</button>`;
+
+  document.getElementById('menu-container').innerHTML = html;
+
+  // Apply filter visibility to category sections
+  applyFilterVisibility();
+
+  // Scroll spy
+  const navLinks = document.querySelectorAll('.menu-nav a');
+  if (navLinks.length > 0) {
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          navLinks.forEach(l => l.classList.remove('active'));
+          const link = document.querySelector(`.menu-nav a[href="#${entry.target.id}"]`);
+          if (link) link.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-50% 0px' });
+    document.querySelectorAll('.category-section').forEach(s => observer.observe(s));
+    navLinks.forEach(link => {
+      link.addEventListener('click', e => {
+        e.preventDefault();
+        document.querySelector(link.getAttribute('href'))?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+  }
+}
+
+function switchLang(lang) {
+  currentLang = lang;
+  renderMenu();
+  window.scrollTo(0, 0);
+}
+
+function toggleFilter(filter) {
+  if (activeFilters.has(filter)) activeFilters.delete(filter);
+  else activeFilters.add(filter);
+  renderMenu();
+}
+
+function applyFilterVisibility() {
+  if (activeFilters.size === 0) return;
+  document.querySelectorAll('.category-section').forEach(sec => {
+    const visibleItems = sec.querySelectorAll('.menu-item:not(.hidden-by-filter)');
+    if (visibleItems.length === 0) sec.classList.add('hidden-by-filter');
+  });
+}
+
+// Share functions
+function openShare() { document.getElementById('shareOverlay').classList.add('open'); }
+function closeShare() { document.getElementById('shareOverlay').classList.remove('open'); }
+
+function copyLink(el) {
+  navigator.clipboard.writeText(window.location.href).then(() => {
+    el.classList.add('copied');
+    el.querySelector('span:last-child').textContent = '✓ Copied!';
+    setTimeout(() => { el.classList.remove('copied'); el.querySelector('span:last-child').textContent = 'Copy link'; }, 2000);
+  });
+}
+
+function shareWhatsApp() {
+  const name = menuData?.restaurant_name || 'this restaurant';
+  window.open(`https://wa.me/?text=${encodeURIComponent(`Check out the menu at ${name}: ${window.location.href}`)}`, '_blank');
+  closeShare();
+}
+
+function shareSMS() {
+  const name = menuData?.restaurant_name || 'this restaurant';
+  window.open(`sms:?body=${encodeURIComponent(`Check out the menu at ${name}: ${window.location.href}`)}`, '_blank');
+  closeShare();
+}
+
+function esc(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
 loadMenu();
 </script>
 

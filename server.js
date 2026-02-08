@@ -16,7 +16,6 @@ const BASE_URL = process.env.BASE_URL || 'https://beta.abapture.ai';
 const STRIPE_SK = process.env.STRIPE_SECRET_KEY || '';
 const STRIPE_PK = process.env.STRIPE_PUBLISHABLE_KEY || '';
 const stripeClient = STRIPE_SK ? stripe(STRIPE_SK) : null;
-const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY || '';
 
 // Ensure dirs
 const uploadsDir = path.join(__dirname, 'uploads');
@@ -43,16 +42,10 @@ app.use(session({
 }));
 
 function requireAuth(req, res, next) {
-  if (!req.session.userId && !req.session.demoId) return res.status(401).json({ error: 'Not authenticated' });
+  if (!req.session.userId) return res.status(401).json({ error: 'Not authenticated' });
   next();
 }
 
-// For demo sessions, userId is the demoId
-function getUserId(req) {
-  return req.session.userId || req.session.demoId;
-}
-
-// Helper: get all categories for a menu
 function getMenuCategories(menuId) {
   const db = load();
   const cats = Object.values(db.categories)
@@ -67,6 +60,25 @@ function getMenuCategories(menuId) {
   return cats;
 }
 
+// Ensure analytics collection exists in db
+function ensureAnalytics(db) {
+  if (!db.analytics) db.analytics = [];
+  return db;
+}
+
+function trackEvent(type, data) {
+  const db = ensureAnalytics(load());
+  db.analytics.push({
+    id: uuidv4(),
+    type, // 'menu_view', 'qr_scan', 'item_view'
+    ...data,
+    timestamp: new Date().toISOString()
+  });
+  // Keep last 50k events max
+  if (db.analytics.length > 50000) db.analytics = db.analytics.slice(-40000);
+  save(db);
+}
+
 // ============ AUTH ============
 
 app.post('/api/auth/signup', (req, res) => {
@@ -79,52 +91,38 @@ app.post('/api/auth/signup', (req, res) => {
     if (existing) return res.status(400).json({ error: 'Email already registered' });
 
     const id = uuidv4();
-    db.users[id] = { id, email, password_hash: bcrypt.hashSync(password, 10), restaurant_name: restaurantName || '', plan: 'free', created_at: new Date().toISOString() };
+    db.users[id] = { id, email, password_hash: bcrypt.hashSync(password, 10), restaurant_name: restaurantName || '', plan: 'free', hours: '', location: '', phone: '', created_at: new Date().toISOString() };
 
-    // If there's a demo session, adopt the demo data
-    if (req.session.demoId) {
-      const demoId = req.session.demoId;
-      // Transfer menus from demo user to real user
-      Object.values(db.menus).forEach(m => {
-        if (m.user_id === demoId) {
-          m.user_id = id;
-          // Update slug with restaurant name
-          if (restaurantName) {
-            m.slug = restaurantName.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 30) + '-' + id.slice(0, 6);
-          }
-        }
-      });
-      delete db.users[demoId];
-      req.session.demoId = null;
-    } else {
-      // Default menu with sample data
-      const menuId = uuidv4();
-      const slug = (restaurantName || email.split('@')[0]).toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 30) + '-' + id.slice(0, 6);
-      db.menus[menuId] = { id: menuId, user_id: id, name: 'Main Menu', slug, description: '', logo_url: '', primary_color: '#E85D2C', bg_color: '#FFFBF7', font: 'Inter', is_active: 1, created_at: new Date().toISOString() };
+    // Default menu
+    const menuId = uuidv4();
+    const slug = (restaurantName || email.split('@')[0]).toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 30) + '-' + id.slice(0, 6);
+    db.menus[menuId] = { id: menuId, user_id: id, name: 'Main Menu', slug, description: '', logo_url: '', primary_color: '#E85D2C', bg_color: '#FFFBF7', font: 'Inter', is_active: 1, created_at: new Date().toISOString() };
 
-      const cats = [
-        { name: 'Starters', description: 'Begin your meal right', sort_order: 0 },
-        { name: 'Mains', description: 'Our signature dishes', sort_order: 1 },
-        { name: 'Desserts', description: 'Sweet endings', sort_order: 2 },
-      ];
-      const catIds = [];
-      for (const c of cats) {
-        const cid = uuidv4();
-        catIds.push(cid);
-        db.categories[cid] = { id: cid, menu_id: menuId, ...c };
-      }
-      const sampleItems = [
-        { category_id: catIds[0], name: 'Bruschetta', description: 'Toasted bread with fresh tomatoes, basil & olive oil', price: 8.50, tags: ['vegetarian'], sort_order: 0 },
-        { category_id: catIds[0], name: 'Soup of the Day', description: "Ask your server for today's selection", price: 7.00, tags: ['gluten-free'], sort_order: 1 },
-        { category_id: catIds[1], name: 'Grilled Salmon', description: 'Atlantic salmon with lemon butter sauce & seasonal vegetables', price: 24.00, tags: ['gluten-free'], sort_order: 0 },
-        { category_id: catIds[1], name: 'Mushroom Risotto', description: 'Creamy arborio rice with wild mushrooms & parmesan', price: 18.00, tags: ['vegetarian'], sort_order: 1 },
-        { category_id: catIds[2], name: 'Tiramisu', description: 'Classic Italian coffee-flavored dessert', price: 10.00, tags: [], sort_order: 0 },
-        { category_id: catIds[2], name: 'Chocolate Lava Cake', description: 'Warm chocolate cake with a molten center', price: 12.00, tags: ['vegetarian'], sort_order: 1 },
-      ];
-      for (const item of sampleItems) {
-        const iid = uuidv4();
-        db.items[iid] = { id: iid, ...item, image_url: '', is_available: 1 };
-      }
+    // Sample data
+    const cats = [
+      { name: 'Starters', description: 'Begin your meal right', sort_order: 0 },
+      { name: 'Mains', description: 'Our signature dishes', sort_order: 1 },
+      { name: 'Desserts', description: 'Sweet endings', sort_order: 2 },
+    ];
+    const catIds = [];
+    for (const c of cats) {
+      const cid = uuidv4();
+      catIds.push(cid);
+      db.categories[cid] = { id: cid, menu_id: menuId, ...c };
+    }
+
+    const sampleItems = [
+      { category_id: catIds[0], name: 'Bruschetta', description: 'Toasted bread with fresh tomatoes, basil & olive oil', price: 8.50, tags: ['vegetarian'], sort_order: 0, is_featured: 0 },
+      { category_id: catIds[0], name: 'Soup of the Day', description: "Ask your server for today's selection", price: 7.00, tags: ['gluten-free'], sort_order: 1, is_featured: 0 },
+      { category_id: catIds[1], name: 'Grilled Salmon', description: 'Atlantic salmon with lemon butter sauce & seasonal vegetables', price: 24.00, tags: ['gluten-free'], sort_order: 0, is_featured: 1 },
+      { category_id: catIds[1], name: 'Mushroom Risotto', description: 'Creamy arborio rice with wild mushrooms & parmesan', price: 18.00, tags: ['vegetarian'], sort_order: 1, is_featured: 0 },
+      { category_id: catIds[1], name: 'Spicy Thai Curry', description: 'Red curry with coconut milk, vegetables & jasmine rice', price: 16.50, tags: ['vegan', 'spicy', 'gluten-free'], sort_order: 2, is_featured: 0 },
+      { category_id: catIds[2], name: 'Tiramisu', description: 'Classic Italian coffee-flavored dessert', price: 10.00, tags: [], sort_order: 0, is_featured: 1 },
+      { category_id: catIds[2], name: 'Chocolate Lava Cake', description: 'Warm chocolate cake with a molten center', price: 12.00, tags: ['vegetarian'], sort_order: 1, is_featured: 0 },
+    ];
+    for (const item of sampleItems) {
+      const iid = uuidv4();
+      db.items[iid] = { id: iid, ...item, image_url: '', is_available: 1 };
     }
 
     save(db);
@@ -144,7 +142,6 @@ app.post('/api/auth/login', (req, res) => {
     return res.status(401).json({ error: 'Invalid credentials' });
   }
   req.session.userId = user.id;
-  req.session.demoId = null;
   res.json({ success: true, user: { id: user.id, email: user.email, restaurantName: user.restaurant_name, plan: user.plan } });
 });
 
@@ -155,148 +152,48 @@ app.post('/api/auth/logout', (req, res) => {
 
 app.get('/api/auth/me', requireAuth, (req, res) => {
   const db = load();
-  const uid = getUserId(req);
-  const user = db.users[uid];
+  const user = db.users[req.session.userId];
   if (!user) return res.status(404).json({ error: 'User not found' });
-  res.json({ user: { id: user.id, email: user.email, restaurantName: user.restaurant_name, plan: user.plan, created_at: user.created_at, isDemo: !!req.session.demoId } });
+  res.json({ user: { id: user.id, email: user.email, restaurantName: user.restaurant_name, plan: user.plan, hours: user.hours || '', location: user.location || '', phone: user.phone || '', created_at: user.created_at } });
 });
 
-// ============ DEMO MODE ============
-
-app.post('/api/demo/start', (req, res) => {
-  try {
-    const db = load();
-    const id = 'demo-' + uuidv4();
-    const restaurantName = req.body.restaurantName || 'My Restaurant';
-    db.users[id] = { id, email: '', password_hash: '', restaurant_name: restaurantName, plan: 'demo', created_at: new Date().toISOString() };
-
-    const menuId = uuidv4();
-    const slug = 'demo-' + restaurantName.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 20) + '-' + id.slice(5, 11);
-    db.menus[menuId] = { id: menuId, user_id: id, name: 'Main Menu', slug, description: '', logo_url: '', primary_color: '#E85D2C', bg_color: '#FFFBF7', font: 'Inter', is_active: 1, created_at: new Date().toISOString() };
-
-    // Sample data
-    const cats = [
-      { name: 'Starters', description: 'Begin your meal right', sort_order: 0 },
-      { name: 'Mains', description: 'Our signature dishes', sort_order: 1 },
-      { name: 'Desserts', description: 'Sweet endings', sort_order: 2 },
-    ];
-    const catIds = [];
-    for (const c of cats) {
-      const cid = uuidv4();
-      catIds.push(cid);
-      db.categories[cid] = { id: cid, menu_id: menuId, ...c };
-    }
-    const sampleItems = [
-      { category_id: catIds[0], name: 'Bruschetta', description: 'Crispy ciabatta topped with vine-ripened tomatoes, fresh basil, garlic & extra virgin olive oil', price: 8.50, tags: ['vegetarian'], sort_order: 0 },
-      { category_id: catIds[0], name: 'Soup of the Day', description: "Chef's daily creation — ask your server for today's selection", price: 7.00, tags: ['gluten-free'], sort_order: 1 },
-      { category_id: catIds[1], name: 'Grilled Salmon', description: 'Wild-caught Atlantic salmon, pan-seared with lemon butter sauce, served with roasted seasonal vegetables', price: 24.00, tags: ['gluten-free'], sort_order: 0 },
-      { category_id: catIds[1], name: 'Mushroom Risotto', description: 'Creamy arborio rice slow-cooked with wild porcini mushrooms, aged parmesan & truffle oil', price: 18.00, tags: ['vegetarian'], sort_order: 1 },
-      { category_id: catIds[2], name: 'Tiramisu', description: 'Classic Italian dessert layered with espresso-soaked ladyfingers, mascarpone cream & cocoa', price: 10.00, tags: [], sort_order: 0 },
-      { category_id: catIds[2], name: 'Chocolate Lava Cake', description: 'Warm dark chocolate cake with a molten center, served with vanilla gelato', price: 12.00, tags: ['vegetarian'], sort_order: 1 },
-    ];
-    for (const item of sampleItems) {
-      const iid = uuidv4();
-      db.items[iid] = { id: iid, ...item, image_url: '', is_available: 1 };
-    }
-
-    save(db);
-    req.session.demoId = id;
-    req.session.userId = null;
-    res.json({ success: true, isDemo: true });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: 'Server error' });
-  }
+// Update restaurant info
+app.put('/api/auth/profile', requireAuth, (req, res) => {
+  const db = load();
+  const user = db.users[req.session.userId];
+  if (!user) return res.status(404).json({ error: 'User not found' });
+  const { restaurantName, hours, location, phone } = req.body;
+  if (restaurantName !== undefined) user.restaurant_name = restaurantName;
+  if (hours !== undefined) user.hours = hours;
+  if (location !== undefined) user.location = location;
+  if (phone !== undefined) user.phone = phone;
+  save(db);
+  res.json({ success: true });
 });
-
-// ============ AI DESCRIPTION GENERATOR ============
-
-app.post('/api/ai/describe', requireAuth, async (req, res) => {
-  const { itemName, cuisine } = req.body;
-  if (!itemName) return res.status(400).json({ error: 'Item name required' });
-
-  // Use Claude API if available, otherwise use built-in templates
-  if (ANTHROPIC_KEY) {
-    try {
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': ANTHROPIC_KEY,
-          'anthropic-version': '2023-06-01'
-        },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 150,
-          messages: [{
-            role: 'user',
-            content: `Write a mouth-watering, appetizing menu description for "${itemName}"${cuisine ? ` (${cuisine} cuisine)` : ''}. Keep it to 1-2 sentences, under 30 words. Be vivid and specific about flavors and textures. No quotes around it.`
-          }]
-        })
-      });
-      const data = await response.json();
-      const description = data.content?.[0]?.text?.trim() || generateFallbackDescription(itemName);
-      return res.json({ description });
-    } catch (e) {
-      console.error('AI API error:', e);
-    }
-  }
-
-  // Fallback: smart template-based descriptions
-  res.json({ description: generateFallbackDescription(itemName) });
-});
-
-function generateFallbackDescription(itemName) {
-  const name = itemName.toLowerCase();
-  const templates = {
-    salmon: 'Wild-caught and perfectly seared, served with a silky lemon butter sauce and seasonal roasted vegetables',
-    steak: 'Prime-cut, flame-grilled to your preference, finished with herb butter and served with truffle fries',
-    chicken: 'Free-range and tender, herb-marinated and roasted to golden perfection with aromatic pan juices',
-    pasta: 'House-made pasta tossed in a rich, slow-simmered sauce with fresh herbs and aged parmesan',
-    pizza: 'Wood-fired with a crispy, blistered crust, topped with San Marzano tomatoes and fresh mozzarella',
-    salad: 'Crisp seasonal greens with vibrant garden vegetables, tossed in our signature house vinaigrette',
-    burger: 'Juicy hand-formed patty on a toasted brioche bun with aged cheddar, caramelized onions & special sauce',
-    risotto: 'Creamy arborio rice slowly stirred to perfection with rich stock, finished with butter and parmesan',
-    soup: "Chef's daily creation, simmered with care using the freshest seasonal ingredients",
-    cake: 'Decadent layers of rich, moist cake with a velvety smooth frosting that melts on the tongue',
-    ice: 'Artisanal small-batch creation churned to silky perfection with premium ingredients',
-    fish: 'Fresh catch of the day, delicately prepared with bright citrus notes and fragrant herbs',
-    shrimp: 'Plump, succulent shrimp sautéed in garlic butter with a touch of white wine and fresh herbs',
-    tacos: 'Handmade corn tortillas filled with perfectly seasoned fillings, fresh salsa & creamy avocado',
-    wine: 'Carefully selected by our sommelier to complement the flavors of your meal',
-    bruschetta: 'Crispy ciabatta crowned with vine-ripened tomatoes, fresh basil, garlic & extra virgin olive oil',
-    tiramisu: 'Layers of espresso-soaked ladyfingers and velvety mascarpone cream dusted with rich cocoa',
-    chocolate: 'Rich, indulgent dark chocolate with a velvety texture that melts beautifully on the palate',
-    mushroom: 'Earthy wild mushrooms with deep umami flavors, herbs and a touch of cream',
-  };
-
-  for (const [key, desc] of Object.entries(templates)) {
-    if (name.includes(key)) return desc;
-  }
-
-  // Generic fallback
-  const generics = [
-    `Crafted with the finest ingredients, expertly prepared and beautifully presented`,
-    `A house favorite — carefully prepared with premium ingredients and bold, satisfying flavors`,
-    `Chef's signature preparation using the freshest seasonal ingredients, bursting with flavor`,
-  ];
-  return generics[Math.floor(Math.random() * generics.length)];
-}
 
 // ============ MENUS ============
 
 app.get('/api/menus', requireAuth, (req, res) => {
   const db = load();
-  const uid = getUserId(req);
-  const menus = Object.values(db.menus).filter(m => m.user_id === uid);
+  const menus = Object.values(db.menus).filter(m => m.user_id === req.session.userId);
   res.json({ menus });
+});
+
+app.post('/api/menus', requireAuth, (req, res) => {
+  const db = load();
+  const user = db.users[req.session.userId];
+  const { name } = req.body;
+  const menuId = uuidv4();
+  const slug = (name || 'menu').toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 30) + '-' + menuId.slice(0, 6);
+  db.menus[menuId] = { id: menuId, user_id: req.session.userId, name: name || 'New Menu', slug, description: '', logo_url: '', primary_color: '#E85D2C', bg_color: '#FFFBF7', font: 'Inter', is_active: 1, created_at: new Date().toISOString() };
+  save(db);
+  res.json({ menu: db.menus[menuId] });
 });
 
 app.put('/api/menus/:id', requireAuth, (req, res) => {
   const db = load();
   const menu = db.menus[req.params.id];
-  const uid = getUserId(req);
-  if (!menu || menu.user_id !== uid) return res.status(404).json({ error: 'Menu not found' });
+  if (!menu || menu.user_id !== req.session.userId) return res.status(404).json({ error: 'Menu not found' });
 
   const { name, description, primary_color, bg_color, font } = req.body;
   if (name !== undefined) menu.name = name;
@@ -308,21 +205,37 @@ app.put('/api/menus/:id', requireAuth, (req, res) => {
   res.json({ menu });
 });
 
+app.delete('/api/menus/:id', requireAuth, (req, res) => {
+  const db = load();
+  const menu = db.menus[req.params.id];
+  if (!menu || menu.user_id !== req.session.userId) return res.status(404).json({ error: 'Menu not found' });
+  // Don't allow deleting last menu
+  const userMenus = Object.values(db.menus).filter(m => m.user_id === req.session.userId);
+  if (userMenus.length <= 1) return res.status(400).json({ error: 'Cannot delete your only menu' });
+  // Delete all categories and items for this menu
+  const catIds = Object.values(db.categories).filter(c => c.menu_id === req.params.id).map(c => c.id);
+  catIds.forEach(cid => {
+    Object.keys(db.items).forEach(k => { if (db.items[k].category_id === cid) delete db.items[k]; });
+    delete db.categories[cid];
+  });
+  delete db.menus[req.params.id];
+  save(db);
+  res.json({ success: true });
+});
+
 // ============ CATEGORIES ============
 
 app.get('/api/menus/:menuId/categories', requireAuth, (req, res) => {
   const db = load();
   const menu = db.menus[req.params.menuId];
-  const uid = getUserId(req);
-  if (!menu || menu.user_id !== uid) return res.status(404).json({ error: 'Menu not found' });
+  if (!menu || menu.user_id !== req.session.userId) return res.status(404).json({ error: 'Menu not found' });
   res.json({ categories: getMenuCategories(req.params.menuId) });
 });
 
 app.post('/api/menus/:menuId/categories', requireAuth, (req, res) => {
   const db = load();
   const menu = db.menus[req.params.menuId];
-  const uid = getUserId(req);
-  if (!menu || menu.user_id !== uid) return res.status(404).json({ error: 'Menu not found' });
+  if (!menu || menu.user_id !== req.session.userId) return res.status(404).json({ error: 'Menu not found' });
 
   const existingCats = Object.values(db.categories).filter(c => c.menu_id === req.params.menuId);
   const maxOrder = existingCats.reduce((m, c) => Math.max(m, c.sort_order), -1);
@@ -352,15 +265,41 @@ app.delete('/api/categories/:id', requireAuth, (req, res) => {
   res.json({ success: true });
 });
 
+// ============ REORDER ============
+
+app.put('/api/menus/:menuId/reorder-categories', requireAuth, (req, res) => {
+  const db = load();
+  const menu = db.menus[req.params.menuId];
+  if (!menu || menu.user_id !== req.session.userId) return res.status(404).json({ error: 'Menu not found' });
+  const { order } = req.body; // array of category IDs in new order
+  if (!Array.isArray(order)) return res.status(400).json({ error: 'order must be an array' });
+  order.forEach((catId, idx) => {
+    if (db.categories[catId]) db.categories[catId].sort_order = idx;
+  });
+  save(db);
+  res.json({ success: true });
+});
+
+app.put('/api/categories/:catId/reorder-items', requireAuth, (req, res) => {
+  const db = load();
+  const { order } = req.body; // array of item IDs in new order
+  if (!Array.isArray(order)) return res.status(400).json({ error: 'order must be an array' });
+  order.forEach((itemId, idx) => {
+    if (db.items[itemId]) db.items[itemId].sort_order = idx;
+  });
+  save(db);
+  res.json({ success: true });
+});
+
 // ============ ITEMS ============
 
 app.post('/api/categories/:catId/items', requireAuth, (req, res) => {
   const db = load();
-  const { name, description, price, tags, image_url } = req.body;
+  const { name, description, price, tags, is_featured } = req.body;
   const existingItems = Object.values(db.items).filter(i => i.category_id === req.params.catId);
   const maxOrder = existingItems.reduce((m, i) => Math.max(m, i.sort_order), -1);
   const id = uuidv4();
-  db.items[id] = { id, category_id: req.params.catId, name: name || 'New Item', description: description || '', price: price || 0, tags: tags || [], image_url: image_url || '', is_available: 1, sort_order: maxOrder + 1 };
+  db.items[id] = { id, category_id: req.params.catId, name: name || 'New Item', description: description || '', price: price || 0, tags: tags || [], image_url: '', is_available: 1, is_featured: is_featured ? 1 : 0, sort_order: maxOrder + 1 };
   save(db);
   res.json({ item: db.items[id] });
 });
@@ -369,7 +308,7 @@ app.put('/api/items/:id', requireAuth, (req, res) => {
   const db = load();
   const item = db.items[req.params.id];
   if (!item) return res.status(404).json({ error: 'Not found' });
-  const { name, description, price, tags, is_available, sort_order, image_url } = req.body;
+  const { name, description, price, tags, is_available, sort_order, image_url, is_featured } = req.body;
   if (name !== undefined) item.name = name;
   if (description !== undefined) item.description = description;
   if (price !== undefined) item.price = price;
@@ -377,6 +316,7 @@ app.put('/api/items/:id', requireAuth, (req, res) => {
   if (is_available !== undefined) item.is_available = is_available;
   if (sort_order !== undefined) item.sort_order = sort_order;
   if (image_url !== undefined) item.image_url = image_url;
+  if (is_featured !== undefined) item.is_featured = is_featured;
   save(db);
   res.json({ success: true });
 });
@@ -403,11 +343,21 @@ app.post('/api/upload', requireAuth, upload.single('image'), (req, res) => {
 app.get('/api/menus/:id/qr', requireAuth, async (req, res) => {
   const db = load();
   const menu = db.menus[req.params.id];
-  const uid = getUserId(req);
-  if (!menu || menu.user_id !== uid) return res.status(404).json({ error: 'Menu not found' });
-  const url = `${BASE_URL}/m/${menu.slug}`;
+  if (!menu || menu.user_id !== req.session.userId) return res.status(404).json({ error: 'Menu not found' });
+  // QR points to /qr/:slug which tracks the scan then redirects
+  const url = `${BASE_URL}/qr/${menu.slug}`;
   const qr = await QRCode.toDataURL(url, { width: 512, margin: 2, color: { dark: '#000', light: '#fff' } });
-  res.json({ qr, url });
+  res.json({ qr, url: `${BASE_URL}/m/${menu.slug}` });
+});
+
+// QR scan tracking redirect
+app.get('/qr/:slug', (req, res) => {
+  const db = load();
+  const menu = Object.values(db.menus).find(m => m.slug === req.params.slug);
+  if (menu) {
+    trackEvent('qr_scan', { menu_id: menu.id, user_id: menu.user_id, slug: menu.slug });
+  }
+  res.redirect(`/m/${req.params.slug}`);
 });
 
 // ============ PUBLIC MENU ============
@@ -417,9 +367,115 @@ app.get('/api/public/menu/:slug', (req, res) => {
   const menu = Object.values(db.menus).find(m => m.slug === req.params.slug && m.is_active);
   if (!menu) return res.status(404).json({ error: 'Menu not found' });
   const user = db.users[menu.user_id];
+
+  // Track menu view
+  trackEvent('menu_view', { menu_id: menu.id, user_id: menu.user_id, slug: menu.slug });
+
   const categories = getMenuCategories(menu.id).filter(c => c.items.length > 0);
-  categories.forEach(cat => { cat.items = cat.items.filter(i => i.is_available); });
-  res.json({ menu: { ...menu, restaurant_name: user?.restaurant_name || '', categories } });
+  // Collect featured items across all categories
+  const featuredItems = [];
+  categories.forEach(cat => {
+    cat.items = cat.items.filter(i => i.is_available);
+    cat.items.forEach(item => {
+      if (item.is_featured) featuredItems.push({ ...item, category_name: cat.name });
+    });
+  });
+
+  res.json({
+    menu: {
+      ...menu,
+      restaurant_name: user?.restaurant_name || '',
+      hours: user?.hours || '',
+      location: user?.location || '',
+      phone: user?.phone || '',
+      featured_items: featuredItems,
+      categories
+    }
+  });
+});
+
+// ============ ANALYTICS ============
+
+app.get('/api/analytics', requireAuth, (req, res) => {
+  const db = ensureAnalytics(load());
+  const userId = req.session.userId;
+  const userMenus = Object.values(db.menus).filter(m => m.user_id === userId);
+  const menuIds = new Set(userMenus.map(m => m.id));
+
+  // Filter events for this user
+  const events = db.analytics.filter(e => menuIds.has(e.menu_id));
+
+  const now = new Date();
+  const days30ago = new Date(now - 30 * 24 * 60 * 60 * 1000);
+  const days7ago = new Date(now - 7 * 24 * 60 * 60 * 1000);
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+  const recentEvents = events.filter(e => new Date(e.timestamp) >= days30ago);
+
+  // Totals
+  const totalViews = recentEvents.filter(e => e.type === 'menu_view').length;
+  const totalQRScans = recentEvents.filter(e => e.type === 'qr_scan').length;
+  const todayViews = recentEvents.filter(e => e.type === 'menu_view' && new Date(e.timestamp) >= today).length;
+
+  // Views per day (last 30 days)
+  const dailyViews = {};
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(now - i * 24 * 60 * 60 * 1000);
+    const key = d.toISOString().slice(0, 10);
+    dailyViews[key] = { views: 0, scans: 0 };
+  }
+  recentEvents.forEach(e => {
+    const key = e.timestamp.slice(0, 10);
+    if (dailyViews[key]) {
+      if (e.type === 'menu_view') dailyViews[key].views++;
+      if (e.type === 'qr_scan') dailyViews[key].scans++;
+    }
+  });
+
+  // Most viewed items (from item_view events, but we can also derive from menu_view with item data)
+  // For now, get item view counts from item_view events
+  const itemViews = {};
+  recentEvents.filter(e => e.type === 'item_view').forEach(e => {
+    itemViews[e.item_id] = (itemViews[e.item_id] || 0) + 1;
+  });
+
+  // Top items
+  const topItems = Object.entries(itemViews)
+    .map(([id, count]) => ({ id, name: db.items[id]?.name || 'Unknown', count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 10);
+
+  // Views by menu
+  const menuViews = {};
+  recentEvents.filter(e => e.type === 'menu_view').forEach(e => {
+    menuViews[e.menu_id] = (menuViews[e.menu_id] || 0) + 1;
+  });
+  const menuStats = Object.entries(menuViews)
+    .map(([id, count]) => ({ id, name: db.menus[id]?.name || 'Unknown', count }))
+    .sort((a, b) => b.count - a.count);
+
+  res.json({
+    totalViews,
+    totalQRScans,
+    todayViews,
+    dailyViews,
+    topItems,
+    menuStats,
+    totalEvents: recentEvents.length
+  });
+});
+
+// Track item view from public menu (called client-side)
+app.post('/api/public/track', (req, res) => {
+  const { type, menu_id, item_id, slug } = req.body;
+  if (type && menu_id) {
+    const db = load();
+    const menu = db.menus[menu_id];
+    if (menu) {
+      trackEvent(type, { menu_id, user_id: menu.user_id, item_id, slug });
+    }
+  }
+  res.json({ ok: true });
 });
 
 // ============ STRIPE ============
@@ -429,8 +485,7 @@ app.post('/api/checkout', requireAuth, async (req, res) => {
   try {
     const { plan } = req.body;
     const db = load();
-    const uid = getUserId(req);
-    const user = db.users[uid];
+    const user = db.users[req.session.userId];
 
     const prices = {
       starter_monthly: { amount: 900, name: 'MenuCraft Starter — Monthly', interval: 'month' },
@@ -445,7 +500,7 @@ app.post('/api/checkout', requireAuth, async (req, res) => {
     const checkoutSession = await stripeClient.checkout.sessions.create({
       payment_method_types: ['card'],
       mode: 'subscription',
-      customer_email: user.email || undefined,
+      customer_email: user.email,
       line_items: [{
         price_data: {
           currency: 'usd',
@@ -477,5 +532,32 @@ app.get('/dashboard', (req, res) => res.sendFile(path.join(__dirname, 'public', 
 app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'public', 'auth.html')));
 app.get('/signup', (req, res) => res.sendFile(path.join(__dirname, 'public', 'auth.html')));
 app.get('/try', (req, res) => res.sendFile(path.join(__dirname, 'public', 'try.html')));
+app.get('/blog/digital-menu-for-restaurants', (req, res) => res.sendFile(path.join(__dirname, 'public', 'blog-digital-menu.html')));
+app.get('/blog/qr-code-menu-guide', (req, res) => res.sendFile(path.join(__dirname, 'public', 'blog-qr-menu.html')));
+app.get("/blog/free-qr-menu-maker", (req, res) => res.sendFile(path.join(__dirname, "public", "blog-free-qr-menu.html")));
+app.get('/examples', (req, res) => res.sendFile(path.join(__dirname, 'public', 'examples.html')));
+
+// Sitemap for SEO
+app.get('/sitemap.xml', (req, res) => {
+  const urls = [
+    { loc: '/', priority: '1.0' },
+    { loc: '/try', priority: '0.9' },
+    { loc: '/blog/digital-menu-for-restaurants', priority: '0.8' },
+    { loc: '/blog/qr-code-menu-guide', priority: '0.8' },
+    { loc: '/blog/free-qr-menu-maker', priority: '0.8' },
+    { loc: '/examples', priority: '0.7' },
+    { loc: '/signup', priority: '0.7' },
+  ];
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls.map(u => `  <url><loc>https://beta.abapture.ai${u.loc}</loc><changefreq>weekly</changefreq><priority>${u.priority}</priority></url>`).join('\n')}
+</urlset>`;
+  res.type('application/xml').send(xml);
+});
+
+// robots.txt
+app.get('/robots.txt', (req, res) => {
+  res.type('text/plain').send(`User-agent: *\nAllow: /\nSitemap: https://beta.abapture.ai/sitemap.xml`);
+});
 
 app.listen(PORT, () => console.log(`MenuCraft running on port ${PORT}`));
