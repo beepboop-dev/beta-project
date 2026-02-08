@@ -307,7 +307,7 @@ app.put('/api/items/:id', requireAuth, (req, res) => {
   const db = load();
   const item = db.items[req.params.id];
   if (!item) return res.status(404).json({ error: 'Not found' });
-  const { name, description, price, tags, is_available, sort_order, image_url, is_featured } = req.body;
+  const { name, description, price, tags, is_available, sort_order, image_url, is_featured, category_id } = req.body;
   if (name !== undefined) item.name = name;
   if (description !== undefined) item.description = description;
   if (price !== undefined) item.price = price;
@@ -316,6 +316,7 @@ app.put('/api/items/:id', requireAuth, (req, res) => {
   if (sort_order !== undefined) item.sort_order = sort_order;
   if (image_url !== undefined) item.image_url = image_url;
   if (is_featured !== undefined) item.is_featured = is_featured;
+  if (category_id !== undefined) item.category_id = category_id;
   save(db);
   res.json({ success: true });
 });

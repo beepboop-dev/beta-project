@@ -1654,6 +1654,147 @@ async function duplicateItem(itemId) {
 }
 
 init();
+
+
+// ============ MOBILE TOUCH DRAG & DROP ============
+(function() {
+  let touchDragEl = null;
+  let touchGhost = null;
+  let touchType = null; // 'item' or 'category'
+  let touchId = null;
+  let touchCatId = null;
+  let touchStartY = 0;
+  let touchMoved = false;
+
+  function findDropTarget(x, y) {
+    if (touchGhost) touchGhost.style.display = 'none';
+    const el = document.elementFromPoint(x, y);
+    if (touchGhost) touchGhost.style.display = '';
+    if (!el) return null;
+    if (touchType === 'item') return el.closest('.item-row[data-item-id]');
+    if (touchType === 'category') return el.closest('.card[data-cat-id]');
+    return null;
+  }
+
+  document.addEventListener('touchstart', function(e) {
+    const handle = e.target.closest('.drag-handle');
+    if (!handle) return;
+    const itemRow = handle.closest('.item-row[data-item-id]');
+    const catCard = handle.closest('.card[data-cat-id]');
+    if (itemRow) {
+      touchType = 'item';
+      touchDragEl = itemRow;
+      touchId = itemRow.dataset.itemId;
+      touchCatId = itemRow.dataset.catId;
+    } else if (catCard) {
+      touchType = 'category';
+      touchDragEl = catCard;
+      touchId = catCard.dataset.catId;
+    } else return;
+    touchStartY = e.touches[0].clientY;
+    touchMoved = false;
+  }, { passive: true });
+
+  document.addEventListener('touchmove', function(e) {
+    if (!touchDragEl) return;
+    const touch = e.touches[0];
+    if (!touchMoved && Math.abs(touch.clientY - touchStartY) < 10) return;
+    touchMoved = true;
+    e.preventDefault();
+
+    if (!touchGhost) {
+      touchGhost = touchDragEl.cloneNode(true);
+      touchGhost.style.cssText = 'position:fixed;z-index:9999;pointer-events:none;opacity:0.85;width:' + touchDragEl.offsetWidth + 'px;box-shadow:0 8px 32px rgba(0,0,0,0.18);border-radius:12px;background:#fff;';
+      document.body.appendChild(touchGhost);
+      touchDragEl.classList.add('dragging');
+    }
+    touchGhost.style.left = (touch.clientX - touchDragEl.offsetWidth / 2) + 'px';
+    touchGhost.style.top = (touch.clientY - 30) + 'px';
+
+    // Highlight drop target
+    const selector = touchType === 'item' ? '.item-row' : '.card';
+    document.querySelectorAll(selector).forEach(el => el.classList.remove('drag-over-top', 'drag-over-bottom'));
+    const target = findDropTarget(touch.clientX, touch.clientY);
+    if (target && target !== touchDragEl) {
+      const rect = target.getBoundingClientRect();
+      target.classList.add(touch.clientY < rect.top + rect.height / 2 ? 'drag-over-top' : 'drag-over-bottom');
+    }
+
+    // Auto-scroll
+    if (touch.clientY < 80) window.scrollBy(0, -8);
+    else if (touch.clientY > window.innerHeight - 80) window.scrollBy(0, 8);
+  }, { passive: false });
+
+  document.addEventListener('touchend', async function(e) {
+    if (!touchDragEl || !touchMoved) {
+      cleanup(); return;
+    }
+    const touch = e.changedTouches[0];
+    const target = findDropTarget(touch.clientX, touch.clientY);
+
+    if (target && target !== touchDragEl) {
+      const rect = target.getBoundingClientRect();
+      const before = touch.clientY < rect.top + rect.height / 2;
+
+      if (touchType === 'category') {
+        const targetCatId = target.dataset.catId;
+        if (touchId !== targetCatId) {
+          const fromIdx = categories.findIndex(c => c.id === touchId);
+          const [moved] = categories.splice(fromIdx, 1);
+          let toIdx = categories.findIndex(c => c.id === targetCatId);
+          if (!before) toIdx++;
+          categories.splice(toIdx, 0, moved);
+          renderCategories();
+          await fetch('/api/menus/' + currentMenu.id + '/reorder-categories', {
+            method: 'PUT', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ order: categories.map(c => c.id) }),
+          });
+          showToast('Categories reordered! ✅');
+        }
+      } else if (touchType === 'item') {
+        const targetItemId = target.dataset.itemId;
+        const targetCatId2 = target.dataset.catId;
+        if (touchId !== targetItemId) {
+          const srcCat = categories.find(c => c.id === touchCatId);
+          const tgtCat = categories.find(c => c.id === targetCatId2);
+          if (srcCat && tgtCat) {
+            const srcIdx = srcCat.items.findIndex(i => i.id === touchId);
+            const [movedItem] = srcCat.items.splice(srcIdx, 1);
+            let tgtIdx = tgtCat.items.findIndex(i => i.id === targetItemId);
+            if (!before) tgtIdx++;
+            tgtCat.items.splice(tgtIdx, 0, movedItem);
+            renderCategories();
+            await fetch('/api/categories/' + targetCatId2 + '/reorder-items', {
+              method: 'PUT', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ order: tgtCat.items.map(i => i.id) }),
+            });
+            if (touchCatId !== targetCatId2) {
+              movedItem.category_id = targetCatId2;
+              await fetch('/api/items/' + movedItem.id, {
+                method: 'PUT', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ category_id: targetCatId2 }),
+              });
+              await fetch('/api/categories/' + touchCatId + '/reorder-items', {
+                method: 'PUT', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ order: srcCat.items.map(i => i.id) }),
+              });
+            }
+            showToast('Items reordered! ✅');
+          }
+        }
+      }
+    }
+    cleanup();
+  });
+
+  function cleanup() {
+    if (touchGhost) { touchGhost.remove(); touchGhost = null; }
+    if (touchDragEl) touchDragEl.classList.remove('dragging');
+    document.querySelectorAll('.item-row, .card').forEach(el => el.classList.remove('drag-over-top', 'drag-over-bottom'));
+    touchDragEl = null; touchType = null; touchId = null; touchCatId = null; touchMoved = false;
+  }
+})();
+
 </script>
 
 </body>
