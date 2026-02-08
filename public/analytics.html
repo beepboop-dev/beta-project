@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analytics — MenuCraft</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --orange: #E85D2C; --charcoal: #1A1A1A; --gray: #6B7280; --cream: #FFF7ED; --green: #10B981; --blue: #3B82F6; --purple: #8B5CF6; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', -apple-system, sans-serif; background: #F9FAFB; color: var(--charcoal); min-height: 100vh; }
+
+    .top-bar { background: #fff; border-bottom: 1px solid #E5E7EB; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
+    .top-bar .logo { font-size: 20px; font-weight: 800; color: var(--orange); text-decoration: none; }
+    .top-bar .logo span { color: var(--charcoal); }
+    .top-bar .back { font-size: 14px; color: var(--gray); text-decoration: none; font-weight: 500; }
+    .top-bar .back:hover { color: var(--charcoal); }
+
+    .container { max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
+
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+    .page-header h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+    .range-btns { display: flex; gap: 6px; }
+    .range-btns button { padding: 8px 16px; border: 1px solid #E5E7EB; background: #fff; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--gray); transition: all 0.15s; }
+    .range-btns button.active { background: var(--orange); color: #fff; border-color: var(--orange); }
+    .range-btns button:hover:not(.active) { border-color: var(--orange); color: var(--orange); }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .stat-card { background: #fff; border-radius: 12px; padding: 20px; border: 1px solid #E5E7EB; }
+    .stat-card .label { font-size: 12px; font-weight: 600; color: var(--gray); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .stat-card .value { font-size: 32px; font-weight: 800; color: var(--charcoal); }
+    .stat-card .sub { font-size: 12px; color: var(--gray); margin-top: 2px; }
+
+    .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+    @media (max-width: 768px) { .charts-grid { grid-template-columns: 1fr; } }
+
+    .chart-card { background: #fff; border-radius: 12px; padding: 20px; border: 1px solid #E5E7EB; }
+    .chart-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 16px; color: var(--charcoal); }
+    .chart-card.full { grid-column: 1 / -1; }
+
+    canvas { width: 100% !important; height: 220px !important; }
+
+    /* Bar chart CSS fallback */
+    .bar-chart { display: flex; align-items: flex-end; gap: 6px; height: 180px; padding-top: 8px; }
+    .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; min-width: 0; }
+    .bar { width: 100%; max-width: 40px; background: linear-gradient(180deg, var(--orange), #F59E0B); border-radius: 4px 4px 0 0; min-height: 2px; transition: height 0.5s ease; }
+    .bar-label { font-size: 10px; color: var(--gray); margin-top: 4px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60px; }
+    .bar-value { font-size: 10px; font-weight: 600; color: var(--charcoal); margin-bottom: 2px; }
+
+    /* Heatmap */
+    .heatmap { display: grid; grid-template-columns: repeat(12, 1fr); gap: 4px; }
+    .heat-cell { aspect-ratio: 1; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; color: #fff; position: relative; }
+    .heat-cell .hour-label { position: absolute; bottom: -16px; font-size: 9px; color: var(--gray); }
+
+    /* Device donut */
+    .device-chart { display: flex; align-items: center; gap: 24px; }
+    .donut-wrap { position: relative; width: 140px; height: 140px; flex-shrink: 0; }
+    .donut-wrap canvas { width: 140px !important; height: 140px !important; }
+    .donut-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); text-align: center; }
+    .donut-center .num { font-size: 24px; font-weight: 800; }
+    .donut-center .lbl { font-size: 10px; color: var(--gray); }
+    .device-legend { display: flex; flex-direction: column; gap: 12px; }
+    .legend-item { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; }
+    .legend-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+    .legend-pct { font-weight: 700; color: var(--charcoal); }
+
+    .empty-state { text-align: center; padding: 48px 24px; color: var(--gray); }
+    .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-state p { font-size: 15px; }
+
+    .loading { text-align: center; padding: 80px 24px; color: var(--gray); font-size: 15px; }
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="/" class="logo">Menu<span>Craft</span></a>
+  <a href="/dashboard" class="back">← Back to Dashboard</a>
+</div>
+
+<div class="container">
+  <div class="page-header">
+    <h1>📊 Menu Analytics</h1>
+    <div class="range-btns">
+      <button data-range="today">Today</button>
+      <button data-range="7d">7 Days</button>
+      <button data-range="30d" class="active">30 Days</button>
+      <button data-range="all">All Time</button>
+    </div>
+  </div>
+
+  <div id="content">
+    <div class="loading">Loading analytics...</div>
+  </div>
+</div>
+
+<script>
+let currentRange = '30d';
+
+async function checkAuth() {
+  const r = await fetch('/api/auth/me');
+  if (!r.ok) { window.location.href = '/login'; return false; }
+  return true;
+}
+
+async function loadAnalytics() {
+  const r = await fetch(`/api/analytics?range=${currentRange}`);
+  if (!r.ok) { document.getElementById('content').innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><p>Failed to load analytics</p></div>'; return; }
+  const data = await r.json();
+  render(data);
+}
+
+function render(d) {
+  const total = d.totalViews + d.totalItemClicks + d.totalQRScans;
+  if (total === 0) {
+    document.getElementById('content').innerHTML = `<div class="empty-state"><div class="icon">📊</div><p>No analytics data yet.<br>Share your menu link to start tracking views!</p></div>`;
+    return;
+  }
+
+  document.getElementById('content').innerHTML = `
+    <div class="stats-grid">
+      <div class="stat-card"><div class="label">Page Views</div><div class="value">${fmt(d.totalViews)}</div></div>
+      <div class="stat-card"><div class="label">Item Clicks</div><div class="value">${fmt(d.totalItemClicks)}</div></div>
+      <div class="stat-card"><div class="label">QR Scans</div><div class="value">${fmt(d.totalQRScans)}</div></div>
+      <div class="stat-card"><div class="label">Unique Visitors (est.)</div><div class="value">${fmt(d.uniqueSessions)}</div></div>
+    </div>
+    <div class="charts-grid">
+      <div class="chart-card full"><h3>📈 Daily Views</h3><canvas id="dailyChart"></canvas></div>
+      <div class="chart-card"><h3>🏆 Top 10 Items</h3><div id="topItems"></div></div>
+      <div class="chart-card"><h3>📱 Device Breakdown</h3><div id="deviceChart" class="device-chart"></div></div>
+      <div class="chart-card full"><h3>🕐 Views by Hour</h3><div id="heatmap"></div></div>
+    </div>
+  `;
+
+  drawDailyChart(d.dailyViews);
+  drawTopItems(d.topItems);
+  drawDeviceChart(d.devices);
+  drawHeatmap(d.hourly);
+}
+
+function fmt(n) { return (n || 0).toLocaleString(); }
+
+function drawDailyChart(data) {
+  const canvas = document.getElementById('dailyChart');
+  if (!canvas || !data.length) return;
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.parentElement.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = 220 * dpr;
+  canvas.style.width = rect.width + 'px';
+  canvas.style.height = '220px';
+  ctx.scale(dpr, dpr);
+
+  const W = rect.width, H = 220, pad = { t: 20, r: 16, b: 40, l: 48 };
+  const cW = W - pad.l - pad.r, cH = H - pad.t - pad.b;
+  const maxV = Math.max(...data.map(d => d.views), 1);
+
+  // Grid lines
+  ctx.strokeStyle = '#f0f0f0'; ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = pad.t + (cH / 4) * i;
+    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W - pad.r, y); ctx.stroke();
+    ctx.fillStyle = '#9CA3AF'; ctx.font = '11px Inter'; ctx.textAlign = 'right';
+    ctx.fillText(Math.round(maxV - (maxV / 4) * i), pad.l - 8, y + 4);
+  }
+
+  // Area fill
+  ctx.beginPath();
+  data.forEach((d, i) => {
+    const x = pad.l + (cW / (data.length - 1 || 1)) * i;
+    const y = pad.t + cH - (d.views / maxV) * cH;
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.lineTo(pad.l + cW, pad.t + cH);
+  ctx.lineTo(pad.l, pad.t + cH);
+  ctx.closePath();
+  const grad = ctx.createLinearGradient(0, pad.t, 0, pad.t + cH);
+  grad.addColorStop(0, 'rgba(232,93,44,0.15)');
+  grad.addColorStop(1, 'rgba(232,93,44,0)');
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Line
+  ctx.beginPath();
+  data.forEach((d, i) => {
+    const x = pad.l + (cW / (data.length - 1 || 1)) * i;
+    const y = pad.t + cH - (d.views / maxV) * cH;
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.strokeStyle = '#E85D2C'; ctx.lineWidth = 2.5; ctx.lineJoin = 'round'; ctx.stroke();
+
+  // Dots
+  data.forEach((d, i) => {
+    const x = pad.l + (cW / (data.length - 1 || 1)) * i;
+    const y = pad.t + cH - (d.views / maxV) * cH;
+    ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2);
+    ctx.fillStyle = '#E85D2C'; ctx.fill();
+  });
+
+  // X labels (show ~7 labels)
+  const step = Math.max(1, Math.floor(data.length / 7));
+  ctx.fillStyle = '#9CA3AF'; ctx.font = '10px Inter'; ctx.textAlign = 'center';
+  data.forEach((d, i) => {
+    if (i % step === 0 || i === data.length - 1) {
+      const x = pad.l + (cW / (data.length - 1 || 1)) * i;
+      const label = d.day.slice(5); // MM-DD
+      ctx.fillText(label, x, H - pad.b + 16);
+    }
+  });
+}
+
+function drawTopItems(items) {
+  const el = document.getElementById('topItems');
+  if (!items || !items.length) { el.innerHTML = '<div class="empty-state"><p>No item clicks yet</p></div>'; return; }
+  const maxCount = items[0].count;
+  el.innerHTML = '<div class="bar-chart">' + items.map(item => {
+    const pct = (item.count / maxCount) * 100;
+    return `<div class="bar-col"><div class="bar-value">${item.count}</div><div class="bar" style="height:${Math.max(pct, 3)}%"></div><div class="bar-label" title="${esc(item.name)}">${esc(item.name)}</div></div>`;
+  }).join('') + '</div>';
+}
+
+function drawDeviceChart(devices) {
+  const el = document.getElementById('deviceChart');
+  const total = (devices.mobile || 0) + (devices.desktop || 0);
+  if (!total) { el.innerHTML = '<div class="empty-state"><p>No data</p></div>'; return; }
+  const mPct = Math.round((devices.mobile / total) * 100);
+  const dPct = 100 - mPct;
+
+  el.innerHTML = `
+    <div class="donut-wrap"><canvas id="donutCanvas"></canvas><div class="donut-center"><div class="num">${fmt(total)}</div><div class="lbl">views</div></div></div>
+    <div class="device-legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--orange)"></div>📱 Mobile <span class="legend-pct">${mPct}%</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div>💻 Desktop <span class="legend-pct">${dPct}%</span></div>
+    </div>
+  `;
+
+  const canvas = document.getElementById('donutCanvas');
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = 140 * dpr; canvas.height = 140 * dpr;
+  ctx.scale(dpr, dpr);
+  const cx = 70, cy = 70, r = 56, lw = 20;
+
+  // Desktop arc
+  ctx.beginPath(); ctx.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * dPct / 100));
+  ctx.strokeStyle = '#3B82F6'; ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.stroke();
+
+  // Mobile arc
+  ctx.beginPath(); ctx.arc(cx, cy, r, -Math.PI / 2 + (Math.PI * 2 * dPct / 100), -Math.PI / 2 + Math.PI * 2);
+  ctx.strokeStyle = '#E85D2C'; ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.stroke();
+}
+
+function drawHeatmap(hourly) {
+  const el = document.getElementById('heatmap');
+  // Fill all 24 hours
+  const hourMap = {};
+  (hourly || []).forEach(h => { hourMap[h.hour] = h.count; });
+  const maxH = Math.max(...Object.values(hourMap), 1);
+
+  let html = '<div class="heatmap">';
+  for (let h = 0; h < 24; h++) {
+    const count = hourMap[h] || 0;
+    const intensity = count / maxH;
+    const r = Math.round(232 * intensity + 240 * (1 - intensity));
+    const g = Math.round(93 * intensity + 240 * (1 - intensity));
+    const b = Math.round(44 * intensity + 240 * (1 - intensity));
+    const textColor = intensity > 0.5 ? '#fff' : '#999';
+    const label = h === 0 ? '12a' : h < 12 ? h + 'a' : h === 12 ? '12p' : (h - 12) + 'p';
+    html += `<div class="heat-cell" style="background:rgb(${r},${g},${b});color:${textColor}" title="${label}: ${count} views">${count || ''}<span class="hour-label">${label}</span></div>`;
+  }
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+function esc(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+
+// Range buttons
+document.querySelectorAll('.range-btns button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.range-btns button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentRange = btn.dataset.range;
+    loadAnalytics();
+  });
+});
+
+// Init
+(async () => {
+  if (await checkAuth()) loadAnalytics();
+})();
+</script>
+</body>
+</html>

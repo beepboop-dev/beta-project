@@ -247,22 +247,6 @@
       .category-header { flex-direction: column; align-items: flex-start; }
       .toast { bottom: 90px; left: 16px; right: 16px; text-align: center; }
     }
-
-    /* DRAG AND DROP */
-    .drag-handle {
-      cursor: grab; font-size: 16px; color: #D1D5DB; padding: 4px;
-      user-select: none; flex-shrink: 0; touch-action: none;
-    }
-    .drag-handle:hover { color: var(--gray); }
-    .drag-handle:active { cursor: grabbing; }
-    .card[draggable="true"] { cursor: default; transition: opacity 0.2s, transform 0.2s; }
-    .card[draggable="true"].dragging { opacity: 0.4; transform: scale(0.98); }
-    .card.drag-over-top { border-top: 3px solid var(--orange); }
-    .card.drag-over-bottom { border-bottom: 3px solid var(--orange); }
-    .item-row[draggable="true"] { transition: opacity 0.2s; }
-    .item-row[draggable="true"].dragging { opacity: 0.3; background: #FFF7ED; }
-    .item-row.drag-over-top { box-shadow: inset 0 3px 0 var(--orange); }
-    .item-row.drag-over-bottom { box-shadow: inset 0 -3px 0 var(--orange); }
   </style>
 </head>
 <body>
@@ -274,9 +258,8 @@
     <a href="#" data-tab="design">🎨 Design</a>
     <a href="#" data-tab="qr">📷 QR Code</a>
     <a href="#" data-tab="restaurant">🏪 Restaurant Info</a>
-    <a href="#" data-tab="specials">🔥 Specials</a>
-    <a href="#" data-tab="languages">🌍 Languages</a>
     <a href="#" data-tab="settings">⚙️ Settings</a>
+    <a href="/analytics" style="margin-top:8px;border-top:1px solid #f0f0f0;padding-top:12px">📊 Analytics</a>
   </div>
   <div class="sidebar-bottom">
     <div class="user-email" id="user-email">loading...</div>
@@ -289,9 +272,9 @@
     <a href="#" class="active" data-tab="editor"><span class="icon">📝</span>Editor</a>
     <a href="#" data-tab="design"><span class="icon">🎨</span>Design</a>
     <a href="#" data-tab="qr"><span class="icon">📷</span>QR</a>
-    <a href="#" data-tab="specials"><span class="icon">🔥</span>Specials</a>
-    <a href="#" data-tab="languages"><span class="icon">🌍</span>Lang</a>
+    <a href="#" data-tab="restaurant"><span class="icon">🏪</span>Info</a>
     <a href="#" data-tab="settings"><span class="icon">⚙️</span>Settings</a>
+    <a href="/analytics"><span class="icon">📊</span>Stats</a>
   </div>
 </div>
 
@@ -403,8 +386,8 @@
   <!-- RESTAURANT INFO TAB -->
   <div id="tab-restaurant" style="display:none;">
     <div class="card">
-      <h3 style="font-size:18px;font-weight:700;margin-bottom:20px;">📍 Find Us — Restaurant Details</h3>
-      <p style="font-size:13px;color:var(--gray);margin-bottom:20px;">This info appears in the "Find Us" section on your public menu. Adding an address will show a Google Maps embed so customers can find you easily.</p>
+      <h3 style="font-size:18px;font-weight:700;margin-bottom:20px;">Restaurant Information</h3>
+      <p style="font-size:13px;color:var(--gray);margin-bottom:20px;">This info appears on your public menu page.</p>
       <div class="form-group">
         <label>Restaurant Name</label>
         <input type="text" id="rest-name" placeholder="e.g. Bella Cucina">
@@ -414,118 +397,14 @@
         <input type="text" id="rest-hours" placeholder="e.g. Mon-Sat 11am-10pm, Sun 12pm-9pm">
       </div>
       <div class="form-group">
-        <label>Address (shown on map)</label>
-        <input type="text" id="rest-location" placeholder="e.g. 123 Main St, San Francisco, CA 94102">
+        <label>Location / Address</label>
+        <input type="text" id="rest-location" placeholder="e.g. 123 Main St, Downtown">
       </div>
       <div class="form-group">
         <label>Phone</label>
         <input type="text" id="rest-phone" placeholder="e.g. (555) 123-4567">
       </div>
       <button class="btn btn-primary" onclick="saveRestaurantInfo()">Save Info</button>
-    </div>
-  </div>
-
-
-  <!-- SPECIALS TAB -->
-  <div id="tab-specials" style="display:none;">
-    <!-- Custom Standalone Specials -->
-    <div class="card" style="margin-bottom:20px;">
-      <h3 style="font-size:18px;font-weight:700;margin-bottom:4px;">⭐ Custom Daily Specials</h3>
-      <p style="font-size:13px;color:var(--gray);margin-bottom:16px;">Create standalone specials with day-of-week scheduling. They auto-show/hide on your public menu.</p>
-      <div id="custom-specials-list"></div>
-      <button class="btn btn-primary" onclick="openCreateCustomSpecial()" style="margin-top:12px;">+ Create New Special</button>
-    </div>
-
-    <!-- Item-Based Specials by Day -->
-    <div class="card" style="margin-bottom:20px;">
-      <h3 style="font-size:18px;font-weight:700;margin-bottom:4px;">🏷️ Menu Item Discounts</h3>
-      <p style="font-size:13px;color:var(--gray);margin-bottom:16px;">Discount existing menu items for specific days.</p>
-      <div class="form-group">
-        <label>Select Day</label>
-        <div class="tabs" style="width:100%;">
-          <button class="tab" data-sday="1" onclick="selectSpecialDay(1)">Mon</button>
-          <button class="tab" data-sday="2" onclick="selectSpecialDay(2)">Tue</button>
-          <button class="tab" data-sday="3" onclick="selectSpecialDay(3)">Wed</button>
-          <button class="tab" data-sday="4" onclick="selectSpecialDay(4)">Thu</button>
-          <button class="tab" data-sday="5" onclick="selectSpecialDay(5)">Fri</button>
-          <button class="tab" data-sday="6" onclick="selectSpecialDay(6)">Sat</button>
-          <button class="tab" data-sday="0" onclick="selectSpecialDay(0)">Sun</button>
-        </div>
-      </div>
-      <div id="specials-list" style="margin-top:16px;"></div>
-      <button class="btn btn-outline" onclick="openAddSpecial()" style="margin-top:12px;">+ Add Discounted Item</button>
-    </div>
-
-    <!-- Happy Hour -->
-    <div class="card">
-      <div style="background:#FFF7ED;border:1.5px solid #FDBA74;border-radius:12px;padding:16px;">
-        <h4 style="font-size:15px;font-weight:700;margin-bottom:12px;">🍺 Happy Hour</h4>
-        <div class="form-group" style="margin-bottom:12px;">
-          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
-            <input type="checkbox" id="hh-enabled" onchange="saveSpecials()">
-            <span style="font-size:14px;font-weight:600;">Enable Happy Hour</span>
-          </label>
-        </div>
-        <div id="hh-config" style="display:none;">
-          <div class="form-group" style="margin-bottom:12px;">
-            <label>Label</label>
-            <input type="text" id="hh-label" value="Happy Hour" placeholder="e.g. Happy Hour, Cocktail Hour" onchange="saveSpecials()">
-          </div>
-          <div class="form-row" style="margin-bottom:12px;">
-            <div class="form-group">
-              <label>Start Time</label>
-              <input type="time" id="hh-start" value="16:00" onchange="saveSpecials()">
-            </div>
-            <div class="form-group">
-              <label>End Time</label>
-              <input type="time" id="hh-end" value="18:00" onchange="saveSpecials()">
-            </div>
-          </div>
-          <div class="form-group">
-            <label>Days</label>
-            <div class="tag-picker" id="hh-days">
-              <button class="tag-chip" data-day="1" onclick="toggleHHDay(this)">Mon</button>
-              <button class="tag-chip" data-day="2" onclick="toggleHHDay(this)">Tue</button>
-              <button class="tag-chip" data-day="3" onclick="toggleHHDay(this)">Wed</button>
-              <button class="tag-chip" data-day="4" onclick="toggleHHDay(this)">Thu</button>
-              <button class="tag-chip" data-day="5" onclick="toggleHHDay(this)">Fri</button>
-              <button class="tag-chip" data-day="6" onclick="toggleHHDay(this)">Sat</button>
-              <button class="tag-chip" data-day="0" onclick="toggleHHDay(this)">Sun</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-
-  <!-- LANGUAGES TAB -->
-  <div id="tab-languages" style="display:none;">
-    <div class="card">
-      <h3 style="font-size:18px;font-weight:700;margin-bottom:8px;">🌍 Multi-Language Menu</h3>
-      <p style="font-size:13px;color:var(--gray);margin-bottom:20px;">Enable translations so diners can view your menu in their preferred language. Translations are auto-generated and can be edited.</p>
-      
-      <div id="lang-list" style="margin-bottom:20px;"></div>
-      
-      <div class="form-group">
-        <label>Add Language</label>
-        <div style="display:flex;gap:8px;">
-          <select id="add-lang-select" style="flex:1;padding:10px 12px;border:1.5px solid #E5E7EB;border-radius:10px;font-size:14px;font-family:inherit;">
-          </select>
-          <button class="btn btn-primary" onclick="addLanguage()">🌐 Add & Translate</button>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Translation Editor -->
-    <div class="card" id="translation-editor-card" style="display:none;margin-top:16px;">
-      <h3 style="font-size:18px;font-weight:700;margin-bottom:8px;">✏️ Edit Translations</h3>
-      <p style="font-size:13px;color:var(--gray);margin-bottom:16px;">Review and edit auto-generated translations.</p>
-      <div class="form-group">
-        <label>Language</label>
-        <select id="edit-lang-select" onchange="loadTranslationEditor()" style="width:100%;padding:10px 12px;border:1.5px solid #E5E7EB;border-radius:10px;font-size:14px;font-family:inherit;"></select>
-      </div>
-      <div id="translation-items"></div>
     </div>
   </div>
 
@@ -656,417 +535,6 @@ document.querySelectorAll('[data-tab]').forEach(a => {
   });
 });
 
-
-// ============ SPECIALS ============
-let specialsData = { days: {}, customSpecials: [], happyHour: { enabled: false, start: '16:00', end: '18:00', label: 'Happy Hour', days: [1,2,3,4,5] } };
-let selectedSpecialDay = new Date().getDay();
-
-async function loadSpecials() {
-  if (!currentMenu) return;
-  try {
-    const res = await fetch(`/api/menus/${currentMenu.id}/specials`);
-    const { specials } = await res.json();
-    specialsData = specials || { days: {}, customSpecials: [], happyHour: { enabled: false, start: '16:00', end: '18:00', label: 'Happy Hour', days: [1,2,3,4,5] } };
-    if (!specialsData.customSpecials) specialsData.customSpecials = [];
-  } catch(e) { console.error(e); }
-  renderSpecialsUI();
-}
-
-function renderSpecialsUI() {
-  const hh = specialsData.happyHour || {};
-  document.getElementById('hh-enabled').checked = hh.enabled || false;
-  document.getElementById('hh-config').style.display = hh.enabled ? 'block' : 'none';
-  document.getElementById('hh-label').value = hh.label || 'Happy Hour';
-  document.getElementById('hh-start').value = hh.start || '16:00';
-  document.getElementById('hh-end').value = hh.end || '18:00';
-  const hhDays = hh.days || [1,2,3,4,5];
-  document.querySelectorAll('#hh-days .tag-chip').forEach(c => {
-    c.classList.toggle('selected', hhDays.includes(parseInt(c.dataset.day)));
-  });
-  document.querySelectorAll('[data-sday]').forEach(t => {
-    t.classList.toggle('active', parseInt(t.dataset.sday) === selectedSpecialDay);
-  });
-  renderCustomSpecials();
-  renderDaySpecials();
-}
-
-const DAY_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-
-function renderCustomSpecials() {
-  const container = document.getElementById('custom-specials-list');
-  const specials = specialsData.customSpecials || [];
-  if (specials.length === 0) {
-    container.innerHTML = '<p style="color:var(--gray);font-size:13px;padding:8px 0;">No custom specials yet. Create one to get started!</p>';
-    return;
-  }
-  container.innerHTML = specials.map((cs, idx) => {
-    const dayLabels = (cs.days || []).map(d => DAY_NAMES[d]).join(', ');
-    const activeClass = cs.isActive !== false ? '' : 'opacity:0.5;';
-    return `<div class="item-row" style="align-items:flex-start;${activeClass}">
-      <div class="item-info" style="flex:1;">
-        <div style="display:flex;align-items:center;gap:8px;">
-          <div class="item-name">${escHtml(cs.name)}</div>
-          <span style="font-size:11px;padding:2px 8px;border-radius:20px;background:${cs.isActive !== false ? '#DCFCE7' : '#FEE2E2'};color:${cs.isActive !== false ? '#166534' : '#991B1B'};font-weight:600;">${cs.isActive !== false ? 'Active' : 'Paused'}</span>
-        </div>
-        ${cs.description ? `<div style="font-size:12px;color:var(--gray);margin-top:2px;">${escHtml(cs.description)}</div>` : ''}
-        <div style="font-size:11px;color:var(--gray);margin-top:4px;">
-          📅 ${dayLabels || 'No days set'}
-          ${cs.endTime ? ' · ⏰ Until ' + cs.endTime : ''}
-          ${cs.label ? ' · 🏷️ ' + escHtml(cs.label) : ''}
-        </div>
-      </div>
-      <div style="display:flex;align-items:center;gap:8px;">
-        ${cs.originalPrice ? `<span style="text-decoration:line-through;color:var(--gray);font-size:13px;">$${Number(cs.originalPrice).toFixed(2)}</span>` : ''}
-        <span style="font-weight:800;color:var(--orange);font-size:16px;">$${Number(cs.price).toFixed(2)}</span>
-      </div>
-      <div style="display:flex;gap:4px;">
-        <button class="icon-btn" onclick="toggleCustomSpecial(${idx})" title="${cs.isActive !== false ? 'Pause' : 'Activate'}">${cs.isActive !== false ? '⏸️' : '▶️'}</button>
-        <button class="icon-btn" onclick="editCustomSpecial(${idx})">✏️</button>
-        <button class="icon-btn" onclick="removeCustomSpecial(${idx})">🗑</button>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function openCreateCustomSpecial(editIdx) {
-  const isEdit = editIdx !== undefined;
-  const cs = isEdit ? specialsData.customSpecials[editIdx] : {};
-  const days = cs.days || [];
-
-  let html = `<div class="modal"><h3>${isEdit ? 'Edit' : 'Create'} Daily Special</h3>
-    <div class="form-group"><label>Name *</label><input type="text" id="cs-name" value="${escHtml(cs.name || '')}" placeholder="e.g. Taco Tuesday Special"></div>
-    <div class="form-group"><label>Description</label><textarea id="cs-desc" rows="2" placeholder="e.g. Two tacos with rice and beans">${escHtml(cs.description || '')}</textarea></div>
-    <div class="form-row">
-      <div class="form-group"><label>Special Price ($) *</label><input type="number" id="cs-price" step="0.01" min="0" value="${cs.price || ''}" placeholder="9.99"></div>
-      <div class="form-group"><label>Original Price ($)</label><input type="number" id="cs-orig-price" step="0.01" min="0" value="${cs.originalPrice || ''}" placeholder="14.99 (shows strikethrough)"></div>
-    </div>
-    <div class="form-group"><label>Badge Label</label><input type="text" id="cs-label" value="${escHtml(cs.label || '')}" placeholder="e.g. Chef's Pick, Limited Time"></div>
-    <div class="form-group"><label>Available Until (optional, for countdown)</label><input type="time" id="cs-endtime" value="${cs.endTime || ''}"></div>
-    <div class="form-group"><label>Available Days *</label>
-      <div class="tag-picker" id="cs-days">
-        ${DAY_NAMES.map((name, i) => `<button type="button" class="tag-chip${days.includes(i) ? ' selected' : ''}" data-day="${i}" onclick="this.classList.toggle('selected')">${name}</button>`).join('')}
-      </div>
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-outline" onclick="document.getElementById('cs-modal').remove()">Cancel</button>
-      <button class="btn btn-primary" onclick="saveCustomSpecial(${isEdit ? editIdx : 'null'})">${isEdit ? 'Save Changes' : 'Create Special'}</button>
-    </div>
-  </div>`;
-
-  const overlay = document.createElement('div');
-  overlay.className = 'modal-overlay show';
-  overlay.id = 'cs-modal';
-  overlay.innerHTML = html;
-  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
-  document.body.appendChild(overlay);
-}
-
-async function saveCustomSpecial(editIdx) {
-  const name = document.getElementById('cs-name').value.trim();
-  const price = parseFloat(document.getElementById('cs-price').value);
-  if (!name || isNaN(price)) { showToast('Name and price are required'); return; }
-
-  const days = [...document.querySelectorAll('#cs-days .tag-chip.selected')].map(c => parseInt(c.dataset.day));
-  if (days.length === 0) { showToast('Select at least one day'); return; }
-
-  const special = {
-    id: editIdx !== null && specialsData.customSpecials[editIdx] ? specialsData.customSpecials[editIdx].id : Date.now().toString(36),
-    name,
-    description: document.getElementById('cs-desc').value.trim(),
-    price,
-    originalPrice: parseFloat(document.getElementById('cs-orig-price').value) || null,
-    label: document.getElementById('cs-label').value.trim(),
-    endTime: document.getElementById('cs-endtime').value || null,
-    days,
-    isActive: true,
-    image_url: ''
-  };
-
-  if (editIdx !== null) {
-    special.isActive = specialsData.customSpecials[editIdx].isActive !== false;
-    specialsData.customSpecials[editIdx] = special;
-  } else {
-    specialsData.customSpecials.push(special);
-  }
-
-  document.getElementById('cs-modal').remove();
-  await saveSpecials();
-  renderCustomSpecials();
-}
-
-function editCustomSpecial(idx) {
-  openCreateCustomSpecial(idx);
-}
-
-async function toggleCustomSpecial(idx) {
-  specialsData.customSpecials[idx].isActive = specialsData.customSpecials[idx].isActive === false ? true : false;
-  await saveSpecials();
-  renderCustomSpecials();
-}
-
-async function removeCustomSpecial(idx) {
-  if (!confirm('Remove this special?')) return;
-  specialsData.customSpecials.splice(idx, 1);
-  await saveSpecials();
-  renderCustomSpecials();
-}
-
-function renderDaySpecials() {
-  const dayData = specialsData.days[selectedSpecialDay] || { items: [] };
-  const container = document.getElementById('specials-list');
-  if (dayData.items.length === 0) {
-    container.innerHTML = '<p style="color:var(--gray);font-size:13px;padding:12px 0;">No discounted items for this day.</p>';
-    return;
-  }
-  const allItems = {};
-  categories.forEach(cat => cat.items.forEach(item => allItems[item.id] = item));
-  container.innerHTML = dayData.items.map((si, idx) => {
-    const item = allItems[si.itemId];
-    const name = item ? item.name : 'Unknown item';
-    const origPrice = item ? Number(item.price).toFixed(2) : '0.00';
-    return `<div class="item-row" style="align-items:center;">
-      <div class="item-info" style="flex:1;">
-        <div class="item-name">${escHtml(name)}</div>
-        <div style="font-size:12px;color:var(--gray);margin-top:2px;">${si.label ? escHtml(si.label) : 'Daily Special'}${si.endTime ? ' · Until ' + si.endTime : ''}</div>
-      </div>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <span style="text-decoration:line-through;color:var(--gray);font-size:13px;">${origPrice}</span>
-        <span style="font-weight:800;color:var(--orange);font-size:16px;">$${Number(si.specialPrice).toFixed(2)}</span>
-      </div>
-      <button class="icon-btn" onclick="removeSpecial(${idx})">🗑</button>
-    </div>`;
-  }).join('');
-}
-
-function selectSpecialDay(day) {
-  selectedSpecialDay = day;
-  renderSpecialsUI();
-}
-
-function toggleHHDay(el) {
-  el.classList.toggle('selected');
-  saveSpecials();
-}
-
-async function saveSpecials() {
-  const hhDays = [...document.querySelectorAll('#hh-days .tag-chip.selected')].map(c => parseInt(c.dataset.day));
-  specialsData.happyHour = {
-    enabled: document.getElementById('hh-enabled').checked,
-    label: document.getElementById('hh-label').value,
-    start: document.getElementById('hh-start').value,
-    end: document.getElementById('hh-end').value,
-    days: hhDays
-  };
-  document.getElementById('hh-config').style.display = specialsData.happyHour.enabled ? 'block' : 'none';
-  await fetch(`/api/menus/${currentMenu.id}/specials`, {
-    method: 'PUT', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(specialsData),
-  });
-  showToast('Specials saved! ✅');
-}
-
-function openAddSpecial() {
-  const allItems = [];
-  categories.forEach(cat => cat.items.forEach(item => allItems.push({ ...item, catName: cat.name })));
-  if (allItems.length === 0) { showToast('Add menu items first!'); return; }
-  let pickHtml = '<div class="modal"><h3>Add Discounted Item</h3>';
-  pickHtml += '<div class="form-group"><label>Select Item</label><select id="special-item-select" style="width:100%;padding:10px;border:1.5px solid #E5E7EB;border-radius:10px;font-size:14px;font-family:inherit;">';
-  allItems.forEach(item => {
-    pickHtml += `<option value="${item.id}" data-price="${item.price}">${escHtml(item.catName)} → ${escHtml(item.name)} ($${Number(item.price).toFixed(2)})</option>`;
-  });
-  pickHtml += '</select></div>';
-  pickHtml += '<div class="form-group"><label>Special Price ($)</label><input type="number" id="special-price" step="0.01" min="0" placeholder="e.g. 5.99"></div>';
-  pickHtml += '<div class="form-group"><label>Label (optional)</label><input type="text" id="special-label" placeholder="e.g. 50% Off"></div>';
-  pickHtml += '<div class="form-group"><label>Available Until (optional)</label><input type="time" id="special-endtime" value=""></div>';
-  pickHtml += '<div class="modal-actions"><button class="btn btn-outline" onclick="closeSpecialPicker()">Cancel</button><button class="btn btn-primary" onclick="confirmAddSpecial()">Add</button></div>';
-  pickHtml += '</div>';
-  const overlay = document.createElement('div');
-  overlay.className = 'modal-overlay show';
-  overlay.id = 'special-picker-modal';
-  overlay.innerHTML = pickHtml;
-  overlay.addEventListener('click', e => { if (e.target === overlay) closeSpecialPicker(); });
-  document.body.appendChild(overlay);
-  const sel = document.getElementById('special-item-select');
-  document.getElementById('special-price').value = (Number(sel.options[sel.selectedIndex].dataset.price) * 0.8).toFixed(2);
-  sel.addEventListener('change', () => {
-    document.getElementById('special-price').value = (Number(sel.options[sel.selectedIndex].dataset.price) * 0.8).toFixed(2);
-  });
-}
-
-function closeSpecialPicker() {
-  document.getElementById('special-picker-modal')?.remove();
-}
-
-async function confirmAddSpecial() {
-  const itemId = document.getElementById('special-item-select').value;
-  const specialPrice = parseFloat(document.getElementById('special-price').value) || 0;
-  const label = document.getElementById('special-label').value;
-  const endTime = document.getElementById('special-endtime').value || null;
-  if (!specialsData.days[selectedSpecialDay]) specialsData.days[selectedSpecialDay] = { items: [] };
-  specialsData.days[selectedSpecialDay].items.push({ itemId, specialPrice, label, endTime });
-  closeSpecialPicker();
-  await saveSpecials();
-  renderDaySpecials();
-}
-
-async function removeSpecial(idx) {
-  if (!specialsData.days[selectedSpecialDay]) return;
-  specialsData.days[selectedSpecialDay].items.splice(idx, 1);
-  await saveSpecials();
-  renderDaySpecials();
-}
-
-
-// ============ LANGUAGES ============
-let supportedLangs = {};
-let menuLanguages = [];
-let menuTranslations = {};
-
-async function loadLanguages() {
-  if (!currentMenu) return;
-  try {
-    const [langRes, transRes] = await Promise.all([
-      fetch('/api/languages'),
-      fetch(\`/api/menus/\${currentMenu.id}/translations\`)
-    ]);
-    const langData = await langRes.json();
-    supportedLangs = langData.languages;
-    const transData = await transRes.json();
-    menuLanguages = transData.languages || [];
-    menuTranslations = transData.translations || {};
-  } catch(e) { console.error(e); }
-  renderLanguagesUI();
-}
-
-function renderLanguagesUI() {
-  // Render active languages
-  const container = document.getElementById('lang-list');
-  if (menuLanguages.length === 0) {
-    container.innerHTML = '<div style="padding:16px;background:#F9FAFB;border-radius:12px;text-align:center;"><p style="color:var(--gray);font-size:14px;">No languages added yet.</p><p style="color:var(--gray);font-size:12px;margin-top:4px;">Add a language to auto-translate your menu.</p></div>';
-  } else {
-    container.innerHTML = menuLanguages.map(lang => {
-      const info = supportedLangs[lang] || { flag: '🏳️', name: lang, nativeName: lang };
-      const transCount = menuTranslations[lang] ? Object.keys(menuTranslations[lang]).length : 0;
-      return \`<div style="display:flex;align-items:center;gap:12px;padding:12px;background:#F9FAFB;border-radius:12px;margin-bottom:8px;">
-        <span style="font-size:28px;">\${info.flag}</span>
-        <div style="flex:1;">
-          <div style="font-weight:700;font-size:14px;">\${info.nativeName} <span style="color:var(--gray);font-weight:400;">(\${info.name})</span></div>
-          <div style="font-size:12px;color:var(--gray);">\${transCount} items translated</div>
-        </div>
-        <button class="btn btn-sm btn-outline" onclick="retranslateLanguage('\${lang}')">🔄 Re-translate</button>
-        <button class="btn btn-sm btn-danger" onclick="removeLanguage('\${lang}')">🗑</button>
-      </div>\`;
-    }).join('');
-  }
-
-  // Render "add language" dropdown (exclude already added)
-  const addSelect = document.getElementById('add-lang-select');
-  const available = Object.entries(supportedLangs).filter(([code]) => code !== 'en' && !menuLanguages.includes(code));
-  addSelect.innerHTML = available.map(([code, info]) => \`<option value="\${code}">\${info.flag} \${info.nativeName} (\${info.name})</option>\`).join('');
-  if (available.length === 0) addSelect.innerHTML = '<option>All languages added!</option>';
-
-  // Render edit language dropdown
-  const editSelect = document.getElementById('edit-lang-select');
-  const editorCard = document.getElementById('translation-editor-card');
-  if (menuLanguages.length > 0) {
-    editorCard.style.display = 'block';
-    editSelect.innerHTML = menuLanguages.map(lang => {
-      const info = supportedLangs[lang] || { flag: '🏳️', name: lang };
-      return \`<option value="\${lang}">\${info.flag} \${info.name}</option>\`;
-    }).join('');
-    loadTranslationEditor();
-  } else {
-    editorCard.style.display = 'none';
-  }
-}
-
-async function addLanguage() {
-  const lang = document.getElementById('add-lang-select').value;
-  if (!lang || !supportedLangs[lang]) return;
-  showToast(\`Translating to \${supportedLangs[lang].nativeName}...\`);
-  const res = await fetch(\`/api/menus/\${currentMenu.id}/translate\`, {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ language: lang })
-  });
-  const data = await res.json();
-  if (data.success) {
-    if (!currentMenu.languages) currentMenu.languages = [];
-    if (!currentMenu.languages.includes(lang)) currentMenu.languages.push(lang);
-    showToast(\`\${supportedLangs[lang].flag} \${supportedLangs[lang].nativeName} added! \${data.translatedCount} items translated ✅\`);
-    await loadLanguages();
-    renderMenuSelect();
-  } else {
-    showToast('Translation failed: ' + (data.error || 'unknown'));
-  }
-}
-
-async function retranslateLanguage(lang) {
-  showToast(\`Re-translating to \${supportedLangs[lang]?.nativeName || lang}...\`);
-  const res = await fetch(\`/api/menus/\${currentMenu.id}/translate\`, {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ language: lang })
-  });
-  const data = await res.json();
-  if (data.success) {
-    showToast(\`Re-translated! \${data.translatedCount} items ✅\`);
-    await loadLanguages();
-  }
-}
-
-async function removeLanguage(lang) {
-  const info = supportedLangs[lang] || { name: lang };
-  if (!confirm(\`Remove \${info.name} translations?\`)) return;
-  await fetch(\`/api/menus/\${currentMenu.id}/translations/\${lang}\`, { method: 'DELETE' });
-  if (currentMenu.languages) currentMenu.languages = currentMenu.languages.filter(l => l !== lang);
-  showToast(\`\${info.name} removed\`);
-  await loadLanguages();
-  renderMenuSelect();
-}
-
-function loadTranslationEditor() {
-  const lang = document.getElementById('edit-lang-select').value;
-  if (!lang || !menuTranslations[lang]) {
-    document.getElementById('translation-items').innerHTML = '<p style="color:var(--gray);">No translations to edit.</p>';
-    return;
-  }
-  const trans = menuTranslations[lang];
-  let html = '';
-  categories.forEach(cat => {
-    const catTrans = trans[cat.id] || {};
-    html += \`<div style="margin-top:16px;margin-bottom:8px;font-weight:700;font-size:14px;color:var(--orange);">\${escHtml(cat.name)} → \${escHtml(catTrans.name || cat.name)}</div>\`;
-    html += \`<div class="form-row" style="margin-bottom:8px;">
-      <div class="form-group"><label>Category Name</label><input type="text" value="\${escHtml(catTrans.name || '')}" onchange="updateTranslation('\${lang}','\${cat.id}',this.value,null)" placeholder="\${escHtml(cat.name)}"></div>
-      <div class="form-group"><label>Description</label><input type="text" value="\${escHtml(catTrans.description || '')}" onchange="updateTranslation('\${lang}','\${cat.id}',null,this.value)" placeholder="\${escHtml(cat.description || '')}"></div>
-    </div>\`;
-    (cat.items || []).forEach(item => {
-      const itemTrans = trans[item.id] || {};
-      html += \`<div style="padding:8px 0 8px 16px;border-left:2px solid #E5E7EB;margin-bottom:4px;">
-        <div style="font-size:12px;color:var(--gray);margin-bottom:4px;">\${escHtml(item.name)} — $\${Number(item.price).toFixed(2)}</div>
-        <div class="form-row">
-          <div class="form-group"><label style="font-size:11px;">Name</label><input type="text" value="\${escHtml(itemTrans.name || '')}" onchange="updateTranslation('\${lang}','\${item.id}',this.value,null)" placeholder="\${escHtml(item.name)}" style="font-size:13px;padding:8px 10px;"></div>
-          <div class="form-group"><label style="font-size:11px;">Description</label><input type="text" value="\${escHtml(itemTrans.description || '')}" onchange="updateTranslation('\${lang}','\${item.id}',null,this.value)" placeholder="\${escHtml(item.description || '')}" style="font-size:13px;padding:8px 10px;"></div>
-        </div>
-      </div>\`;
-    });
-  });
-  document.getElementById('translation-items').innerHTML = html;
-}
-
-async function updateTranslation(lang, itemId, name, description) {
-  const existing = (menuTranslations[lang] || {})[itemId] || {};
-  const body = {
-    name: name !== null ? name : existing.name || '',
-    description: description !== null ? description : existing.description || ''
-  };
-  await fetch(\`/api/menus/\${currentMenu.id}/translations/\${lang}/\${itemId}\`, {
-    method: 'PUT', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  });
-  if (!menuTranslations[lang]) menuTranslations[lang] = {};
-  menuTranslations[lang][itemId] = body;
-  showToast('Translation updated ✅');
-}
-
 async function init() {
   try {
     const authRes = await fetch('/api/auth/me');
@@ -1097,11 +565,7 @@ async function init() {
 
 function renderMenuSelect() {
   const sel = document.getElementById('menu-select');
-  sel.innerHTML = allMenus.map(m => {
-    const langs = (m.languages || []).length;
-    const badge = langs > 0 ? ` (${langs} lang)` : '';
-    return \`<option value="${m.id}">${escHtml(m.name)}${badge}</option>\`;
-  }).join('');
+  sel.innerHTML = allMenus.map(m => `<option value="${m.id}">${escHtml(m.name)}</option>`).join('');
   document.getElementById('delete-menu-btn').style.display = allMenus.length > 1 ? 'inline-flex' : 'none';
 }
 
@@ -1128,8 +592,6 @@ async function selectMenu(menuId) {
 
   await loadCategories();
   await loadQR();
-  await loadSpecials();
-  await loadLanguages();
   loadOrderConfig();
 }
 
@@ -1175,19 +637,17 @@ function renderCategories() {
     return;
   }
   container.innerHTML = categories.map(cat => `
-    <div class="card" data-cat-id="${cat.id}" draggable="true" ondragstart="catDragStart(event, '${cat.id}')" ondragend="catDragEnd(event)" ondragover="catDragOver(event)" ondragleave="catDragLeave(event)" ondrop="catDrop(event, '${cat.id}')">
+    <div class="card" data-cat-id="${cat.id}">
       <div class="category-header">
-        <span class="drag-handle" title="Drag to reorder category">⠿</span>
         <h3 contenteditable="true" onblur="updateCategoryName('${cat.id}', this.textContent)">${escHtml(cat.name)}</h3>
         <div class="category-actions">
           <button class="btn btn-sm btn-green" onclick="openAddItem('${cat.id}')">+ Add Item</button>
           <button class="btn btn-sm btn-danger" onclick="deleteCategory('${cat.id}')">🗑</button>
         </div>
       </div>
-      ${cat.items.length === 0 ? '<p style="color:var(--gray);font-size:13px;padding:8px 0;">No items yet. Drag items here or click + Add Item.</p>' : ''}
+      ${cat.items.length === 0 ? '<p style="color:var(--gray);font-size:13px;padding:8px 0;">No items yet.</p>' : ''}
       ${cat.items.map(item => `
-        <div class="item-row${item.is_available ? '' : ' unavailable'}" draggable="true" data-item-id="${item.id}" data-cat-id="${cat.id}" ondragstart="itemDragStart(event, '${item.id}', '${cat.id}')" ondragend="itemDragEnd(event)" ondragover="itemDragOver(event)" ondragleave="itemDragLeave(event)" ondrop="itemDrop(event, '${item.id}', '${cat.id}')">
-          <span class="drag-handle" title="Drag to reorder">⠿</span>
+        <div class="item-row${item.is_available ? '' : ' unavailable'}">
           ${item.image_url
             ? `<img class="item-thumb" src="${item.image_url}" alt="">`
             : `<div class="item-thumb-placeholder">🍽</div>`}
@@ -1204,7 +664,6 @@ function renderCategories() {
             <span class="slider"></span>
           </label>
           <div class="item-actions">
-            <button class="icon-btn" onclick="duplicateItem('${item.id}')" title="Duplicate">📋</button>
             <button class="icon-btn" onclick="openEditItem('${cat.id}', '${item.id}')">✏️</button>
             <button class="icon-btn" onclick="deleteItem('${item.id}', '${cat.id}')">🗑</button>
           </div>
@@ -1417,13 +876,13 @@ function copyMenuUrl() {
 }
 
 function showTab(tab) {
-  ['editor', 'design', 'qr', 'restaurant', 'specials', 'languages', 'settings'].forEach(t => {
+  ['editor', 'design', 'qr', 'restaurant', 'settings'].forEach(t => {
     document.getElementById('tab-' + t).style.display = t === tab ? 'block' : 'none';
   });
-  const titles = { editor: 'Menu Editor', design: 'Design', qr: 'QR Code', restaurant: 'Restaurant Info', specials: 'Daily Specials', languages: 'Languages', settings: 'Settings' };
+  const titles = { editor: 'Menu Editor', design: 'Design', qr: 'QR Code', restaurant: 'Restaurant Info', settings: 'Settings' };
   document.getElementById('page-title').textContent = titles[tab];
   // Show/hide menu selector only on editor/design/qr tabs
-  const showSelector = ['editor', 'design', 'qr', 'languages'].includes(tab);
+  const showSelector = ['editor', 'design', 'qr'].includes(tab);
   document.getElementById('menu-selector-bar').style.display = showSelector ? 'flex' : 'none';
   document.querySelector('.menu-url-bar').style.display = showSelector ? 'flex' : 'none';
 }
@@ -1506,295 +965,7 @@ document.querySelectorAll('.modal-overlay').forEach(o => {
   o.addEventListener('click', e => { if (e.target === o) o.classList.remove('show'); });
 });
 
-
-// ============ DRAG & DROP ============
-let dragType = null; // 'category' or 'item'
-let dragId = null;
-let dragCatId = null;
-
-function catDragStart(e, catId) {
-  // Only drag if initiated from drag handle
-  if (!e.target.closest('.drag-handle') && e.target.className !== 'drag-handle') {
-    e.preventDefault(); return;
-  }
-  dragType = 'category';
-  dragId = catId;
-  e.dataTransfer.effectAllowed = 'move';
-  e.dataTransfer.setData('text/plain', catId);
-  setTimeout(() => e.target.closest('.card').classList.add('dragging'), 0);
-}
-function catDragEnd(e) {
-  document.querySelectorAll('.card').forEach(c => c.classList.remove('dragging','drag-over-top','drag-over-bottom'));
-  dragType = null; dragId = null;
-}
-function catDragOver(e) {
-  if (dragType !== 'category') return;
-  e.preventDefault();
-  e.dataTransfer.dropEffect = 'move';
-  const card = e.target.closest('.card[data-cat-id]');
-  if (!card) return;
-  document.querySelectorAll('.card').forEach(c => c.classList.remove('drag-over-top','drag-over-bottom'));
-  const rect = card.getBoundingClientRect();
-  const mid = rect.top + rect.height / 2;
-  card.classList.add(e.clientY < mid ? 'drag-over-top' : 'drag-over-bottom');
-}
-function catDragLeave(e) {
-  const card = e.target.closest('.card[data-cat-id]');
-  if (card) card.classList.remove('drag-over-top','drag-over-bottom');
-}
-async function catDrop(e, targetCatId) {
-  e.preventDefault();
-  if (dragType !== 'category' || !dragId || dragId === targetCatId) return;
-  document.querySelectorAll('.card').forEach(c => c.classList.remove('drag-over-top','drag-over-bottom','dragging'));
-  
-  const fromIdx = categories.findIndex(c => c.id === dragId);
-  const toIdx = categories.findIndex(c => c.id === targetCatId);
-  if (fromIdx < 0 || toIdx < 0) return;
-  
-  const card = document.querySelector(`.card[data-cat-id="${targetCatId}"]`);
-  const rect = card.getBoundingClientRect();
-  const insertBefore = e.clientY < rect.top + rect.height / 2;
-  
-  const [moved] = categories.splice(fromIdx, 1);
-  let newIdx = categories.findIndex(c => c.id === targetCatId);
-  if (!insertBefore) newIdx++;
-  categories.splice(newIdx, 0, moved);
-  
-  renderCategories();
-  const order = categories.map(c => c.id);
-  await fetch(`/api/menus/${currentMenu.id}/reorder-categories`, {
-    method: 'PUT', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ order }),
-  });
-  showToast('Categories reordered! ✅');
-}
-
-function itemDragStart(e, itemId, catId) {
-  if (!e.target.closest('.drag-handle') && e.target.className !== 'drag-handle') {
-    e.preventDefault(); return;
-  }
-  e.stopPropagation();
-  dragType = 'item';
-  dragId = itemId;
-  dragCatId = catId;
-  e.dataTransfer.effectAllowed = 'move';
-  e.dataTransfer.setData('text/plain', itemId);
-  setTimeout(() => e.target.closest('.item-row').classList.add('dragging'), 0);
-}
-function itemDragEnd(e) {
-  document.querySelectorAll('.item-row').forEach(r => r.classList.remove('dragging','drag-over-top','drag-over-bottom'));
-  dragType = null; dragId = null; dragCatId = null;
-}
-function itemDragOver(e) {
-  if (dragType !== 'item') return;
-  e.preventDefault();
-  e.stopPropagation();
-  e.dataTransfer.dropEffect = 'move';
-  const row = e.target.closest('.item-row[data-item-id]');
-  if (!row) return;
-  document.querySelectorAll('.item-row').forEach(r => r.classList.remove('drag-over-top','drag-over-bottom'));
-  const rect = row.getBoundingClientRect();
-  const mid = rect.top + rect.height / 2;
-  row.classList.add(e.clientY < mid ? 'drag-over-top' : 'drag-over-bottom');
-}
-function itemDragLeave(e) {
-  const row = e.target.closest('.item-row[data-item-id]');
-  if (row) row.classList.remove('drag-over-top','drag-over-bottom');
-}
-async function itemDrop(e, targetItemId, targetCatId) {
-  e.preventDefault();
-  e.stopPropagation();
-  if (dragType !== 'item' || !dragId || dragId === targetItemId) return;
-  document.querySelectorAll('.item-row').forEach(r => r.classList.remove('drag-over-top','drag-over-bottom','dragging'));
-  
-  // Find source category and item
-  const srcCat = categories.find(c => c.id === dragCatId);
-  const tgtCat = categories.find(c => c.id === targetCatId);
-  if (!srcCat || !tgtCat) return;
-  
-  const srcIdx = srcCat.items.findIndex(i => i.id === dragId);
-  if (srcIdx < 0) return;
-  const [movedItem] = srcCat.items.splice(srcIdx, 1);
-  
-  const row = document.querySelector(`.item-row[data-item-id="${targetItemId}"]`);
-  const rect = row.getBoundingClientRect();
-  const insertBefore = e.clientY < rect.top + rect.height / 2;
-  
-  let tgtIdx = tgtCat.items.findIndex(i => i.id === targetItemId);
-  if (!insertBefore) tgtIdx++;
-  tgtCat.items.splice(tgtIdx, 0, movedItem);
-  
-  renderCategories();
-  // Persist order for the target category
-  const order = tgtCat.items.map(i => i.id);
-  await fetch(`/api/categories/${targetCatId}/reorder-items`, {
-    method: 'PUT', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ order }),
-  });
-  // If moved between categories, also update source
-  if (dragCatId !== targetCatId) {
-    const srcOrder = srcCat.items.map(i => i.id);
-    await fetch(`/api/categories/${dragCatId}/reorder-items`, {
-      method: 'PUT', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ order: srcOrder }),
-    });
-  }
-  showToast('Items reordered! ✅');
-}
-
-// ============ DUPLICATE ITEM ============
-async function duplicateItem(itemId) {
-  const res = await fetch(`/api/items/${itemId}/duplicate`, { method: 'POST' });
-  if (res.ok) {
-    await loadCategories();
-    showToast('Item duplicated! 📋');
-  } else {
-    showToast('Failed to duplicate');
-  }
-}
-
 init();
-
-
-// ============ MOBILE TOUCH DRAG & DROP ============
-(function() {
-  let touchDragEl = null;
-  let touchGhost = null;
-  let touchType = null; // 'item' or 'category'
-  let touchId = null;
-  let touchCatId = null;
-  let touchStartY = 0;
-  let touchMoved = false;
-
-  function findDropTarget(x, y) {
-    if (touchGhost) touchGhost.style.display = 'none';
-    const el = document.elementFromPoint(x, y);
-    if (touchGhost) touchGhost.style.display = '';
-    if (!el) return null;
-    if (touchType === 'item') return el.closest('.item-row[data-item-id]');
-    if (touchType === 'category') return el.closest('.card[data-cat-id]');
-    return null;
-  }
-
-  document.addEventListener('touchstart', function(e) {
-    const handle = e.target.closest('.drag-handle');
-    if (!handle) return;
-    const itemRow = handle.closest('.item-row[data-item-id]');
-    const catCard = handle.closest('.card[data-cat-id]');
-    if (itemRow) {
-      touchType = 'item';
-      touchDragEl = itemRow;
-      touchId = itemRow.dataset.itemId;
-      touchCatId = itemRow.dataset.catId;
-    } else if (catCard) {
-      touchType = 'category';
-      touchDragEl = catCard;
-      touchId = catCard.dataset.catId;
-    } else return;
-    touchStartY = e.touches[0].clientY;
-    touchMoved = false;
-  }, { passive: true });
-
-  document.addEventListener('touchmove', function(e) {
-    if (!touchDragEl) return;
-    const touch = e.touches[0];
-    if (!touchMoved && Math.abs(touch.clientY - touchStartY) < 10) return;
-    touchMoved = true;
-    e.preventDefault();
-
-    if (!touchGhost) {
-      touchGhost = touchDragEl.cloneNode(true);
-      touchGhost.style.cssText = 'position:fixed;z-index:9999;pointer-events:none;opacity:0.85;width:' + touchDragEl.offsetWidth + 'px;box-shadow:0 8px 32px rgba(0,0,0,0.18);border-radius:12px;background:#fff;';
-      document.body.appendChild(touchGhost);
-      touchDragEl.classList.add('dragging');
-    }
-    touchGhost.style.left = (touch.clientX - touchDragEl.offsetWidth / 2) + 'px';
-    touchGhost.style.top = (touch.clientY - 30) + 'px';
-
-    // Highlight drop target
-    const selector = touchType === 'item' ? '.item-row' : '.card';
-    document.querySelectorAll(selector).forEach(el => el.classList.remove('drag-over-top', 'drag-over-bottom'));
-    const target = findDropTarget(touch.clientX, touch.clientY);
-    if (target && target !== touchDragEl) {
-      const rect = target.getBoundingClientRect();
-      target.classList.add(touch.clientY < rect.top + rect.height / 2 ? 'drag-over-top' : 'drag-over-bottom');
-    }
-
-    // Auto-scroll
-    if (touch.clientY < 80) window.scrollBy(0, -8);
-    else if (touch.clientY > window.innerHeight - 80) window.scrollBy(0, 8);
-  }, { passive: false });
-
-  document.addEventListener('touchend', async function(e) {
-    if (!touchDragEl || !touchMoved) {
-      cleanup(); return;
-    }
-    const touch = e.changedTouches[0];
-    const target = findDropTarget(touch.clientX, touch.clientY);
-
-    if (target && target !== touchDragEl) {
-      const rect = target.getBoundingClientRect();
-      const before = touch.clientY < rect.top + rect.height / 2;
-
-      if (touchType === 'category') {
-        const targetCatId = target.dataset.catId;
-        if (touchId !== targetCatId) {
-          const fromIdx = categories.findIndex(c => c.id === touchId);
-          const [moved] = categories.splice(fromIdx, 1);
-          let toIdx = categories.findIndex(c => c.id === targetCatId);
-          if (!before) toIdx++;
-          categories.splice(toIdx, 0, moved);
-          renderCategories();
-          await fetch('/api/menus/' + currentMenu.id + '/reorder-categories', {
-            method: 'PUT', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ order: categories.map(c => c.id) }),
-          });
-          showToast('Categories reordered! ✅');
-        }
-      } else if (touchType === 'item') {
-        const targetItemId = target.dataset.itemId;
-        const targetCatId2 = target.dataset.catId;
-        if (touchId !== targetItemId) {
-          const srcCat = categories.find(c => c.id === touchCatId);
-          const tgtCat = categories.find(c => c.id === targetCatId2);
-          if (srcCat && tgtCat) {
-            const srcIdx = srcCat.items.findIndex(i => i.id === touchId);
-            const [movedItem] = srcCat.items.splice(srcIdx, 1);
-            let tgtIdx = tgtCat.items.findIndex(i => i.id === targetItemId);
-            if (!before) tgtIdx++;
-            tgtCat.items.splice(tgtIdx, 0, movedItem);
-            renderCategories();
-            await fetch('/api/categories/' + targetCatId2 + '/reorder-items', {
-              method: 'PUT', headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ order: tgtCat.items.map(i => i.id) }),
-            });
-            if (touchCatId !== targetCatId2) {
-              movedItem.category_id = targetCatId2;
-              await fetch('/api/items/' + movedItem.id, {
-                method: 'PUT', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ category_id: targetCatId2 }),
-              });
-              await fetch('/api/categories/' + touchCatId + '/reorder-items', {
-                method: 'PUT', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ order: srcCat.items.map(i => i.id) }),
-              });
-            }
-            showToast('Items reordered! ✅');
-          }
-        }
-      }
-    }
-    cleanup();
-  });
-
-  function cleanup() {
-    if (touchGhost) { touchGhost.remove(); touchGhost = null; }
-    if (touchDragEl) touchDragEl.classList.remove('dragging');
-    document.querySelectorAll('.item-row, .card').forEach(el => el.classList.remove('drag-over-top', 'drag-over-bottom'));
-    touchDragEl = null; touchType = null; touchId = null; touchCatId = null; touchMoved = false;
-  }
-})();
-
 </script>
 
 </body>

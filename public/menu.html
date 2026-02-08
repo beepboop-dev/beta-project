@@ -220,161 +220,6 @@
     .not-found { text-align: center; padding: 80px 24px; }
     .not-found h2 { font-size: 24px; margin-bottom: 8px; }
     .not-found p { color: #6B7280; }
-
-    /* ============ DAILY SPECIALS ============ */
-    @keyframes shimmer {
-      0% { background-position: -200% 0; }
-      100% { background-position: 200% 0; }
-    }
-    @keyframes pulseGlow {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(232,93,44,0.3); }
-      50% { box-shadow: 0 0 20px 4px rgba(232,93,44,0.15); }
-    }
-    @keyframes slideDown {
-      from { opacity: 0; transform: translateY(-20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(12px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes countdownPulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-    }
-
-    .special-countdown {
-      background: #FEF2F2;
-      padding: 4px 10px;
-      border-radius: 8px;
-      display: inline-flex !important;
-      width: fit-content;
-    }
-    .specials-banner {
-      background: linear-gradient(135deg, #E85D2C, #F59E0B, #E85D2C);
-      background-size: 200% 100%;
-      animation: shimmer 3s ease infinite, slideDown 0.6s ease;
-      padding: 20px 16px;
-      text-align: center;
-      color: #fff;
-      position: relative;
-      overflow: hidden;
-    }
-    .specials-banner::before {
-      content: '';
-      position: absolute; inset: 0;
-      background: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.15) 0%, transparent 50%);
-    }
-    .specials-banner h2 {
-      font-size: 20px; font-weight: 800; margin-bottom: 4px;
-      text-shadow: 0 1px 3px rgba(0,0,0,0.2);
-      position: relative;
-    }
-    .specials-banner .subtitle {
-      font-size: 13px; opacity: 0.9; position: relative;
-    }
-    .specials-section {
-      max-width: 600px; margin: 0 auto; padding: 0 16px;
-    }
-    .special-item {
-      display: flex; gap: 12px; padding: 16px 0;
-      border-bottom: 1px solid rgba(0,0,0,0.06);
-      align-items: flex-start;
-      animation: fadeInUp 0.5s ease backwards;
-    }
-    .special-item:nth-child(1) { animation-delay: 0.1s; }
-    .special-item:nth-child(2) { animation-delay: 0.2s; }
-    .special-item:nth-child(3) { animation-delay: 0.3s; }
-    .special-item:nth-child(4) { animation-delay: 0.4s; }
-    .special-item:last-child { border-bottom: none; }
-    .special-item .special-badge {
-      display: inline-block; font-size: 10px; font-weight: 700;
-      background: #E85D2C; color: #fff; padding: 2px 8px;
-      border-radius: 4px; margin-bottom: 4px; text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .special-item .price-group {
-      display: flex; flex-direction: column; align-items: flex-end;
-      flex-shrink: 0; gap: 2px;
-    }
-    .special-item .orig-price {
-      font-size: 13px; color: #9CA3AF; text-decoration: line-through;
-    }
-    .special-item .special-price {
-      font-size: 20px; font-weight: 800; color: #E85D2C;
-      animation: pulseGlow 2s ease infinite;
-      border-radius: 8px; padding: 2px 0;
-    }
-    .special-item .savings {
-      font-size: 10px; font-weight: 700; color: #10B981;
-      background: #ECFDF5; padding: 1px 6px; border-radius: 4px;
-    }
-    .happy-hour-bar {
-      background: linear-gradient(135deg, #7C3AED, #EC4899);
-      padding: 14px 16px;
-      text-align: center; color: #fff;
-      animation: slideDown 0.5s ease;
-    }
-    .happy-hour-bar .hh-title {
-      font-size: 16px; font-weight: 800; margin-bottom: 2px;
-    }
-    .happy-hour-bar .hh-countdown {
-      display: inline-flex; gap: 8px; margin-top: 6px;
-      animation: countdownPulse 2s ease infinite;
-    }
-    .happy-hour-bar .hh-countdown .hh-unit {
-      display: flex; flex-direction: column; align-items: center;
-      background: rgba(255,255,255,0.2); border-radius: 8px;
-      padding: 6px 10px; min-width: 48px;
-    }
-    .happy-hour-bar .hh-countdown .hh-num {
-      font-size: 22px; font-weight: 800; line-height: 1;
-    }
-    .happy-hour-bar .hh-countdown .hh-label {
-      font-size: 9px; font-weight: 600; text-transform: uppercase;
-      opacity: 0.8; letter-spacing: 0.5px;
-    }
-    .happy-hour-bar .hh-status {
-      font-size: 12px; opacity: 0.9; margin-top: 4px;
-    }
-
-
-    /* ============ FIND US / MAP ============ */
-    .find-us-section {
-      max-width: 600px; margin: 0 auto; padding: 24px 16px;
-      border-top: 1px solid rgba(0,0,0,0.06);
-    }
-    .find-us-section h3 {
-      font-size: 18px; font-weight: 800; color: var(--primary, #E85D2C);
-      margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
-    }
-    .find-us-details {
-      display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;
-    }
-    .find-us-row {
-      display: flex; align-items: flex-start; gap: 10px; font-size: 15px; color: #374151; line-height: 1.5;
-    }
-    .find-us-row .fu-icon {
-      font-size: 18px; width: 24px; text-align: center; flex-shrink: 0; padding-top: 1px;
-    }
-    .find-us-row a { color: var(--primary, #E85D2C); text-decoration: none; font-weight: 600; }
-    .find-us-row a:hover { text-decoration: underline; }
-    .map-embed {
-      border-radius: 16px; overflow: hidden; border: 2px solid rgba(0,0,0,0.06);
-      box-shadow: 0 4px 16px rgba(0,0,0,0.08); margin-top: 4px;
-    }
-    .map-embed iframe {
-      width: 100%; height: 280px; border: 0; display: block;
-    }
-    .map-directions-btn {
-      display: inline-flex; align-items: center; gap: 8px;
-      margin-top: 14px; padding: 10px 20px;
-      background: var(--primary, #E85D2C); color: #fff;
-      border-radius: 12px; font-size: 14px; font-weight: 700;
-      text-decoration: none; transition: all 0.2s;
-      box-shadow: 0 2px 8px rgba(232,93,44,0.25);
-    }
-    .map-directions-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(232,93,44,0.35); }
   </style>
 </head>
 <body>
@@ -421,35 +266,23 @@ const tagConfig = {
 
 const tagLabels = {
   en: { vegetarian: 'Vegetarian', vegan: 'Vegan', 'gluten-free': 'Gluten-Free', spicy: 'Spicy', nuts: 'Nuts', 'dairy-free': 'Dairy-Free' },
+  it: { vegetarian: 'Vegetariano', vegan: 'Vegano', 'gluten-free': 'Senza Glutine', spicy: 'Piccante', nuts: 'Frutta a Guscio', 'dairy-free': 'Senza Latticini' },
   es: { vegetarian: 'Vegetariano', vegan: 'Vegano', 'gluten-free': 'Sin Gluten', spicy: 'Picante', nuts: 'Frutos Secos', 'dairy-free': 'Sin Lácteos' },
   fr: { vegetarian: 'Végétarien', vegan: 'Végan', 'gluten-free': 'Sans Gluten', spicy: 'Épicé', nuts: 'Fruits à Coque', 'dairy-free': 'Sans Lactose' },
-  de: { vegetarian: 'Vegetarisch', vegan: 'Vegan', 'gluten-free': 'Glutenfrei', spicy: 'Scharf', nuts: 'Nüsse', 'dairy-free': 'Laktosefrei' },
-  it: { vegetarian: 'Vegetariano', vegan: 'Vegano', 'gluten-free': 'Senza Glutine', spicy: 'Piccante', nuts: 'Frutta a Guscio', 'dairy-free': 'Senza Latticini' },
-  ja: { vegetarian: 'ベジタリアン', vegan: 'ヴィーガン', 'gluten-free': 'グルテンフリー', spicy: '辛い', nuts: 'ナッツ', 'dairy-free': '乳製品不使用' },
-  zh: { vegetarian: '素食', vegan: '纯素', 'gluten-free': '无麺质', spicy: '辣', nuts: '坚果', 'dairy-free': '无乳制品' },
-  pt: { vegetarian: 'Vegetariano', vegan: 'Vegano', 'gluten-free': 'Sem Glúten', spicy: 'Picante', nuts: 'Nozes', 'dairy-free': 'Sem Laticínios' },
 };
 
 const filterLabels = {
   en: { vegetarian: '🌱 Vegetarian', vegan: '🥬 Vegan', 'gluten-free': '🌾 Gluten-Free', 'nut-free': '🥜 Nut-Free' },
+  it: { vegetarian: '🌱 Vegetariano', vegan: '🥬 Vegano', 'gluten-free': '🌾 Senza Glutine', 'nut-free': '🥜 Senza Noci' },
   es: { vegetarian: '🌱 Vegetariano', vegan: '🥬 Vegano', 'gluten-free': '🌾 Sin Gluten', 'nut-free': '🥜 Sin Frutos Secos' },
   fr: { vegetarian: '🌱 Végétarien', vegan: '🥬 Végan', 'gluten-free': '🌾 Sans Gluten', 'nut-free': '🥜 Sans Noix' },
-  de: { vegetarian: '🌱 Vegetarisch', vegan: '🥬 Vegan', 'gluten-free': '🌾 Glutenfrei', 'nut-free': '🥜 Nussfrei' },
-  it: { vegetarian: '🌱 Vegetariano', vegan: '🥬 Vegano', 'gluten-free': '🌾 Senza Glutine', 'nut-free': '🥜 Senza Noci' },
-  ja: { vegetarian: '🌱 ベジタリアン', vegan: '🥬 ヴィーガン', 'gluten-free': '🌾 グルテンフリー', 'nut-free': '🥜 ナッツフリー' },
-  zh: { vegetarian: '🌱 素食', vegan: '🥬 纯素', 'gluten-free': '🌾 无麺质', 'nut-free': '🥜 无坚果' },
-  pt: { vegetarian: '🌱 Vegetariano', vegan: '🥬 Vegano', 'gluten-free': '🌾 Sem Glúten', 'nut-free': '🥜 Sem Nozes' },
 };
 
 const uiStrings = {
-  en: { scanMenu: 'Scan for Menu', visitUs: 'Visit Us', findUs: 'Find Us', getDirections: '🗺️ Get Directions', poweredBy: 'Powered by', createFree: 'Create your free digital menu →', soldOut: 'Sold Out', shareMenu: '📤 Share this menu', copyLink: '🔗 Copy link', shareWhatsApp: '💬 Share via WhatsApp', shareSMS: '✉️ Share via SMS', callToOrder: '📞 Call to Order', orderNow: '🛒 Order Now' },
-  es: { scanMenu: 'Escanear Menú', visitUs: 'Visítanos', findUs: 'Encuéntranos', getDirections: '🗺️ Cómo llegar', poweredBy: 'Creado con', createFree: 'Crea tu menú digital gratis →', soldOut: 'Agotado', shareMenu: '📤 Compartir menú', copyLink: '🔗 Copiar enlace', shareWhatsApp: '💬 Compartir por WhatsApp', shareSMS: '✉️ Compartir por SMS', callToOrder: '📞 Llamar para Ordenar', orderNow: '🛒 Ordenar Ahora' },
-  fr: { scanMenu: 'Scanner le Menu', visitUs: 'Nous Rendre Visite', findUs: 'Nous Trouver', getDirections: '🗺️ Itinéraire', poweredBy: 'Propulsé par', createFree: 'Créez votre menu digital gratuit →', soldOut: 'Épuisé', shareMenu: '📤 Partager le menu', copyLink: '🔗 Copier le lien', shareWhatsApp: '💬 Partager sur WhatsApp', shareSMS: '✉️ Partager par SMS', callToOrder: '📞 Appeler pour Commander', orderNow: '🛒 Commander' },
-  de: { scanMenu: 'Menü scannen', visitUs: 'Besuchen Sie uns', findUs: 'So finden Sie uns', getDirections: '🗺️ Wegbeschreibung', poweredBy: 'Bereitgestellt von', createFree: 'Erstellen Sie Ihr kostenloses digitales Menü →', soldOut: 'Ausverkauft', shareMenu: '📤 Menü teilen', copyLink: '🔗 Link kopieren', shareWhatsApp: '💬 Per WhatsApp teilen', shareSMS: '✉️ Per SMS teilen', callToOrder: '📞 Anrufen zum Bestellen', orderNow: '🛒 Jetzt bestellen' },
-  it: { scanMenu: 'Scansiona per il Menu', visitUs: 'Visitaci', findUs: 'Dove Trovarci', getDirections: '🗺️ Indicazioni', poweredBy: 'Offerto da', createFree: 'Crea il tuo menu digitale gratis →', soldOut: 'Esaurito', shareMenu: '📤 Condividi menu', copyLink: '🔗 Copia link', shareWhatsApp: '💬 Condividi su WhatsApp', shareSMS: '✉️ Condividi via SMS', callToOrder: '📞 Chiama per Ordinare', orderNow: '🛒 Ordina Ora' },
-  ja: { scanMenu: 'メニューをスキャン', visitUs: '店舗情報', findUs: 'アクセス', getDirections: '🗺️ 道順', poweredBy: 'Powered by', createFree: '無料デジタルメニューを作成 →', soldOut: '売り切れ', shareMenu: '📤 メニューを共有', copyLink: '🔗 リンクをコピー', shareWhatsApp: '💬 WhatsAppで共有', shareSMS: '✉️ SMSで共有', callToOrder: '📞 電話で注文', orderNow: '🛒 注文する' },
-  zh: { scanMenu: '扫码看菜单', visitUs: '店铺信息', findUs: '如何找到我们', getDirections: '🗺️ 导航', poweredBy: '由...提供', createFree: '免费创建您的数字菜单 →', soldOut: '已售罄', shareMenu: '📤 分享菜单', copyLink: '🔗 复制链接', shareWhatsApp: '💬 WhatsApp分享', shareSMS: '✉️ 短信分享', callToOrder: '📞 电话订餐', orderNow: '🛒 立即订购' },
-  pt: { scanMenu: 'Escanear Cardápio', visitUs: 'Visite-nos', findUs: 'Como Nos Encontrar', getDirections: '🗺️ Como chegar', poweredBy: 'Criado com', createFree: 'Crie seu cardápio digital gratuito →', soldOut: 'Esgotado', shareMenu: '📤 Compartilhar cardápio', copyLink: '🔗 Copiar link', shareWhatsApp: '💬 Compartilhar via WhatsApp', shareSMS: '✉️ Compartilhar via SMS', callToOrder: '📞 Ligar para Pedir', orderNow: '🛒 Pedir Agora' },
+  en: { scanMenu: 'Scan for Menu', visitUs: 'Visit Us', getDirections: '🗺️ Get Directions', poweredBy: 'Powered by', createFree: 'Create your free digital menu →', soldOut: 'Sold Out', shareMenu: '📤 Share this menu', copyLink: '🔗 Copy link', shareWhatsApp: '💬 Share via WhatsApp', shareSMS: '✉️ Share via SMS', callToOrder: '📞 Call to Order', orderNow: '🛒 Order Now' },
+  it: { scanMenu: 'Scansiona per il Menu', visitUs: 'Visitaci', getDirections: '🗺️ Indicazioni', poweredBy: 'Offerto da', createFree: 'Crea il tuo menu digitale gratis →', soldOut: 'Esaurito', shareMenu: '📤 Condividi menu', copyLink: '🔗 Copia link', shareWhatsApp: '💬 Condividi su WhatsApp', shareSMS: '✉️ Condividi via SMS', callToOrder: '📞 Chiama per Ordinare', orderNow: '🛒 Ordina Ora' },
+  es: { scanMenu: 'Escanear Menú', visitUs: 'Visítanos', getDirections: '🗺️ Cómo llegar', poweredBy: 'Creado con', createFree: 'Crea tu menú digital gratis →', soldOut: 'Agotado', shareMenu: '📤 Compartir menú', copyLink: '🔗 Copiar enlace', shareWhatsApp: '💬 Compartir por WhatsApp', shareSMS: '✉️ Compartir por SMS', callToOrder: '📞 Llamar para Ordenar', orderNow: '🛒 Ordenar Ahora' },
+  fr: { scanMenu: 'Scanner le Menu', visitUs: 'Nous Rendre Visite', getDirections: '🗺️ Itinéraire', poweredBy: 'Propulsé par', createFree: 'Créez votre menu digital gratuit →', soldOut: 'Épuisé', shareMenu: '📤 Partager le menu', copyLink: '🔗 Copier le lien', shareWhatsApp: '💬 Partager sur WhatsApp', shareSMS: '✉️ Partager par SMS', callToOrder: '📞 Appeler pour Commander', orderNow: '🛒 Commander' },
 };
 
 function getUI(key) {
@@ -477,189 +310,6 @@ function getTranslated(itemOrCat, field) {
   return itemOrCat[field] || '';
 }
 
-
-// ============ DAILY SPECIALS ============
-let specialsInfo = null;
-
-async function loadSpecials() {
-  try {
-    const res = await fetch(`/api/public/menu/${slug}/specials`);
-    if (!res.ok) return;
-    specialsInfo = await res.json();
-    renderSpecials();
-    startHappyHourTimer();
-  } catch(e) { console.error('No specials:', e); }
-}
-
-function renderSpecials() {
-  if (!specialsInfo || !specialsInfo.todayItems || specialsInfo.todayItems.length === 0) return;
-  
-  const items = specialsInfo.todayItems;
-  const banner = document.createElement('div');
-  banner.className = 'specials-banner';
-  banner.innerHTML = `<h2>🔥 Today's Specials</h2><p class="subtitle">${items.length} special deal${items.length > 1 ? 's' : ''} today!</p>`;
-  
-  const section = document.createElement('div');
-  section.className = 'specials-section';
-  section.innerHTML = items.map((item, idx) => {
-    const hasOrigPrice = item.originalPrice || (item.type === 'item' && item.price !== item.specialPrice);
-    const origPrice = item.originalPrice || item.price;
-    const savings = hasOrigPrice ? ((1 - item.specialPrice / origPrice) * 100).toFixed(0) : null;
-    const countdownId = item.endTime ? `special-countdown-${idx}` : '';
-    
-    return `<div class="special-item">
-      ${item.image_url ? `<img class="menu-item-img" src="${item.image_url}" alt="" loading="lazy">` : ''}
-      <div class="menu-item-info" style="flex:1;min-width:0;">
-        <span class="special-badge">${esc(item.specialLabel || 'Special')}</span>
-        <div class="menu-item-name" style="font-size:16px;font-weight:700;">${esc(item.name)}</div>
-        ${item.description ? `<div class="menu-item-desc">${esc(item.description)}</div>` : ''}
-        ${item.endTime ? `<div id="${countdownId}" class="special-countdown" data-endtime="${item.endTime}" style="margin-top:6px;font-size:12px;font-weight:700;color:#DC2626;display:flex;align-items:center;gap:4px;">
-          <span style="animation:countdownPulse 2s ease infinite;">⏰</span> <span class="countdown-text"></span>
-        </div>` : ''}
-      </div>
-      <div class="price-group">
-        ${hasOrigPrice ? `<span class="orig-price">$${Number(origPrice).toFixed(2)}</span>` : ''}
-        <span class="special-price">$${Number(item.specialPrice).toFixed(2)}</span>
-        ${savings ? `<span class="savings">Save ${savings}%</span>` : ''}
-      </div>
-    </div>`;
-  }).join('');
-  
-  const menuBody = document.querySelector('.menu-body');
-  if (menuBody) {
-    menuBody.parentNode.insertBefore(section, menuBody);
-    menuBody.parentNode.insertBefore(banner, section);
-  }
-  
-  // Start countdown timers for specials with endTime
-  startSpecialCountdowns();
-}
-
-function startSpecialCountdowns() {
-  const countdowns = document.querySelectorAll('.special-countdown');
-  if (countdowns.length === 0) return;
-  
-  function updateCountdowns() {
-    const now = new Date();
-    countdowns.forEach(el => {
-      const endTime = el.dataset.endtime;
-      if (!endTime) return;
-      const [h, m] = endTime.split(':').map(Number);
-      const end = new Date(now);
-      end.setHours(h, m, 0, 0);
-      
-      const textEl = el.querySelector('.countdown-text');
-      if (now >= end) {
-        textEl.textContent = 'This special has ended';
-        el.style.color = '#9CA3AF';
-      } else {
-        const diff = end - now;
-        const hrs = Math.floor(diff / 3600000);
-        const mins = Math.floor((diff % 3600000) / 60000);
-        const secs = Math.floor((diff % 60000) / 1000);
-        
-        // Format the end time nicely
-        const ampm = h >= 12 ? 'PM' : 'AM';
-        const displayH = h > 12 ? h - 12 : (h === 0 ? 12 : h);
-        const displayM = String(m).padStart(2, '0');
-        
-        if (hrs > 0) {
-          textEl.textContent = `Available until ${displayH}:${displayM} ${ampm} — ${hrs}h ${mins}m left`;
-        } else if (mins > 5) {
-          textEl.textContent = `Available until ${displayH}:${displayM} ${ampm} — ${mins}m left`;
-        } else {
-          textEl.textContent = `Ending soon! Only ${mins}m ${secs}s left!`;
-          el.style.color = '#DC2626';
-          el.style.fontWeight = '800';
-        }
-      }
-    });
-  }
-  
-  updateCountdowns();
-  setInterval(updateCountdowns, 1000);
-}
-
-function startHappyHourTimer() {
-  if (!specialsInfo || !specialsInfo.happyHour || !specialsInfo.happyHour.enabled) return;
-  
-  const hh = specialsInfo.happyHour;
-  const today = new Date().getDay();
-  if (!hh.days || !hh.days.includes(today)) return;
-  
-  function updateTimer() {
-    const now = new Date();
-    const [startH, startM] = (hh.start || '16:00').split(':').map(Number);
-    const [endH, endM] = (hh.end || '18:00').split(':').map(Number);
-    
-    const startTime = new Date(now); startTime.setHours(startH, startM, 0, 0);
-    const endTime = new Date(now); endTime.setHours(endH, endM, 0, 0);
-    
-    let hhBar = document.getElementById('happy-hour-bar');
-    
-    if (now < startTime) {
-      // Coming up - show countdown to start
-      const diff = startTime - now;
-      const hrs = Math.floor(diff / 3600000);
-      const mins = Math.floor((diff % 3600000) / 60000);
-      const secs = Math.floor((diff % 60000) / 1000);
-      
-      if (!hhBar) {
-        hhBar = document.createElement('div');
-        hhBar.id = 'happy-hour-bar';
-        hhBar.className = 'happy-hour-bar';
-        const nav = document.querySelector('.menu-nav');
-        if (nav) nav.parentNode.insertBefore(hhBar, nav);
-        else {
-          const container = document.getElementById('menu-container');
-          if (container && container.firstChild) container.insertBefore(hhBar, container.firstChild.nextSibling);
-        }
-      }
-      hhBar.innerHTML = `<div class="hh-title">🍺 ${esc(hh.label || 'Happy Hour')} starts in</div>
-        <div class="hh-countdown">
-          <div class="hh-unit"><span class="hh-num">${String(hrs).padStart(2,'0')}</span><span class="hh-label">hrs</span></div>
-          <div class="hh-unit"><span class="hh-num">${String(mins).padStart(2,'0')}</span><span class="hh-label">min</span></div>
-          <div class="hh-unit"><span class="hh-num">${String(secs).padStart(2,'0')}</span><span class="hh-label">sec</span></div>
-        </div>
-        <div class="hh-status">${hh.start} — ${hh.end}</div>`;
-    } else if (now >= startTime && now < endTime) {
-      // Active!
-      const diff = endTime - now;
-      const hrs = Math.floor(diff / 3600000);
-      const mins = Math.floor((diff % 3600000) / 60000);
-      const secs = Math.floor((diff % 60000) / 1000);
-      
-      if (!hhBar) {
-        hhBar = document.createElement('div');
-        hhBar.id = 'happy-hour-bar';
-        hhBar.className = 'happy-hour-bar';
-        hhBar.style.background = 'linear-gradient(135deg, #10B981, #059669)';
-        const nav = document.querySelector('.menu-nav');
-        if (nav) nav.parentNode.insertBefore(hhBar, nav);
-        else {
-          const container = document.getElementById('menu-container');
-          if (container && container.firstChild) container.insertBefore(hhBar, container.firstChild.nextSibling);
-        }
-      }
-      hhBar.style.background = 'linear-gradient(135deg, #10B981, #059669)';
-      hhBar.innerHTML = `<div class="hh-title">🍺 ${esc(hh.label || 'Happy Hour')} — NOW!</div>
-        <div class="hh-countdown">
-          <div class="hh-unit"><span class="hh-num">${String(hrs).padStart(2,'0')}</span><span class="hh-label">hrs</span></div>
-          <div class="hh-unit"><span class="hh-num">${String(mins).padStart(2,'0')}</span><span class="hh-label">min</span></div>
-          <div class="hh-unit"><span class="hh-num">${String(secs).padStart(2,'0')}</span><span class="hh-label">sec</span></div>
-        </div>
-        <div class="hh-status">Ends at ${hh.end}</div>`;
-    } else {
-      // Over
-      if (hhBar) hhBar.remove();
-      return;
-    }
-  }
-  
-  updateTimer();
-  setInterval(updateTimer, 1000);
-}
-
 async function loadMenu() {
   try {
     const res = await fetch(`/api/public/menu/${slug}`);
@@ -673,10 +323,22 @@ async function loadMenu() {
     document.title = (menu.restaurant_name || menu.name) + ' — Menu';
 
     renderMenu();
-    loadSpecials();
+    // Track page view
+    trackAnalytics('page_view', { menu_id: menu.id, slug });
+    // Instrument item clicks
+    document.addEventListener('click', function(e) {
+      const item = e.target.closest('.menu-item');
+      if (item && item.dataset.id) {
+        trackAnalytics('item_click', { menu_id: menu.id, item_id: item.dataset.id, slug });
+      }
+    });
   } catch (e) {
     document.getElementById('menu-container').innerHTML = '<div class="not-found"><h2>Menu not found</h2><p>This menu may have been removed or the link is incorrect.</p></div>';
   }
+}
+
+function trackAnalytics(event_type, data) {
+  try { fetch('/api/analytics/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ event_type, ...data, referrer: document.referrer }) }); } catch(e) {}
 }
 
 function renderMenu() {
@@ -699,15 +361,11 @@ function renderMenu() {
 
   // Language toggle
   if (langs.length > 0) {
-    const langNames = {
-      en: '🇬🇧 English', es: '🇪🇸 Español', fr: '🇫🇷 Français',
-      de: '🇩🇪 Deutsch', it: '🇮🇹 Italiano', ja: '🇯🇵 日本語',
-      zh: '🇨🇳 中文', pt: '🇧🇷 Português'
-    };
     html += `<div class="lang-toggle">
       <button class="lang-btn${currentLang === 'default' ? ' active' : ''}" onclick="switchLang('default')">Original</button>`;
     langs.forEach(l => {
-      html += `<button class="lang-btn${currentLang === l ? ' active' : ''}" onclick="switchLang('${l}')">${langNames[l] || l}</button>`;
+      const names = { en: '🇬🇧 English', it: '🇮🇹 Italiano', es: '🇪🇸 Español', fr: '🇫🇷 Français' };
+      html += `<button class="lang-btn${currentLang === l ? ' active' : ''}" onclick="switchLang('${l}')">${names[l] || l}</button>`;
     });
     html += `</div>`;
   }
@@ -771,21 +429,15 @@ function renderMenu() {
   });
   html += `</div>`;
 
-  // Find Us section with Google Maps embed
+  // Visit Us section
   if (menu.hours || menu.location || menu.phone) {
-    const mapEmbedUrl = menu.location ? 'https://maps.google.com/maps?q=' + encodeURIComponent(menu.location) + '&output=embed&z=15' : '';
-    html += '<div class="find-us-section">';
-    html += '<h3>📍 ' + (getUI('findUs') || 'Find Us') + '</h3>';
-    html += '<div class="find-us-details">';
-    if (menu.location) html += '<div class="find-us-row"><span class="fu-icon">🏠</span><div>' + esc(menu.location) + '</div></div>';
-    if (menu.phone) html += '<div class="find-us-row"><span class="fu-icon">📞</span><div><a href="tel:' + esc(menu.phone) + '">' + esc(menu.phone) + '</a></div></div>';
-    if (menu.hours) html += '<div class="find-us-row"><span class="fu-icon">🕐</span><div>' + esc(menu.hours) + '</div></div>';
-    html += '</div>';
-    if (mapEmbedUrl) {
-      html += '<div class="map-embed"><iframe src="' + mapEmbedUrl + '" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>';
-      html += '<a class="map-directions-btn" href="' + mapsUrl + '" target="_blank" rel="noopener">🗺️ ' + getUI('getDirections') + '</a>';
-    }
-    html += '</div>';
+    html += `<div class="info-section">
+      <h3>${getUI('visitUs')}</h3>
+      ${menu.hours ? `<div class="info-row"><span class="icon">🕐</span> ${esc(menu.hours)}</div>` : ''}
+      ${menu.location ? `<div class="info-row"><span class="icon">📍</span> ${esc(menu.location)}</div>` : ''}
+      ${menu.phone ? `<div class="info-row"><span class="icon">📞</span> <a href="tel:${esc(menu.phone)}" style="color:inherit;text-decoration:none;">${esc(menu.phone)}</a></div>` : ''}
+      ${mapsUrl ? `<a class="directions-link" href="${mapsUrl}" target="_blank" rel="noopener">${getUI('getDirections')}</a>` : ''}
+    </div>`;
   }
 
   html += `</div>`; // close theme wrapper
@@ -830,6 +482,11 @@ function renderMenu() {
       link.addEventListener('click', e => {
         e.preventDefault();
         document.querySelector(link.getAttribute('href'))?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Track category switch
+        if (menuData) {
+          const catId = link.getAttribute('href')?.replace('#cat-','');
+          trackAnalytics('category_switch', { menu_id: menuData.id, category_id: catId, slug });
+        }
       });
     });
   }
