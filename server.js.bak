@@ -393,15 +393,6 @@ app.get('/api/public/menu/:slug', (req, res) => {
     });
   });
 
-  
-  // Include translations
-  if (!db.menu_translations) db.menu_translations = {};
-  const translations = db.menu_translations[menu.id] || {};
-
-  // Include translations
-  if (!db.menu_translations) db.menu_translations = {};
-  const menuTranslations = db.menu_translations[menu.id] || {};
-
   res.json({
     menu: {
       ...menu,
@@ -410,8 +401,7 @@ app.get('/api/public/menu/:slug', (req, res) => {
       location: user?.location || '',
       phone: user?.phone || '',
       featured_items: featuredItems,
-      categories,
-      translations: menuTranslations
+      categories
     }
   });
 });
@@ -475,11 +465,6 @@ app.get('/api/analytics', requireAuth, (req, res) => {
   const menuStats = Object.entries(menuViews)
     .map(([id, count]) => ({ id, name: db.menus[id]?.name || 'Unknown', count }))
     .sort((a, b) => b.count - a.count);
-
-  
-  // Include translations
-  if (!db.menu_translations) db.menu_translations = {};
-  const translations = db.menu_translations[menu.id] || {};
 
   res.json({
     totalViews,
@@ -604,105 +589,6 @@ app.get('/api/config', (req, res) => {
 });
 
 // ============ SPA ROUTES ============
-
-// ============ TRANSLATIONS ============
-const { SUPPORTED_LANGUAGES, translateText: transText } = require('./translations');
-
-app.get('/api/languages', (req, res) => {
-  res.json({ languages: SUPPORTED_LANGUAGES });
-});
-
-// Get translations for a menu
-app.get('/api/menus/:id/translations', requireAuth, (req, res) => {
-  const db = load();
-  const menu = db.menus[req.params.id];
-  if (!menu || menu.user_id !== req.session.userId) return res.status(404).json({ error: 'Menu not found' });
-  if (!db.menu_translations) db.menu_translations = {};
-  const translations = db.menu_translations[req.params.id] || {};
-  const languages = menu.languages || [];
-  res.json({ translations, languages, supported: SUPPORTED_LANGUAGES });
-});
-
-// Set menu languages
-app.put('/api/menus/:id/languages', requireAuth, (req, res) => {
-  const db = load();
-  const menu = db.menus[req.params.id];
-  if (!menu || menu.user_id !== req.session.userId) return res.status(404).json({ error: 'Menu not found' });
-  const { languages } = req.body; // array of lang codes
-  menu.languages = (languages || []).filter(l => SUPPORTED_LANGUAGES[l]);
-  save(db);
-  res.json({ success: true, languages: menu.languages });
-});
-
-// Auto-translate a menu to a target language
-app.post('/api/menus/:id/translate', requireAuth, (req, res) => {
-  const db = load();
-  const menu = db.menus[req.params.id];
-  if (!menu || menu.user_id !== req.session.userId) return res.status(404).json({ error: 'Menu not found' });
-  const { language } = req.body;
-  if (!language || !SUPPORTED_LANGUAGES[language]) return res.status(400).json({ error: 'Unsupported language. Supported: ' + Object.keys(SUPPORTED_LANGUAGES).join(', ') });
-
-  if (!db.menu_translations) db.menu_translations = {};
-  if (!db.menu_translations[req.params.id]) db.menu_translations[req.params.id] = {};
-
-  const translations = {};
-  // Translate categories
-  const cats = Object.values(db.categories).filter(c => c.menu_id === req.params.id);
-  for (const cat of cats) {
-    translations[cat.id] = {
-      name: transText(cat.name, language),
-      description: transText(cat.description || '', language),
-    };
-  }
-  // Translate items
-  const catIds = new Set(cats.map(c => c.id));
-  const items = Object.values(db.items).filter(i => catIds.has(i.category_id));
-  for (const item of items) {
-    translations[item.id] = {
-      name: transText(item.name, language),
-      description: transText(item.description || '', language),
-    };
-  }
-
-  db.menu_translations[req.params.id][language] = translations;
-
-  // Auto-add language to menu's languages list
-  if (!menu.languages) menu.languages = [];
-  if (!menu.languages.includes(language)) menu.languages.push(language);
-
-  save(db);
-  res.json({ success: true, language, translations, translatedCount: Object.keys(translations).length });
-});
-
-// Update a single translation
-app.put('/api/menus/:menuId/translations/:lang/:itemId', requireAuth, (req, res) => {
-  const db = load();
-  const menu = db.menus[req.params.menuId];
-  if (!menu || menu.user_id !== req.session.userId) return res.status(404).json({ error: 'Menu not found' });
-  if (!db.menu_translations) db.menu_translations = {};
-  if (!db.menu_translations[req.params.menuId]) db.menu_translations[req.params.menuId] = {};
-  if (!db.menu_translations[req.params.menuId][req.params.lang]) db.menu_translations[req.params.menuId][req.params.lang] = {};
-  const { name, description } = req.body;
-  db.menu_translations[req.params.menuId][req.params.lang][req.params.itemId] = { name, description };
-  save(db);
-  res.json({ success: true });
-});
-
-// Remove a language from menu
-app.delete('/api/menus/:id/translations/:lang', requireAuth, (req, res) => {
-  const db = load();
-  const menu = db.menus[req.params.id];
-  if (!menu || menu.user_id !== req.session.userId) return res.status(404).json({ error: 'Menu not found' });
-  if (db.menu_translations && db.menu_translations[req.params.id]) {
-    delete db.menu_translations[req.params.id][req.params.lang];
-  }
-  if (menu.languages) {
-    menu.languages = menu.languages.filter(l => l !== req.params.lang);
-  }
-  save(db);
-  res.json({ success: true });
-});
-
 
 app.get('/m/:slug', (req, res) => res.sendFile(path.join(__dirname, 'public', 'menu.html')));
 app.get('/dashboard', (req, res) => res.sendFile(path.join(__dirname, 'public', 'dashboard.html')));

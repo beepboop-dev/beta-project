@@ -275,7 +275,6 @@
     <a href="#" data-tab="qr">📷 QR Code</a>
     <a href="#" data-tab="restaurant">🏪 Restaurant Info</a>
     <a href="#" data-tab="specials">🔥 Specials</a>
-    <a href="#" data-tab="languages">🌍 Languages</a>
     <a href="#" data-tab="settings">⚙️ Settings</a>
   </div>
   <div class="sidebar-bottom">
@@ -290,7 +289,6 @@
     <a href="#" data-tab="design"><span class="icon">🎨</span>Design</a>
     <a href="#" data-tab="qr"><span class="icon">📷</span>QR</a>
     <a href="#" data-tab="specials"><span class="icon">🔥</span>Specials</a>
-    <a href="#" data-tab="languages"><span class="icon">🌍</span>Lang</a>
     <a href="#" data-tab="settings"><span class="icon">⚙️</span>Settings</a>
   </div>
 </div>
@@ -488,37 +486,6 @@
       <!-- Specials list for selected day -->
       <div id="specials-list" style="margin-top:16px;"></div>
       <button class="btn btn-outline" onclick="openAddSpecial()" style="margin-top:12px;">+ Add Special Item</button>
-    </div>
-  </div>
-
-
-  <!-- LANGUAGES TAB -->
-  <div id="tab-languages" style="display:none;">
-    <div class="card">
-      <h3 style="font-size:18px;font-weight:700;margin-bottom:8px;">🌍 Multi-Language Menu</h3>
-      <p style="font-size:13px;color:var(--gray);margin-bottom:20px;">Enable translations so diners can view your menu in their preferred language. Translations are auto-generated and can be edited.</p>
-      
-      <div id="lang-list" style="margin-bottom:20px;"></div>
-      
-      <div class="form-group">
-        <label>Add Language</label>
-        <div style="display:flex;gap:8px;">
-          <select id="add-lang-select" style="flex:1;padding:10px 12px;border:1.5px solid #E5E7EB;border-radius:10px;font-size:14px;font-family:inherit;">
-          </select>
-          <button class="btn btn-primary" onclick="addLanguage()">🌐 Add & Translate</button>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Translation Editor -->
-    <div class="card" id="translation-editor-card" style="display:none;margin-top:16px;">
-      <h3 style="font-size:18px;font-weight:700;margin-bottom:8px;">✏️ Edit Translations</h3>
-      <p style="font-size:13px;color:var(--gray);margin-bottom:16px;">Review and edit auto-generated translations.</p>
-      <div class="form-group">
-        <label>Language</label>
-        <select id="edit-lang-select" onchange="loadTranslationEditor()" style="width:100%;padding:10px 12px;border:1.5px solid #E5E7EB;border-radius:10px;font-size:14px;font-family:inherit;"></select>
-      </div>
-      <div id="translation-items"></div>
     </div>
   </div>
 
@@ -799,157 +766,6 @@ async function removeSpecial(idx) {
   renderDaySpecials();
 }
 
-
-// ============ LANGUAGES ============
-let supportedLangs = {};
-let menuLanguages = [];
-let menuTranslations = {};
-
-async function loadLanguages() {
-  if (!currentMenu) return;
-  try {
-    const [langRes, transRes] = await Promise.all([
-      fetch('/api/languages'),
-      fetch(\`/api/menus/\${currentMenu.id}/translations\`)
-    ]);
-    const langData = await langRes.json();
-    supportedLangs = langData.languages;
-    const transData = await transRes.json();
-    menuLanguages = transData.languages || [];
-    menuTranslations = transData.translations || {};
-  } catch(e) { console.error(e); }
-  renderLanguagesUI();
-}
-
-function renderLanguagesUI() {
-  // Render active languages
-  const container = document.getElementById('lang-list');
-  if (menuLanguages.length === 0) {
-    container.innerHTML = '<div style="padding:16px;background:#F9FAFB;border-radius:12px;text-align:center;"><p style="color:var(--gray);font-size:14px;">No languages added yet.</p><p style="color:var(--gray);font-size:12px;margin-top:4px;">Add a language to auto-translate your menu.</p></div>';
-  } else {
-    container.innerHTML = menuLanguages.map(lang => {
-      const info = supportedLangs[lang] || { flag: '🏳️', name: lang, nativeName: lang };
-      const transCount = menuTranslations[lang] ? Object.keys(menuTranslations[lang]).length : 0;
-      return \`<div style="display:flex;align-items:center;gap:12px;padding:12px;background:#F9FAFB;border-radius:12px;margin-bottom:8px;">
-        <span style="font-size:28px;">\${info.flag}</span>
-        <div style="flex:1;">
-          <div style="font-weight:700;font-size:14px;">\${info.nativeName} <span style="color:var(--gray);font-weight:400;">(\${info.name})</span></div>
-          <div style="font-size:12px;color:var(--gray);">\${transCount} items translated</div>
-        </div>
-        <button class="btn btn-sm btn-outline" onclick="retranslateLanguage('\${lang}')">🔄 Re-translate</button>
-        <button class="btn btn-sm btn-danger" onclick="removeLanguage('\${lang}')">🗑</button>
-      </div>\`;
-    }).join('');
-  }
-
-  // Render "add language" dropdown (exclude already added)
-  const addSelect = document.getElementById('add-lang-select');
-  const available = Object.entries(supportedLangs).filter(([code]) => code !== 'en' && !menuLanguages.includes(code));
-  addSelect.innerHTML = available.map(([code, info]) => \`<option value="\${code}">\${info.flag} \${info.nativeName} (\${info.name})</option>\`).join('');
-  if (available.length === 0) addSelect.innerHTML = '<option>All languages added!</option>';
-
-  // Render edit language dropdown
-  const editSelect = document.getElementById('edit-lang-select');
-  const editorCard = document.getElementById('translation-editor-card');
-  if (menuLanguages.length > 0) {
-    editorCard.style.display = 'block';
-    editSelect.innerHTML = menuLanguages.map(lang => {
-      const info = supportedLangs[lang] || { flag: '🏳️', name: lang };
-      return \`<option value="\${lang}">\${info.flag} \${info.name}</option>\`;
-    }).join('');
-    loadTranslationEditor();
-  } else {
-    editorCard.style.display = 'none';
-  }
-}
-
-async function addLanguage() {
-  const lang = document.getElementById('add-lang-select').value;
-  if (!lang || !supportedLangs[lang]) return;
-  showToast(\`Translating to \${supportedLangs[lang].nativeName}...\`);
-  const res = await fetch(\`/api/menus/\${currentMenu.id}/translate\`, {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ language: lang })
-  });
-  const data = await res.json();
-  if (data.success) {
-    if (!currentMenu.languages) currentMenu.languages = [];
-    if (!currentMenu.languages.includes(lang)) currentMenu.languages.push(lang);
-    showToast(\`\${supportedLangs[lang].flag} \${supportedLangs[lang].nativeName} added! \${data.translatedCount} items translated ✅\`);
-    await loadLanguages();
-    renderMenuSelect();
-  } else {
-    showToast('Translation failed: ' + (data.error || 'unknown'));
-  }
-}
-
-async function retranslateLanguage(lang) {
-  showToast(\`Re-translating to \${supportedLangs[lang]?.nativeName || lang}...\`);
-  const res = await fetch(\`/api/menus/\${currentMenu.id}/translate\`, {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ language: lang })
-  });
-  const data = await res.json();
-  if (data.success) {
-    showToast(\`Re-translated! \${data.translatedCount} items ✅\`);
-    await loadLanguages();
-  }
-}
-
-async function removeLanguage(lang) {
-  const info = supportedLangs[lang] || { name: lang };
-  if (!confirm(\`Remove \${info.name} translations?\`)) return;
-  await fetch(\`/api/menus/\${currentMenu.id}/translations/\${lang}\`, { method: 'DELETE' });
-  if (currentMenu.languages) currentMenu.languages = currentMenu.languages.filter(l => l !== lang);
-  showToast(\`\${info.name} removed\`);
-  await loadLanguages();
-  renderMenuSelect();
-}
-
-function loadTranslationEditor() {
-  const lang = document.getElementById('edit-lang-select').value;
-  if (!lang || !menuTranslations[lang]) {
-    document.getElementById('translation-items').innerHTML = '<p style="color:var(--gray);">No translations to edit.</p>';
-    return;
-  }
-  const trans = menuTranslations[lang];
-  let html = '';
-  categories.forEach(cat => {
-    const catTrans = trans[cat.id] || {};
-    html += \`<div style="margin-top:16px;margin-bottom:8px;font-weight:700;font-size:14px;color:var(--orange);">\${escHtml(cat.name)} → \${escHtml(catTrans.name || cat.name)}</div>\`;
-    html += \`<div class="form-row" style="margin-bottom:8px;">
-      <div class="form-group"><label>Category Name</label><input type="text" value="\${escHtml(catTrans.name || '')}" onchange="updateTranslation('\${lang}','\${cat.id}',this.value,null)" placeholder="\${escHtml(cat.name)}"></div>
-      <div class="form-group"><label>Description</label><input type="text" value="\${escHtml(catTrans.description || '')}" onchange="updateTranslation('\${lang}','\${cat.id}',null,this.value)" placeholder="\${escHtml(cat.description || '')}"></div>
-    </div>\`;
-    (cat.items || []).forEach(item => {
-      const itemTrans = trans[item.id] || {};
-      html += \`<div style="padding:8px 0 8px 16px;border-left:2px solid #E5E7EB;margin-bottom:4px;">
-        <div style="font-size:12px;color:var(--gray);margin-bottom:4px;">\${escHtml(item.name)} — $\${Number(item.price).toFixed(2)}</div>
-        <div class="form-row">
-          <div class="form-group"><label style="font-size:11px;">Name</label><input type="text" value="\${escHtml(itemTrans.name || '')}" onchange="updateTranslation('\${lang}','\${item.id}',this.value,null)" placeholder="\${escHtml(item.name)}" style="font-size:13px;padding:8px 10px;"></div>
-          <div class="form-group"><label style="font-size:11px;">Description</label><input type="text" value="\${escHtml(itemTrans.description || '')}" onchange="updateTranslation('\${lang}','\${item.id}',null,this.value)" placeholder="\${escHtml(item.description || '')}" style="font-size:13px;padding:8px 10px;"></div>
-        </div>
-      </div>\`;
-    });
-  });
-  document.getElementById('translation-items').innerHTML = html;
-}
-
-async function updateTranslation(lang, itemId, name, description) {
-  const existing = (menuTranslations[lang] || {})[itemId] || {};
-  const body = {
-    name: name !== null ? name : existing.name || '',
-    description: description !== null ? description : existing.description || ''
-  };
-  await fetch(\`/api/menus/\${currentMenu.id}/translations/\${lang}/\${itemId}\`, {
-    method: 'PUT', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  });
-  if (!menuTranslations[lang]) menuTranslations[lang] = {};
-  menuTranslations[lang][itemId] = body;
-  showToast('Translation updated ✅');
-}
-
 async function init() {
   try {
     const authRes = await fetch('/api/auth/me');
@@ -980,11 +796,7 @@ async function init() {
 
 function renderMenuSelect() {
   const sel = document.getElementById('menu-select');
-  sel.innerHTML = allMenus.map(m => {
-    const langs = (m.languages || []).length;
-    const badge = langs > 0 ? ` (${langs} lang)` : '';
-    return \`<option value="${m.id}">${escHtml(m.name)}${badge}</option>\`;
-  }).join('');
+  sel.innerHTML = allMenus.map(m => `<option value="${m.id}">${escHtml(m.name)}</option>`).join('');
   document.getElementById('delete-menu-btn').style.display = allMenus.length > 1 ? 'inline-flex' : 'none';
 }
 
@@ -1012,7 +824,6 @@ async function selectMenu(menuId) {
   await loadCategories();
   await loadQR();
   await loadSpecials();
-  await loadLanguages();
   loadOrderConfig();
 }
 
@@ -1300,13 +1111,13 @@ function copyMenuUrl() {
 }
 
 function showTab(tab) {
-  ['editor', 'design', 'qr', 'restaurant', 'specials', 'languages', 'settings'].forEach(t => {
+  ['editor', 'design', 'qr', 'restaurant', 'specials', 'settings'].forEach(t => {
     document.getElementById('tab-' + t).style.display = t === tab ? 'block' : 'none';
   });
-  const titles = { editor: 'Menu Editor', design: 'Design', qr: 'QR Code', restaurant: 'Restaurant Info', specials: 'Daily Specials', languages: 'Languages', settings: 'Settings' };
+  const titles = { editor: 'Menu Editor', design: 'Design', qr: 'QR Code', restaurant: 'Restaurant Info', specials: 'Daily Specials', settings: 'Settings' };
   document.getElementById('page-title').textContent = titles[tab];
   // Show/hide menu selector only on editor/design/qr tabs
-  const showSelector = ['editor', 'design', 'qr', 'languages'].includes(tab);
+  const showSelector = ['editor', 'design', 'qr'].includes(tab);
   document.getElementById('menu-selector-bar').style.display = showSelector ? 'flex' : 'none';
   document.querySelector('.menu-url-bar').style.display = showSelector ? 'flex' : 'none';
 }

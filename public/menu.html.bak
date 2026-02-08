@@ -376,35 +376,23 @@ const tagConfig = {
 
 const tagLabels = {
   en: { vegetarian: 'Vegetarian', vegan: 'Vegan', 'gluten-free': 'Gluten-Free', spicy: 'Spicy', nuts: 'Nuts', 'dairy-free': 'Dairy-Free' },
+  it: { vegetarian: 'Vegetariano', vegan: 'Vegano', 'gluten-free': 'Senza Glutine', spicy: 'Piccante', nuts: 'Frutta a Guscio', 'dairy-free': 'Senza Latticini' },
   es: { vegetarian: 'Vegetariano', vegan: 'Vegano', 'gluten-free': 'Sin Gluten', spicy: 'Picante', nuts: 'Frutos Secos', 'dairy-free': 'Sin Lácteos' },
   fr: { vegetarian: 'Végétarien', vegan: 'Végan', 'gluten-free': 'Sans Gluten', spicy: 'Épicé', nuts: 'Fruits à Coque', 'dairy-free': 'Sans Lactose' },
-  de: { vegetarian: 'Vegetarisch', vegan: 'Vegan', 'gluten-free': 'Glutenfrei', spicy: 'Scharf', nuts: 'Nüsse', 'dairy-free': 'Laktosefrei' },
-  it: { vegetarian: 'Vegetariano', vegan: 'Vegano', 'gluten-free': 'Senza Glutine', spicy: 'Piccante', nuts: 'Frutta a Guscio', 'dairy-free': 'Senza Latticini' },
-  ja: { vegetarian: 'ベジタリアン', vegan: 'ヴィーガン', 'gluten-free': 'グルテンフリー', spicy: '辛い', nuts: 'ナッツ', 'dairy-free': '乳製品不使用' },
-  zh: { vegetarian: '素食', vegan: '纯素', 'gluten-free': '无麺质', spicy: '辣', nuts: '坚果', 'dairy-free': '无乳制品' },
-  pt: { vegetarian: 'Vegetariano', vegan: 'Vegano', 'gluten-free': 'Sem Glúten', spicy: 'Picante', nuts: 'Nozes', 'dairy-free': 'Sem Laticínios' },
 };
 
 const filterLabels = {
   en: { vegetarian: '🌱 Vegetarian', vegan: '🥬 Vegan', 'gluten-free': '🌾 Gluten-Free', 'nut-free': '🥜 Nut-Free' },
+  it: { vegetarian: '🌱 Vegetariano', vegan: '🥬 Vegano', 'gluten-free': '🌾 Senza Glutine', 'nut-free': '🥜 Senza Noci' },
   es: { vegetarian: '🌱 Vegetariano', vegan: '🥬 Vegano', 'gluten-free': '🌾 Sin Gluten', 'nut-free': '🥜 Sin Frutos Secos' },
   fr: { vegetarian: '🌱 Végétarien', vegan: '🥬 Végan', 'gluten-free': '🌾 Sans Gluten', 'nut-free': '🥜 Sans Noix' },
-  de: { vegetarian: '🌱 Vegetarisch', vegan: '🥬 Vegan', 'gluten-free': '🌾 Glutenfrei', 'nut-free': '🥜 Nussfrei' },
-  it: { vegetarian: '🌱 Vegetariano', vegan: '🥬 Vegano', 'gluten-free': '🌾 Senza Glutine', 'nut-free': '🥜 Senza Noci' },
-  ja: { vegetarian: '🌱 ベジタリアン', vegan: '🥬 ヴィーガン', 'gluten-free': '🌾 グルテンフリー', 'nut-free': '🥜 ナッツフリー' },
-  zh: { vegetarian: '🌱 素食', vegan: '🥬 纯素', 'gluten-free': '🌾 无麺质', 'nut-free': '🥜 无坚果' },
-  pt: { vegetarian: '🌱 Vegetariano', vegan: '🥬 Vegano', 'gluten-free': '🌾 Sem Glúten', 'nut-free': '🥜 Sem Nozes' },
 };
 
 const uiStrings = {
   en: { scanMenu: 'Scan for Menu', visitUs: 'Visit Us', getDirections: '🗺️ Get Directions', poweredBy: 'Powered by', createFree: 'Create your free digital menu →', soldOut: 'Sold Out', shareMenu: '📤 Share this menu', copyLink: '🔗 Copy link', shareWhatsApp: '💬 Share via WhatsApp', shareSMS: '✉️ Share via SMS', callToOrder: '📞 Call to Order', orderNow: '🛒 Order Now' },
+  it: { scanMenu: 'Scansiona per il Menu', visitUs: 'Visitaci', getDirections: '🗺️ Indicazioni', poweredBy: 'Offerto da', createFree: 'Crea il tuo menu digitale gratis →', soldOut: 'Esaurito', shareMenu: '📤 Condividi menu', copyLink: '🔗 Copia link', shareWhatsApp: '💬 Condividi su WhatsApp', shareSMS: '✉️ Condividi via SMS', callToOrder: '📞 Chiama per Ordinare', orderNow: '🛒 Ordina Ora' },
   es: { scanMenu: 'Escanear Menú', visitUs: 'Visítanos', getDirections: '🗺️ Cómo llegar', poweredBy: 'Creado con', createFree: 'Crea tu menú digital gratis →', soldOut: 'Agotado', shareMenu: '📤 Compartir menú', copyLink: '🔗 Copiar enlace', shareWhatsApp: '💬 Compartir por WhatsApp', shareSMS: '✉️ Compartir por SMS', callToOrder: '📞 Llamar para Ordenar', orderNow: '🛒 Ordenar Ahora' },
   fr: { scanMenu: 'Scanner le Menu', visitUs: 'Nous Rendre Visite', getDirections: '🗺️ Itinéraire', poweredBy: 'Propulsé par', createFree: 'Créez votre menu digital gratuit →', soldOut: 'Épuisé', shareMenu: '📤 Partager le menu', copyLink: '🔗 Copier le lien', shareWhatsApp: '💬 Partager sur WhatsApp', shareSMS: '✉️ Partager par SMS', callToOrder: '📞 Appeler pour Commander', orderNow: '🛒 Commander' },
-  de: { scanMenu: 'Menü scannen', visitUs: 'Besuchen Sie uns', getDirections: '🗺️ Wegbeschreibung', poweredBy: 'Bereitgestellt von', createFree: 'Erstellen Sie Ihr kostenloses digitales Menü →', soldOut: 'Ausverkauft', shareMenu: '📤 Menü teilen', copyLink: '🔗 Link kopieren', shareWhatsApp: '💬 Per WhatsApp teilen', shareSMS: '✉️ Per SMS teilen', callToOrder: '📞 Anrufen zum Bestellen', orderNow: '🛒 Jetzt bestellen' },
-  it: { scanMenu: 'Scansiona per il Menu', visitUs: 'Visitaci', getDirections: '🗺️ Indicazioni', poweredBy: 'Offerto da', createFree: 'Crea il tuo menu digitale gratis →', soldOut: 'Esaurito', shareMenu: '📤 Condividi menu', copyLink: '🔗 Copia link', shareWhatsApp: '💬 Condividi su WhatsApp', shareSMS: '✉️ Condividi via SMS', callToOrder: '📞 Chiama per Ordinare', orderNow: '🛒 Ordina Ora' },
-  ja: { scanMenu: 'メニューをスキャン', visitUs: '店舗情報', getDirections: '🗺️ 道順', poweredBy: 'Powered by', createFree: '無料デジタルメニューを作成 →', soldOut: '売り切れ', shareMenu: '📤 メニューを共有', copyLink: '🔗 リンクをコピー', shareWhatsApp: '💬 WhatsAppで共有', shareSMS: '✉️ SMSで共有', callToOrder: '📞 電話で注文', orderNow: '🛒 注文する' },
-  zh: { scanMenu: '扫码看菜单', visitUs: '店铺信息', getDirections: '🗺️ 导航', poweredBy: '由...提供', createFree: '免费创建您的数字菜单 →', soldOut: '已售罄', shareMenu: '📤 分享菜单', copyLink: '🔗 复制链接', shareWhatsApp: '💬 WhatsApp分享', shareSMS: '✉️ 短信分享', callToOrder: '📞 电话订餐', orderNow: '🛒 立即订购' },
-  pt: { scanMenu: 'Escanear Cardápio', visitUs: 'Visite-nos', getDirections: '🗺️ Como chegar', poweredBy: 'Criado com', createFree: 'Crie seu cardápio digital gratuito →', soldOut: 'Esgotado', shareMenu: '📤 Compartilhar cardápio', copyLink: '🔗 Copiar link', shareWhatsApp: '💬 Compartilhar via WhatsApp', shareSMS: '✉️ Compartilhar via SMS', callToOrder: '📞 Ligar para Pedir', orderNow: '🛒 Pedir Agora' },
 };
 
 function getUI(key) {
@@ -600,15 +588,11 @@ function renderMenu() {
 
   // Language toggle
   if (langs.length > 0) {
-    const langNames = {
-      en: '🇬🇧 English', es: '🇪🇸 Español', fr: '🇫🇷 Français',
-      de: '🇩🇪 Deutsch', it: '🇮🇹 Italiano', ja: '🇯🇵 日本語',
-      zh: '🇨🇳 中文', pt: '🇧🇷 Português'
-    };
     html += `<div class="lang-toggle">
       <button class="lang-btn${currentLang === 'default' ? ' active' : ''}" onclick="switchLang('default')">Original</button>`;
     langs.forEach(l => {
-      html += `<button class="lang-btn${currentLang === l ? ' active' : ''}" onclick="switchLang('${l}')">${langNames[l] || l}</button>`;
+      const names = { en: '🇬🇧 English', it: '🇮🇹 Italiano', es: '🇪🇸 Español', fr: '🇫🇷 Français' };
+      html += `<button class="lang-btn${currentLang === l ? ' active' : ''}" onclick="switchLang('${l}')">${names[l] || l}</button>`;
     });
     html += `</div>`;
   }
