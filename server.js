@@ -1,5 +1,5 @@
 const express = require('express');
-const stripe = require('stripe');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const QRCode = require('qrcode');
 const crypto = require('crypto');
 const uuidv4 = () => crypto.randomUUID();
@@ -15,7 +15,6 @@ const PORT = process.env.PORT || 3002;
 const BASE_URL = process.env.BASE_URL || 'https://beta.abapture.ai';
 const STRIPE_SK = process.env.STRIPE_SECRET_KEY || '';
 const STRIPE_PK = process.env.STRIPE_PUBLISHABLE_KEY || '';
-const stripeClient = STRIPE_SK ? stripe(STRIPE_SK) : null;
 
 // Ensure dirs
 const uploadsDir = path.join(__dirname, 'uploads');
@@ -478,26 +477,70 @@ app.post('/api/public/track', (req, res) => {
   res.json({ ok: true });
 });
 
+
+// ============ DAILY SPECIALS / HAPPY HOUR ============
+
+app.get('/api/menus/:menuId/specials', requireAuth, (req, res) => {
+  const db = load();
+  const menu = db.menus[req.params.menuId];
+  if (!menu || menu.user_id !== req.session.userId) return res.status(404).json({ error: 'Menu not found' });
+  if (!db.specials) db.specials = {};
+  const specials = db.specials[req.params.menuId] || { days: {}, happyHour: { enabled: false, start: '16:00', end: '18:00', label: 'Happy Hour', days: [1,2,3,4,5] } };
+  res.json({ specials });
+});
+
+app.put('/api/menus/:menuId/specials', requireAuth, (req, res) => {
+  const db = load();
+  const menu = db.menus[req.params.menuId];
+  if (!menu || menu.user_id !== req.session.userId) return res.status(404).json({ error: 'Menu not found' });
+  if (!db.specials) db.specials = {};
+  db.specials[req.params.menuId] = req.body;
+  save(db);
+  res.json({ success: true });
+});
+
+app.get('/api/public/menu/:slug/specials', (req, res) => {
+  const db = load();
+  const menu = Object.values(db.menus).find(m => m.slug === req.params.slug && m.is_active);
+  if (!menu) return res.status(404).json({ error: 'Menu not found' });
+  if (!db.specials) db.specials = {};
+  const specials = db.specials[menu.id] || { days: {}, happyHour: { enabled: false, start: '16:00', end: '18:00', label: 'Happy Hour', days: [1,2,3,4,5] } };
+  // Also return item details for special item IDs
+  const today = new Date().getDay(); // 0=Sun
+  const daySpecials = specials.days[today] || { items: [] };
+  const itemDetails = [];
+  for (const si of (daySpecials.items || [])) {
+    const item = db.items[si.itemId];
+    if (item && item.is_available) {
+      itemDetails.push({
+        ...item,
+        tags: typeof item.tags === 'string' ? JSON.parse(item.tags) : (item.tags || []),
+        specialPrice: si.specialPrice,
+        specialLabel: si.label || ''
+      });
+    }
+  }
+  res.json({ specials, todayItems: itemDetails, happyHour: specials.happyHour });
+});
+
 // ============ STRIPE ============
 
-app.post('/api/checkout', requireAuth, async (req, res) => {
-  if (!stripeClient) return res.status(500).json({ error: 'Stripe not configured' });
+const createCheckoutSession = async (req, res) => {
+  if (!STRIPE_SK) return res.status(500).json({ error: 'Stripe not configured' });
   try {
     const { plan } = req.body;
     const db = load();
     const user = db.users[req.session.userId];
 
     const prices = {
-      starter_monthly: { amount: 900, name: 'MenuCraft Starter — Monthly', interval: 'month' },
-      starter_yearly: { amount: 7900, name: 'MenuCraft Starter — Yearly', interval: 'year' },
-      pro_monthly: { amount: 2900, name: 'MenuCraft Pro — Monthly', interval: 'month' },
-      pro_yearly: { amount: 24900, name: 'MenuCraft Pro — Yearly', interval: 'year' },
+      starter: { amount: 900, name: 'MenuCraft Starter', interval: 'month' },
+      pro: { amount: 2900, name: 'MenuCraft Pro', interval: 'month' },
     };
 
     const selected = prices[plan];
     if (!selected) return res.status(400).json({ error: 'Invalid plan' });
 
-    const checkoutSession = await stripeClient.checkout.sessions.create({
+    const checkoutSession = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       mode: 'subscription',
       customer_email: user.email,
@@ -510,8 +553,8 @@ app.post('/api/checkout', requireAuth, async (req, res) => {
         },
         quantity: 1,
       }],
-      success_url: `${BASE_URL}/dashboard?upgraded=true`,
-      cancel_url: `${BASE_URL}/dashboard?cancelled=true`,
+      success_url: 'https://beta.abapture.ai/dashboard?payment=success',
+      cancel_url: 'https://beta.abapture.ai',
     });
 
     res.json({ url: checkoutSession.url });
@@ -519,6 +562,13 @@ app.post('/api/checkout', requireAuth, async (req, res) => {
     console.error(e);
     res.status(500).json({ error: 'Failed to create checkout' });
   }
+};
+
+app.post('/api/create-checkout-session', requireAuth, createCheckoutSession);
+app.post('/api/checkout', requireAuth, createCheckoutSession);
+
+app.get('/api/stripe/config', (req, res) => {
+  res.json({ publishableKey: process.env.STRIPE_PUBLISHABLE_KEY });
 });
 
 app.get('/api/config', (req, res) => {

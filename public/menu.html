@@ -220,6 +220,116 @@
     .not-found { text-align: center; padding: 80px 24px; }
     .not-found h2 { font-size: 24px; margin-bottom: 8px; }
     .not-found p { color: #6B7280; }
+
+    /* ============ DAILY SPECIALS ============ */
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(232,93,44,0.3); }
+      50% { box-shadow: 0 0 20px 4px rgba(232,93,44,0.15); }
+    }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes countdownPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    .specials-banner {
+      background: linear-gradient(135deg, #E85D2C, #F59E0B, #E85D2C);
+      background-size: 200% 100%;
+      animation: shimmer 3s ease infinite, slideDown 0.6s ease;
+      padding: 20px 16px;
+      text-align: center;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+    .specials-banner::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.15) 0%, transparent 50%);
+    }
+    .specials-banner h2 {
+      font-size: 20px; font-weight: 800; margin-bottom: 4px;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+      position: relative;
+    }
+    .specials-banner .subtitle {
+      font-size: 13px; opacity: 0.9; position: relative;
+    }
+    .specials-section {
+      max-width: 600px; margin: 0 auto; padding: 0 16px;
+    }
+    .special-item {
+      display: flex; gap: 12px; padding: 16px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+      align-items: flex-start;
+      animation: fadeInUp 0.5s ease backwards;
+    }
+    .special-item:nth-child(1) { animation-delay: 0.1s; }
+    .special-item:nth-child(2) { animation-delay: 0.2s; }
+    .special-item:nth-child(3) { animation-delay: 0.3s; }
+    .special-item:nth-child(4) { animation-delay: 0.4s; }
+    .special-item:last-child { border-bottom: none; }
+    .special-item .special-badge {
+      display: inline-block; font-size: 10px; font-weight: 700;
+      background: #E85D2C; color: #fff; padding: 2px 8px;
+      border-radius: 4px; margin-bottom: 4px; text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .special-item .price-group {
+      display: flex; flex-direction: column; align-items: flex-end;
+      flex-shrink: 0; gap: 2px;
+    }
+    .special-item .orig-price {
+      font-size: 13px; color: #9CA3AF; text-decoration: line-through;
+    }
+    .special-item .special-price {
+      font-size: 20px; font-weight: 800; color: #E85D2C;
+      animation: pulseGlow 2s ease infinite;
+      border-radius: 8px; padding: 2px 0;
+    }
+    .special-item .savings {
+      font-size: 10px; font-weight: 700; color: #10B981;
+      background: #ECFDF5; padding: 1px 6px; border-radius: 4px;
+    }
+    .happy-hour-bar {
+      background: linear-gradient(135deg, #7C3AED, #EC4899);
+      padding: 14px 16px;
+      text-align: center; color: #fff;
+      animation: slideDown 0.5s ease;
+    }
+    .happy-hour-bar .hh-title {
+      font-size: 16px; font-weight: 800; margin-bottom: 2px;
+    }
+    .happy-hour-bar .hh-countdown {
+      display: inline-flex; gap: 8px; margin-top: 6px;
+      animation: countdownPulse 2s ease infinite;
+    }
+    .happy-hour-bar .hh-countdown .hh-unit {
+      display: flex; flex-direction: column; align-items: center;
+      background: rgba(255,255,255,0.2); border-radius: 8px;
+      padding: 6px 10px; min-width: 48px;
+    }
+    .happy-hour-bar .hh-countdown .hh-num {
+      font-size: 22px; font-weight: 800; line-height: 1;
+    }
+    .happy-hour-bar .hh-countdown .hh-label {
+      font-size: 9px; font-weight: 600; text-transform: uppercase;
+      opacity: 0.8; letter-spacing: 0.5px;
+    }
+    .happy-hour-bar .hh-status {
+      font-size: 12px; opacity: 0.9; margin-top: 4px;
+    }
+
   </style>
 </head>
 <body>
@@ -310,6 +420,135 @@ function getTranslated(itemOrCat, field) {
   return itemOrCat[field] || '';
 }
 
+
+// ============ DAILY SPECIALS ============
+let specialsInfo = null;
+
+async function loadSpecials() {
+  try {
+    const res = await fetch(`/api/public/menu/${slug}/specials`);
+    if (!res.ok) return;
+    specialsInfo = await res.json();
+    renderSpecials();
+    startHappyHourTimer();
+  } catch(e) { console.error('No specials:', e); }
+}
+
+function renderSpecials() {
+  if (!specialsInfo || !specialsInfo.todayItems || specialsInfo.todayItems.length === 0) return;
+  
+  const items = specialsInfo.todayItems;
+  const banner = document.createElement('div');
+  banner.className = 'specials-banner';
+  banner.innerHTML = `<h2>🔥 Today's Specials</h2><p class="subtitle">${items.length} special deal${items.length > 1 ? 's' : ''} today!</p>`;
+  
+  const section = document.createElement('div');
+  section.className = 'specials-section';
+  section.innerHTML = items.map(item => {
+    const savings = ((1 - item.specialPrice / item.price) * 100).toFixed(0);
+    return `<div class="special-item">
+      ${item.image_url ? `<img class="menu-item-img" src="${item.image_url}" alt="" loading="lazy">` : ''}
+      <div class="menu-item-info" style="flex:1;min-width:0;">
+        <span class="special-badge">${item.specialLabel || 'Special'}</span>
+        <div class="menu-item-name" style="font-size:16px;font-weight:700;">${esc(item.name)}</div>
+        ${item.description ? `<div class="menu-item-desc">${esc(item.description)}</div>` : ''}
+      </div>
+      <div class="price-group">
+        <span class="orig-price">$${Number(item.price).toFixed(2)}</span>
+        <span class="special-price">$${Number(item.specialPrice).toFixed(2)}</span>
+        <span class="savings">Save ${savings}%</span>
+      </div>
+    </div>`;
+  }).join('');
+  
+  // Insert after the header
+  const menuBody = document.querySelector('.menu-body');
+  if (menuBody) {
+    menuBody.parentNode.insertBefore(section, menuBody);
+    menuBody.parentNode.insertBefore(banner, section);
+  }
+}
+
+function startHappyHourTimer() {
+  if (!specialsInfo || !specialsInfo.happyHour || !specialsInfo.happyHour.enabled) return;
+  
+  const hh = specialsInfo.happyHour;
+  const today = new Date().getDay();
+  if (!hh.days || !hh.days.includes(today)) return;
+  
+  function updateTimer() {
+    const now = new Date();
+    const [startH, startM] = (hh.start || '16:00').split(':').map(Number);
+    const [endH, endM] = (hh.end || '18:00').split(':').map(Number);
+    
+    const startTime = new Date(now); startTime.setHours(startH, startM, 0, 0);
+    const endTime = new Date(now); endTime.setHours(endH, endM, 0, 0);
+    
+    let hhBar = document.getElementById('happy-hour-bar');
+    
+    if (now < startTime) {
+      // Coming up - show countdown to start
+      const diff = startTime - now;
+      const hrs = Math.floor(diff / 3600000);
+      const mins = Math.floor((diff % 3600000) / 60000);
+      const secs = Math.floor((diff % 60000) / 1000);
+      
+      if (!hhBar) {
+        hhBar = document.createElement('div');
+        hhBar.id = 'happy-hour-bar';
+        hhBar.className = 'happy-hour-bar';
+        const nav = document.querySelector('.menu-nav');
+        if (nav) nav.parentNode.insertBefore(hhBar, nav);
+        else {
+          const container = document.getElementById('menu-container');
+          if (container && container.firstChild) container.insertBefore(hhBar, container.firstChild.nextSibling);
+        }
+      }
+      hhBar.innerHTML = `<div class="hh-title">🍺 ${esc(hh.label || 'Happy Hour')} starts in</div>
+        <div class="hh-countdown">
+          <div class="hh-unit"><span class="hh-num">${String(hrs).padStart(2,'0')}</span><span class="hh-label">hrs</span></div>
+          <div class="hh-unit"><span class="hh-num">${String(mins).padStart(2,'0')}</span><span class="hh-label">min</span></div>
+          <div class="hh-unit"><span class="hh-num">${String(secs).padStart(2,'0')}</span><span class="hh-label">sec</span></div>
+        </div>
+        <div class="hh-status">${hh.start} — ${hh.end}</div>`;
+    } else if (now >= startTime && now < endTime) {
+      // Active!
+      const diff = endTime - now;
+      const hrs = Math.floor(diff / 3600000);
+      const mins = Math.floor((diff % 3600000) / 60000);
+      const secs = Math.floor((diff % 60000) / 1000);
+      
+      if (!hhBar) {
+        hhBar = document.createElement('div');
+        hhBar.id = 'happy-hour-bar';
+        hhBar.className = 'happy-hour-bar';
+        hhBar.style.background = 'linear-gradient(135deg, #10B981, #059669)';
+        const nav = document.querySelector('.menu-nav');
+        if (nav) nav.parentNode.insertBefore(hhBar, nav);
+        else {
+          const container = document.getElementById('menu-container');
+          if (container && container.firstChild) container.insertBefore(hhBar, container.firstChild.nextSibling);
+        }
+      }
+      hhBar.style.background = 'linear-gradient(135deg, #10B981, #059669)';
+      hhBar.innerHTML = `<div class="hh-title">🍺 ${esc(hh.label || 'Happy Hour')} — NOW!</div>
+        <div class="hh-countdown">
+          <div class="hh-unit"><span class="hh-num">${String(hrs).padStart(2,'0')}</span><span class="hh-label">hrs</span></div>
+          <div class="hh-unit"><span class="hh-num">${String(mins).padStart(2,'0')}</span><span class="hh-label">min</span></div>
+          <div class="hh-unit"><span class="hh-num">${String(secs).padStart(2,'0')}</span><span class="hh-label">sec</span></div>
+        </div>
+        <div class="hh-status">Ends at ${hh.end}</div>`;
+    } else {
+      // Over
+      if (hhBar) hhBar.remove();
+      return;
+    }
+  }
+  
+  updateTimer();
+  setInterval(updateTimer, 1000);
+}
+
 async function loadMenu() {
   try {
     const res = await fetch(`/api/public/menu/${slug}`);
@@ -323,6 +562,7 @@ async function loadMenu() {
     document.title = (menu.restaurant_name || menu.name) + ' — Menu';
 
     renderMenu();
+    loadSpecials();
   } catch (e) {
     document.getElementById('menu-container').innerHTML = '<div class="not-found"><h2>Menu not found</h2><p>This menu may have been removed or the link is incorrect.</p></div>';
   }
