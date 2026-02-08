@@ -338,6 +338,43 @@
       font-size: 12px; opacity: 0.9; margin-top: 4px;
     }
 
+
+    /* ============ FIND US / MAP ============ */
+    .find-us-section {
+      max-width: 600px; margin: 0 auto; padding: 24px 16px;
+      border-top: 1px solid rgba(0,0,0,0.06);
+    }
+    .find-us-section h3 {
+      font-size: 18px; font-weight: 800; color: var(--primary, #E85D2C);
+      margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+    }
+    .find-us-details {
+      display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;
+    }
+    .find-us-row {
+      display: flex; align-items: flex-start; gap: 10px; font-size: 15px; color: #374151; line-height: 1.5;
+    }
+    .find-us-row .fu-icon {
+      font-size: 18px; width: 24px; text-align: center; flex-shrink: 0; padding-top: 1px;
+    }
+    .find-us-row a { color: var(--primary, #E85D2C); text-decoration: none; font-weight: 600; }
+    .find-us-row a:hover { text-decoration: underline; }
+    .map-embed {
+      border-radius: 16px; overflow: hidden; border: 2px solid rgba(0,0,0,0.06);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08); margin-top: 4px;
+    }
+    .map-embed iframe {
+      width: 100%; height: 280px; border: 0; display: block;
+    }
+    .map-directions-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      margin-top: 14px; padding: 10px 20px;
+      background: var(--primary, #E85D2C); color: #fff;
+      border-radius: 12px; font-size: 14px; font-weight: 700;
+      text-decoration: none; transition: all 0.2s;
+      box-shadow: 0 2px 8px rgba(232,93,44,0.25);
+    }
+    .map-directions-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(232,93,44,0.35); }
   </style>
 </head>
 <body>
@@ -405,14 +442,14 @@ const filterLabels = {
 };
 
 const uiStrings = {
-  en: { scanMenu: 'Scan for Menu', visitUs: 'Visit Us', getDirections: '🗺️ Get Directions', poweredBy: 'Powered by', createFree: 'Create your free digital menu →', soldOut: 'Sold Out', shareMenu: '📤 Share this menu', copyLink: '🔗 Copy link', shareWhatsApp: '💬 Share via WhatsApp', shareSMS: '✉️ Share via SMS', callToOrder: '📞 Call to Order', orderNow: '🛒 Order Now' },
-  es: { scanMenu: 'Escanear Menú', visitUs: 'Visítanos', getDirections: '🗺️ Cómo llegar', poweredBy: 'Creado con', createFree: 'Crea tu menú digital gratis →', soldOut: 'Agotado', shareMenu: '📤 Compartir menú', copyLink: '🔗 Copiar enlace', shareWhatsApp: '💬 Compartir por WhatsApp', shareSMS: '✉️ Compartir por SMS', callToOrder: '📞 Llamar para Ordenar', orderNow: '🛒 Ordenar Ahora' },
-  fr: { scanMenu: 'Scanner le Menu', visitUs: 'Nous Rendre Visite', getDirections: '🗺️ Itinéraire', poweredBy: 'Propulsé par', createFree: 'Créez votre menu digital gratuit →', soldOut: 'Épuisé', shareMenu: '📤 Partager le menu', copyLink: '🔗 Copier le lien', shareWhatsApp: '💬 Partager sur WhatsApp', shareSMS: '✉️ Partager par SMS', callToOrder: '📞 Appeler pour Commander', orderNow: '🛒 Commander' },
-  de: { scanMenu: 'Menü scannen', visitUs: 'Besuchen Sie uns', getDirections: '🗺️ Wegbeschreibung', poweredBy: 'Bereitgestellt von', createFree: 'Erstellen Sie Ihr kostenloses digitales Menü →', soldOut: 'Ausverkauft', shareMenu: '📤 Menü teilen', copyLink: '🔗 Link kopieren', shareWhatsApp: '💬 Per WhatsApp teilen', shareSMS: '✉️ Per SMS teilen', callToOrder: '📞 Anrufen zum Bestellen', orderNow: '🛒 Jetzt bestellen' },
-  it: { scanMenu: 'Scansiona per il Menu', visitUs: 'Visitaci', getDirections: '🗺️ Indicazioni', poweredBy: 'Offerto da', createFree: 'Crea il tuo menu digitale gratis →', soldOut: 'Esaurito', shareMenu: '📤 Condividi menu', copyLink: '🔗 Copia link', shareWhatsApp: '💬 Condividi su WhatsApp', shareSMS: '✉️ Condividi via SMS', callToOrder: '📞 Chiama per Ordinare', orderNow: '🛒 Ordina Ora' },
-  ja: { scanMenu: 'メニューをスキャン', visitUs: '店舗情報', getDirections: '🗺️ 道順', poweredBy: 'Powered by', createFree: '無料デジタルメニューを作成 →', soldOut: '売り切れ', shareMenu: '📤 メニューを共有', copyLink: '🔗 リンクをコピー', shareWhatsApp: '💬 WhatsAppで共有', shareSMS: '✉️ SMSで共有', callToOrder: '📞 電話で注文', orderNow: '🛒 注文する' },
-  zh: { scanMenu: '扫码看菜单', visitUs: '店铺信息', getDirections: '🗺️ 导航', poweredBy: '由...提供', createFree: '免费创建您的数字菜单 →', soldOut: '已售罄', shareMenu: '📤 分享菜单', copyLink: '🔗 复制链接', shareWhatsApp: '💬 WhatsApp分享', shareSMS: '✉️ 短信分享', callToOrder: '📞 电话订餐', orderNow: '🛒 立即订购' },
-  pt: { scanMenu: 'Escanear Cardápio', visitUs: 'Visite-nos', getDirections: '🗺️ Como chegar', poweredBy: 'Criado com', createFree: 'Crie seu cardápio digital gratuito →', soldOut: 'Esgotado', shareMenu: '📤 Compartilhar cardápio', copyLink: '🔗 Copiar link', shareWhatsApp: '💬 Compartilhar via WhatsApp', shareSMS: '✉️ Compartilhar via SMS', callToOrder: '📞 Ligar para Pedir', orderNow: '🛒 Pedir Agora' },
+  en: { scanMenu: 'Scan for Menu', visitUs: 'Visit Us', findUs: 'Find Us', getDirections: '🗺️ Get Directions', poweredBy: 'Powered by', createFree: 'Create your free digital menu →', soldOut: 'Sold Out', shareMenu: '📤 Share this menu', copyLink: '🔗 Copy link', shareWhatsApp: '💬 Share via WhatsApp', shareSMS: '✉️ Share via SMS', callToOrder: '📞 Call to Order', orderNow: '🛒 Order Now' },
+  es: { scanMenu: 'Escanear Menú', visitUs: 'Visítanos', findUs: 'Encuéntranos', getDirections: '🗺️ Cómo llegar', poweredBy: 'Creado con', createFree: 'Crea tu menú digital gratis →', soldOut: 'Agotado', shareMenu: '📤 Compartir menú', copyLink: '🔗 Copiar enlace', shareWhatsApp: '💬 Compartir por WhatsApp', shareSMS: '✉️ Compartir por SMS', callToOrder: '📞 Llamar para Ordenar', orderNow: '🛒 Ordenar Ahora' },
+  fr: { scanMenu: 'Scanner le Menu', visitUs: 'Nous Rendre Visite', findUs: 'Nous Trouver', getDirections: '🗺️ Itinéraire', poweredBy: 'Propulsé par', createFree: 'Créez votre menu digital gratuit →', soldOut: 'Épuisé', shareMenu: '📤 Partager le menu', copyLink: '🔗 Copier le lien', shareWhatsApp: '💬 Partager sur WhatsApp', shareSMS: '✉️ Partager par SMS', callToOrder: '📞 Appeler pour Commander', orderNow: '🛒 Commander' },
+  de: { scanMenu: 'Menü scannen', visitUs: 'Besuchen Sie uns', findUs: 'So finden Sie uns', getDirections: '🗺️ Wegbeschreibung', poweredBy: 'Bereitgestellt von', createFree: 'Erstellen Sie Ihr kostenloses digitales Menü →', soldOut: 'Ausverkauft', shareMenu: '📤 Menü teilen', copyLink: '🔗 Link kopieren', shareWhatsApp: '💬 Per WhatsApp teilen', shareSMS: '✉️ Per SMS teilen', callToOrder: '📞 Anrufen zum Bestellen', orderNow: '🛒 Jetzt bestellen' },
+  it: { scanMenu: 'Scansiona per il Menu', visitUs: 'Visitaci', findUs: 'Dove Trovarci', getDirections: '🗺️ Indicazioni', poweredBy: 'Offerto da', createFree: 'Crea il tuo menu digitale gratis →', soldOut: 'Esaurito', shareMenu: '📤 Condividi menu', copyLink: '🔗 Copia link', shareWhatsApp: '💬 Condividi su WhatsApp', shareSMS: '✉️ Condividi via SMS', callToOrder: '📞 Chiama per Ordinare', orderNow: '🛒 Ordina Ora' },
+  ja: { scanMenu: 'メニューをスキャン', visitUs: '店舗情報', findUs: 'アクセス', getDirections: '🗺️ 道順', poweredBy: 'Powered by', createFree: '無料デジタルメニューを作成 →', soldOut: '売り切れ', shareMenu: '📤 メニューを共有', copyLink: '🔗 リンクをコピー', shareWhatsApp: '💬 WhatsAppで共有', shareSMS: '✉️ SMSで共有', callToOrder: '📞 電話で注文', orderNow: '🛒 注文する' },
+  zh: { scanMenu: '扫码看菜单', visitUs: '店铺信息', findUs: '如何找到我们', getDirections: '🗺️ 导航', poweredBy: '由...提供', createFree: '免费创建您的数字菜单 →', soldOut: '已售罄', shareMenu: '📤 分享菜单', copyLink: '🔗 复制链接', shareWhatsApp: '💬 WhatsApp分享', shareSMS: '✉️ 短信分享', callToOrder: '📞 电话订餐', orderNow: '🛒 立即订购' },
+  pt: { scanMenu: 'Escanear Cardápio', visitUs: 'Visite-nos', findUs: 'Como Nos Encontrar', getDirections: '🗺️ Como chegar', poweredBy: 'Criado com', createFree: 'Crie seu cardápio digital gratuito →', soldOut: 'Esgotado', shareMenu: '📤 Compartilhar cardápio', copyLink: '🔗 Copiar link', shareWhatsApp: '💬 Compartilhar via WhatsApp', shareSMS: '✉️ Compartilhar via SMS', callToOrder: '📞 Ligar para Pedir', orderNow: '🛒 Pedir Agora' },
 };
 
 function getUI(key) {
@@ -734,15 +771,21 @@ function renderMenu() {
   });
   html += `</div>`;
 
-  // Visit Us section
+  // Find Us section with Google Maps embed
   if (menu.hours || menu.location || menu.phone) {
-    html += `<div class="info-section">
-      <h3>${getUI('visitUs')}</h3>
-      ${menu.hours ? `<div class="info-row"><span class="icon">🕐</span> ${esc(menu.hours)}</div>` : ''}
-      ${menu.location ? `<div class="info-row"><span class="icon">📍</span> ${esc(menu.location)}</div>` : ''}
-      ${menu.phone ? `<div class="info-row"><span class="icon">📞</span> <a href="tel:${esc(menu.phone)}" style="color:inherit;text-decoration:none;">${esc(menu.phone)}</a></div>` : ''}
-      ${mapsUrl ? `<a class="directions-link" href="${mapsUrl}" target="_blank" rel="noopener">${getUI('getDirections')}</a>` : ''}
-    </div>`;
+    const mapEmbedUrl = menu.location ? 'https://maps.google.com/maps?q=' + encodeURIComponent(menu.location) + '&output=embed&z=15' : '';
+    html += '<div class="find-us-section">';
+    html += '<h3>📍 ' + (getUI('findUs') || 'Find Us') + '</h3>';
+    html += '<div class="find-us-details">';
+    if (menu.location) html += '<div class="find-us-row"><span class="fu-icon">🏠</span><div>' + esc(menu.location) + '</div></div>';
+    if (menu.phone) html += '<div class="find-us-row"><span class="fu-icon">📞</span><div><a href="tel:' + esc(menu.phone) + '">' + esc(menu.phone) + '</a></div></div>';
+    if (menu.hours) html += '<div class="find-us-row"><span class="fu-icon">🕐</span><div>' + esc(menu.hours) + '</div></div>';
+    html += '</div>';
+    if (mapEmbedUrl) {
+      html += '<div class="map-embed"><iframe src="' + mapEmbedUrl + '" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>';
+      html += '<a class="map-directions-btn" href="' + mapsUrl + '" target="_blank" rel="noopener">🗺️ ' + getUI('getDirections') + '</a>';
+    }
+    html += '</div>';
   }
 
   html += `</div>`; // close theme wrapper
