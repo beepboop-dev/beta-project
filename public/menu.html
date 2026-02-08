@@ -242,6 +242,14 @@
       0%, 100% { transform: scale(1); }
       50% { transform: scale(1.05); }
     }
+
+    .special-countdown {
+      background: #FEF2F2;
+      padding: 4px 10px;
+      border-radius: 8px;
+      display: inline-flex !important;
+      width: fit-content;
+    }
     .specials-banner {
       background: linear-gradient(135deg, #E85D2C, #F59E0B, #E85D2C);
       background-size: 200% 100%;
@@ -456,29 +464,83 @@ function renderSpecials() {
   
   const section = document.createElement('div');
   section.className = 'specials-section';
-  section.innerHTML = items.map(item => {
-    const savings = ((1 - item.specialPrice / item.price) * 100).toFixed(0);
+  section.innerHTML = items.map((item, idx) => {
+    const hasOrigPrice = item.originalPrice || (item.type === 'item' && item.price !== item.specialPrice);
+    const origPrice = item.originalPrice || item.price;
+    const savings = hasOrigPrice ? ((1 - item.specialPrice / origPrice) * 100).toFixed(0) : null;
+    const countdownId = item.endTime ? `special-countdown-${idx}` : '';
+    
     return `<div class="special-item">
       ${item.image_url ? `<img class="menu-item-img" src="${item.image_url}" alt="" loading="lazy">` : ''}
       <div class="menu-item-info" style="flex:1;min-width:0;">
-        <span class="special-badge">${item.specialLabel || 'Special'}</span>
+        <span class="special-badge">${esc(item.specialLabel || 'Special')}</span>
         <div class="menu-item-name" style="font-size:16px;font-weight:700;">${esc(item.name)}</div>
         ${item.description ? `<div class="menu-item-desc">${esc(item.description)}</div>` : ''}
+        ${item.endTime ? `<div id="${countdownId}" class="special-countdown" data-endtime="${item.endTime}" style="margin-top:6px;font-size:12px;font-weight:700;color:#DC2626;display:flex;align-items:center;gap:4px;">
+          <span style="animation:countdownPulse 2s ease infinite;">⏰</span> <span class="countdown-text"></span>
+        </div>` : ''}
       </div>
       <div class="price-group">
-        <span class="orig-price">$${Number(item.price).toFixed(2)}</span>
+        ${hasOrigPrice ? `<span class="orig-price">$${Number(origPrice).toFixed(2)}</span>` : ''}
         <span class="special-price">$${Number(item.specialPrice).toFixed(2)}</span>
-        <span class="savings">Save ${savings}%</span>
+        ${savings ? `<span class="savings">Save ${savings}%</span>` : ''}
       </div>
     </div>`;
   }).join('');
   
-  // Insert after the header
   const menuBody = document.querySelector('.menu-body');
   if (menuBody) {
     menuBody.parentNode.insertBefore(section, menuBody);
     menuBody.parentNode.insertBefore(banner, section);
   }
+  
+  // Start countdown timers for specials with endTime
+  startSpecialCountdowns();
+}
+
+function startSpecialCountdowns() {
+  const countdowns = document.querySelectorAll('.special-countdown');
+  if (countdowns.length === 0) return;
+  
+  function updateCountdowns() {
+    const now = new Date();
+    countdowns.forEach(el => {
+      const endTime = el.dataset.endtime;
+      if (!endTime) return;
+      const [h, m] = endTime.split(':').map(Number);
+      const end = new Date(now);
+      end.setHours(h, m, 0, 0);
+      
+      const textEl = el.querySelector('.countdown-text');
+      if (now >= end) {
+        textEl.textContent = 'This special has ended';
+        el.style.color = '#9CA3AF';
+      } else {
+        const diff = end - now;
+        const hrs = Math.floor(diff / 3600000);
+        const mins = Math.floor((diff % 3600000) / 60000);
+        const secs = Math.floor((diff % 60000) / 1000);
+        
+        // Format the end time nicely
+        const ampm = h >= 12 ? 'PM' : 'AM';
+        const displayH = h > 12 ? h - 12 : (h === 0 ? 12 : h);
+        const displayM = String(m).padStart(2, '0');
+        
+        if (hrs > 0) {
+          textEl.textContent = `Available until ${displayH}:${displayM} ${ampm} — ${hrs}h ${mins}m left`;
+        } else if (mins > 5) {
+          textEl.textContent = `Available until ${displayH}:${displayM} ${ampm} — ${mins}m left`;
+        } else {
+          textEl.textContent = `Ending soon! Only ${mins}m ${secs}s left!`;
+          el.style.color = '#DC2626';
+          el.style.fontWeight = '800';
+        }
+      }
+    });
+  }
+  
+  updateCountdowns();
+  setInterval(updateCountdowns, 1000);
 }
 
 function startHappyHourTimer() {

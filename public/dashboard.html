@@ -428,12 +428,37 @@
 
   <!-- SPECIALS TAB -->
   <div id="tab-specials" style="display:none;">
+    <!-- Custom Standalone Specials -->
+    <div class="card" style="margin-bottom:20px;">
+      <h3 style="font-size:18px;font-weight:700;margin-bottom:4px;">⭐ Custom Daily Specials</h3>
+      <p style="font-size:13px;color:var(--gray);margin-bottom:16px;">Create standalone specials with day-of-week scheduling. They auto-show/hide on your public menu.</p>
+      <div id="custom-specials-list"></div>
+      <button class="btn btn-primary" onclick="openCreateCustomSpecial()" style="margin-top:12px;">+ Create New Special</button>
+    </div>
+
+    <!-- Item-Based Specials by Day -->
+    <div class="card" style="margin-bottom:20px;">
+      <h3 style="font-size:18px;font-weight:700;margin-bottom:4px;">🏷️ Menu Item Discounts</h3>
+      <p style="font-size:13px;color:var(--gray);margin-bottom:16px;">Discount existing menu items for specific days.</p>
+      <div class="form-group">
+        <label>Select Day</label>
+        <div class="tabs" style="width:100%;">
+          <button class="tab" data-sday="1" onclick="selectSpecialDay(1)">Mon</button>
+          <button class="tab" data-sday="2" onclick="selectSpecialDay(2)">Tue</button>
+          <button class="tab" data-sday="3" onclick="selectSpecialDay(3)">Wed</button>
+          <button class="tab" data-sday="4" onclick="selectSpecialDay(4)">Thu</button>
+          <button class="tab" data-sday="5" onclick="selectSpecialDay(5)">Fri</button>
+          <button class="tab" data-sday="6" onclick="selectSpecialDay(6)">Sat</button>
+          <button class="tab" data-sday="0" onclick="selectSpecialDay(0)">Sun</button>
+        </div>
+      </div>
+      <div id="specials-list" style="margin-top:16px;"></div>
+      <button class="btn btn-outline" onclick="openAddSpecial()" style="margin-top:12px;">+ Add Discounted Item</button>
+    </div>
+
+    <!-- Happy Hour -->
     <div class="card">
-      <h3 style="font-size:18px;font-weight:700;margin-bottom:8px;">🔥 Daily Specials & Happy Hour</h3>
-      <p style="font-size:13px;color:var(--gray);margin-bottom:20px;">Set specials for each day of the week. They'll automatically show/hide on your public menu.</p>
-      
-      <!-- Happy Hour Config -->
-      <div style="background:#FFF7ED;border:1.5px solid #FDBA74;border-radius:12px;padding:16px;margin-bottom:24px;">
+      <div style="background:#FFF7ED;border:1.5px solid #FDBA74;border-radius:12px;padding:16px;">
         <h4 style="font-size:15px;font-weight:700;margin-bottom:12px;">🍺 Happy Hour</h4>
         <div class="form-group" style="margin-bottom:12px;">
           <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
@@ -470,24 +495,6 @@
           </div>
         </div>
       </div>
-
-      <!-- Day selector -->
-      <div class="form-group">
-        <label>Select Day</label>
-        <div class="tabs" style="width:100%;">
-          <button class="tab" data-sday="1" onclick="selectSpecialDay(1)">Mon</button>
-          <button class="tab" data-sday="2" onclick="selectSpecialDay(2)">Tue</button>
-          <button class="tab" data-sday="3" onclick="selectSpecialDay(3)">Wed</button>
-          <button class="tab" data-sday="4" onclick="selectSpecialDay(4)">Thu</button>
-          <button class="tab" data-sday="5" onclick="selectSpecialDay(5)">Fri</button>
-          <button class="tab" data-sday="6" onclick="selectSpecialDay(6)">Sat</button>
-          <button class="tab" data-sday="0" onclick="selectSpecialDay(0)">Sun</button>
-        </div>
-      </div>
-
-      <!-- Specials list for selected day -->
-      <div id="specials-list" style="margin-top:16px;"></div>
-      <button class="btn btn-outline" onclick="openAddSpecial()" style="margin-top:12px;">+ Add Special Item</button>
     </div>
   </div>
 
@@ -651,7 +658,7 @@ document.querySelectorAll('[data-tab]').forEach(a => {
 
 
 // ============ SPECIALS ============
-let specialsData = { days: {}, happyHour: { enabled: false, start: '16:00', end: '18:00', label: 'Happy Hour', days: [1,2,3,4,5] } };
+let specialsData = { days: {}, customSpecials: [], happyHour: { enabled: false, start: '16:00', end: '18:00', label: 'Happy Hour', days: [1,2,3,4,5] } };
 let selectedSpecialDay = new Date().getDay();
 
 async function loadSpecials() {
@@ -659,7 +666,8 @@ async function loadSpecials() {
   try {
     const res = await fetch(`/api/menus/${currentMenu.id}/specials`);
     const { specials } = await res.json();
-    specialsData = specials || { days: {}, happyHour: { enabled: false, start: '16:00', end: '18:00', label: 'Happy Hour', days: [1,2,3,4,5] } };
+    specialsData = specials || { days: {}, customSpecials: [], happyHour: { enabled: false, start: '16:00', end: '18:00', label: 'Happy Hour', days: [1,2,3,4,5] } };
+    if (!specialsData.customSpecials) specialsData.customSpecials = [];
   } catch(e) { console.error(e); }
   renderSpecialsUI();
 }
@@ -675,27 +683,143 @@ function renderSpecialsUI() {
   document.querySelectorAll('#hh-days .tag-chip').forEach(c => {
     c.classList.toggle('selected', hhDays.includes(parseInt(c.dataset.day)));
   });
-  
-  // Select current day tab
   document.querySelectorAll('[data-sday]').forEach(t => {
     t.classList.toggle('active', parseInt(t.dataset.sday) === selectedSpecialDay);
   });
-  
+  renderCustomSpecials();
   renderDaySpecials();
+}
+
+const DAY_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+function renderCustomSpecials() {
+  const container = document.getElementById('custom-specials-list');
+  const specials = specialsData.customSpecials || [];
+  if (specials.length === 0) {
+    container.innerHTML = '<p style="color:var(--gray);font-size:13px;padding:8px 0;">No custom specials yet. Create one to get started!</p>';
+    return;
+  }
+  container.innerHTML = specials.map((cs, idx) => {
+    const dayLabels = (cs.days || []).map(d => DAY_NAMES[d]).join(', ');
+    const activeClass = cs.isActive !== false ? '' : 'opacity:0.5;';
+    return `<div class="item-row" style="align-items:flex-start;${activeClass}">
+      <div class="item-info" style="flex:1;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="item-name">${escHtml(cs.name)}</div>
+          <span style="font-size:11px;padding:2px 8px;border-radius:20px;background:${cs.isActive !== false ? '#DCFCE7' : '#FEE2E2'};color:${cs.isActive !== false ? '#166534' : '#991B1B'};font-weight:600;">${cs.isActive !== false ? 'Active' : 'Paused'}</span>
+        </div>
+        ${cs.description ? `<div style="font-size:12px;color:var(--gray);margin-top:2px;">${escHtml(cs.description)}</div>` : ''}
+        <div style="font-size:11px;color:var(--gray);margin-top:4px;">
+          📅 ${dayLabels || 'No days set'}
+          ${cs.endTime ? ' · ⏰ Until ' + cs.endTime : ''}
+          ${cs.label ? ' · 🏷️ ' + escHtml(cs.label) : ''}
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        ${cs.originalPrice ? `<span style="text-decoration:line-through;color:var(--gray);font-size:13px;">$${Number(cs.originalPrice).toFixed(2)}</span>` : ''}
+        <span style="font-weight:800;color:var(--orange);font-size:16px;">$${Number(cs.price).toFixed(2)}</span>
+      </div>
+      <div style="display:flex;gap:4px;">
+        <button class="icon-btn" onclick="toggleCustomSpecial(${idx})" title="${cs.isActive !== false ? 'Pause' : 'Activate'}">${cs.isActive !== false ? '⏸️' : '▶️'}</button>
+        <button class="icon-btn" onclick="editCustomSpecial(${idx})">✏️</button>
+        <button class="icon-btn" onclick="removeCustomSpecial(${idx})">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openCreateCustomSpecial(editIdx) {
+  const isEdit = editIdx !== undefined;
+  const cs = isEdit ? specialsData.customSpecials[editIdx] : {};
+  const days = cs.days || [];
+
+  let html = `<div class="modal"><h3>${isEdit ? 'Edit' : 'Create'} Daily Special</h3>
+    <div class="form-group"><label>Name *</label><input type="text" id="cs-name" value="${escHtml(cs.name || '')}" placeholder="e.g. Taco Tuesday Special"></div>
+    <div class="form-group"><label>Description</label><textarea id="cs-desc" rows="2" placeholder="e.g. Two tacos with rice and beans">${escHtml(cs.description || '')}</textarea></div>
+    <div class="form-row">
+      <div class="form-group"><label>Special Price ($) *</label><input type="number" id="cs-price" step="0.01" min="0" value="${cs.price || ''}" placeholder="9.99"></div>
+      <div class="form-group"><label>Original Price ($)</label><input type="number" id="cs-orig-price" step="0.01" min="0" value="${cs.originalPrice || ''}" placeholder="14.99 (shows strikethrough)"></div>
+    </div>
+    <div class="form-group"><label>Badge Label</label><input type="text" id="cs-label" value="${escHtml(cs.label || '')}" placeholder="e.g. Chef's Pick, Limited Time"></div>
+    <div class="form-group"><label>Available Until (optional, for countdown)</label><input type="time" id="cs-endtime" value="${cs.endTime || ''}"></div>
+    <div class="form-group"><label>Available Days *</label>
+      <div class="tag-picker" id="cs-days">
+        ${DAY_NAMES.map((name, i) => `<button type="button" class="tag-chip${days.includes(i) ? ' selected' : ''}" data-day="${i}" onclick="this.classList.toggle('selected')">${name}</button>`).join('')}
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="document.getElementById('cs-modal').remove()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveCustomSpecial(${isEdit ? editIdx : 'null'})">${isEdit ? 'Save Changes' : 'Create Special'}</button>
+    </div>
+  </div>`;
+
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay show';
+  overlay.id = 'cs-modal';
+  overlay.innerHTML = html;
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
+}
+
+async function saveCustomSpecial(editIdx) {
+  const name = document.getElementById('cs-name').value.trim();
+  const price = parseFloat(document.getElementById('cs-price').value);
+  if (!name || isNaN(price)) { showToast('Name and price are required'); return; }
+
+  const days = [...document.querySelectorAll('#cs-days .tag-chip.selected')].map(c => parseInt(c.dataset.day));
+  if (days.length === 0) { showToast('Select at least one day'); return; }
+
+  const special = {
+    id: editIdx !== null && specialsData.customSpecials[editIdx] ? specialsData.customSpecials[editIdx].id : Date.now().toString(36),
+    name,
+    description: document.getElementById('cs-desc').value.trim(),
+    price,
+    originalPrice: parseFloat(document.getElementById('cs-orig-price').value) || null,
+    label: document.getElementById('cs-label').value.trim(),
+    endTime: document.getElementById('cs-endtime').value || null,
+    days,
+    isActive: true,
+    image_url: ''
+  };
+
+  if (editIdx !== null) {
+    special.isActive = specialsData.customSpecials[editIdx].isActive !== false;
+    specialsData.customSpecials[editIdx] = special;
+  } else {
+    specialsData.customSpecials.push(special);
+  }
+
+  document.getElementById('cs-modal').remove();
+  await saveSpecials();
+  renderCustomSpecials();
+}
+
+function editCustomSpecial(idx) {
+  openCreateCustomSpecial(idx);
+}
+
+async function toggleCustomSpecial(idx) {
+  specialsData.customSpecials[idx].isActive = specialsData.customSpecials[idx].isActive === false ? true : false;
+  await saveSpecials();
+  renderCustomSpecials();
+}
+
+async function removeCustomSpecial(idx) {
+  if (!confirm('Remove this special?')) return;
+  specialsData.customSpecials.splice(idx, 1);
+  await saveSpecials();
+  renderCustomSpecials();
 }
 
 function renderDaySpecials() {
   const dayData = specialsData.days[selectedSpecialDay] || { items: [] };
   const container = document.getElementById('specials-list');
   if (dayData.items.length === 0) {
-    container.innerHTML = '<p style="color:var(--gray);font-size:13px;padding:12px 0;">No specials set for this day. Add items from your menu!</p>';
+    container.innerHTML = '<p style="color:var(--gray);font-size:13px;padding:12px 0;">No discounted items for this day.</p>';
     return;
   }
-  
-  // Find item names from categories
   const allItems = {};
   categories.forEach(cat => cat.items.forEach(item => allItems[item.id] = item));
-  
   container.innerHTML = dayData.items.map((si, idx) => {
     const item = allItems[si.itemId];
     const name = item ? item.name : 'Unknown item';
@@ -703,11 +827,11 @@ function renderDaySpecials() {
     return `<div class="item-row" style="align-items:center;">
       <div class="item-info" style="flex:1;">
         <div class="item-name">${escHtml(name)}</div>
-        <div style="font-size:12px;color:var(--gray);margin-top:2px;">${si.label ? escHtml(si.label) : 'Daily Special'}</div>
+        <div style="font-size:12px;color:var(--gray);margin-top:2px;">${si.label ? escHtml(si.label) : 'Daily Special'}${si.endTime ? ' · Until ' + si.endTime : ''}</div>
       </div>
       <div style="display:flex;align-items:center;gap:8px;">
         <span style="text-decoration:line-through;color:var(--gray);font-size:13px;">${origPrice}</span>
-        <span style="font-weight:800;color:var(--orange);font-size:16px;">${Number(si.specialPrice).toFixed(2)}</span>
+        <span style="font-weight:800;color:var(--orange);font-size:16px;">$${Number(si.specialPrice).toFixed(2)}</span>
       </div>
       <button class="icon-btn" onclick="removeSpecial(${idx})">🗑</button>
     </div>`;
@@ -734,7 +858,6 @@ async function saveSpecials() {
     days: hhDays
   };
   document.getElementById('hh-config').style.display = specialsData.happyHour.enabled ? 'block' : 'none';
-  
   await fetch(`/api/menus/${currentMenu.id}/specials`, {
     method: 'PUT', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(specialsData),
@@ -743,31 +866,26 @@ async function saveSpecials() {
 }
 
 function openAddSpecial() {
-  // Build a list of all items to pick from
   const allItems = [];
   categories.forEach(cat => cat.items.forEach(item => allItems.push({ ...item, catName: cat.name })));
-  
   if (allItems.length === 0) { showToast('Add menu items first!'); return; }
-  
-  let pickHtml = '<div class="modal"><h3>Add Special Item</h3>';
+  let pickHtml = '<div class="modal"><h3>Add Discounted Item</h3>';
   pickHtml += '<div class="form-group"><label>Select Item</label><select id="special-item-select" style="width:100%;padding:10px;border:1.5px solid #E5E7EB;border-radius:10px;font-size:14px;font-family:inherit;">';
   allItems.forEach(item => {
-    pickHtml += `<option value="${item.id}" data-price="${item.price}">${escHtml(item.catName)} → ${escHtml(item.name)} (${Number(item.price).toFixed(2)})</option>`;
+    pickHtml += `<option value="${item.id}" data-price="${item.price}">${escHtml(item.catName)} → ${escHtml(item.name)} ($${Number(item.price).toFixed(2)})</option>`;
   });
   pickHtml += '</select></div>';
   pickHtml += '<div class="form-group"><label>Special Price ($)</label><input type="number" id="special-price" step="0.01" min="0" placeholder="e.g. 5.99"></div>';
-  pickHtml += '<div class="form-group"><label>Label (optional)</label><input type="text" id="special-label" placeholder="e.g. Chef\'s Pick, 50% Off"></div>';
-  pickHtml += '<div class="modal-actions"><button class="btn btn-outline" onclick="closeSpecialPicker()">Cancel</button><button class="btn btn-primary" onclick="confirmAddSpecial()">Add Special</button></div>';
+  pickHtml += '<div class="form-group"><label>Label (optional)</label><input type="text" id="special-label" placeholder="e.g. 50% Off"></div>';
+  pickHtml += '<div class="form-group"><label>Available Until (optional)</label><input type="time" id="special-endtime" value=""></div>';
+  pickHtml += '<div class="modal-actions"><button class="btn btn-outline" onclick="closeSpecialPicker()">Cancel</button><button class="btn btn-primary" onclick="confirmAddSpecial()">Add</button></div>';
   pickHtml += '</div>';
-  
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay show';
   overlay.id = 'special-picker-modal';
   overlay.innerHTML = pickHtml;
   overlay.addEventListener('click', e => { if (e.target === overlay) closeSpecialPicker(); });
   document.body.appendChild(overlay);
-  
-  // Pre-fill special price as 80% of original
   const sel = document.getElementById('special-item-select');
   document.getElementById('special-price').value = (Number(sel.options[sel.selectedIndex].dataset.price) * 0.8).toFixed(2);
   sel.addEventListener('change', () => {
@@ -783,10 +901,9 @@ async function confirmAddSpecial() {
   const itemId = document.getElementById('special-item-select').value;
   const specialPrice = parseFloat(document.getElementById('special-price').value) || 0;
   const label = document.getElementById('special-label').value;
-  
+  const endTime = document.getElementById('special-endtime').value || null;
   if (!specialsData.days[selectedSpecialDay]) specialsData.days[selectedSpecialDay] = { items: [] };
-  specialsData.days[selectedSpecialDay].items.push({ itemId, specialPrice, label });
-  
+  specialsData.days[selectedSpecialDay].items.push({ itemId, specialPrice, label, endTime });
   closeSpecialPicker();
   await saveSpecials();
   renderDaySpecials();
