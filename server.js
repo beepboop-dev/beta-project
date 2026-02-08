@@ -327,6 +327,19 @@ app.delete('/api/items/:id', requireAuth, (req, res) => {
   res.json({ success: true });
 });
 
+// ============ DUPLICATE ITEM ============
+
+app.post("/api/items/:id/duplicate", requireAuth, (req, res) => {
+  const db = load();
+  const orig = db.items[req.params.id];
+  if (!orig) return res.status(404).json({ error: "Not found" });
+  const existingItems = Object.values(db.items).filter(i => i.category_id === orig.category_id);
+  const maxOrder = existingItems.reduce((m, i) => Math.max(m, i.sort_order), -1);
+  const id = require("crypto").randomUUID();
+  db.items[id] = { ...orig, id, name: orig.name + " (Copy)", sort_order: maxOrder + 1 };
+  save(db);
+  res.json({ item: db.items[id] });
+});
 // ============ UPLOAD ============
 
 app.post('/api/upload', requireAuth, upload.single('image'), (req, res) => {

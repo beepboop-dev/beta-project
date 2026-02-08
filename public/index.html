@@ -118,9 +118,16 @@
       .pricing-cards { grid-template-columns: 1fr; }
       .phone-frame { width: 280px; height: 560px; }
     }
+      .promo-bar { background: linear-gradient(135deg, #E85D2C, #D14A1C); color: #fff; text-align: center; padding: 12px 24px; font-size: 14px; font-weight: 600; position: fixed; top: 0; width: 100%; z-index: 200; }
+    .promo-bar a { color: #FEF3C7; text-decoration: underline; margin-left: 8px; }
+    .promo-bar .countdown { font-variant-numeric: tabular-nums; }
+    nav { top: 40px !important; }
+    .hero { padding-top: 180px !important; }
   </style>
 </head>
 <body>
+
+<div class="promo-bar">🔥 LAUNCH SPECIAL: 50% off your first month — Starter just $4.50/mo, Pro just $14.50/mo <a href="/signup">Claim Now →</a></div>
 
 <nav>
   <div class="nav-inner">
@@ -135,7 +142,7 @@
 </nav>
 
 <section class="hero">
-  <div class="badge">Used by 200+ restaurants</div>
+  <div class="badge">🚀 Launch Special — 50% Off First Month</div>
   <h1>Your menu, <em>beautifully online</em> in&nbsp;5&nbsp;minutes</h1>
   <p>Create a stunning digital menu your guests will love. Share it with a QR code. Update prices instantly. No tech skills needed.</p>
   <div class="hero-buttons">
@@ -248,6 +255,7 @@
   <div class="pricing-header">
     <h2>Simple, honest pricing</h2>
     <p>Start free. Upgrade when you're ready.</p>
+    <div style="background:#FEF3C7;border:2px solid #F59E0B;border-radius:12px;padding:16px 24px;max-width:500px;margin:16px auto 0;font-size:14px;color:#92400E;font-weight:600;">🔥 Launch Special: <strong>50% off your first month</strong> — limited time only!</div>
   </div>
   <div class="pricing-toggle">
     <button class="active" onclick="togglePricing('monthly')">Monthly</button>

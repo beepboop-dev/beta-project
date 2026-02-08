@@ -247,6 +247,22 @@
       .category-header { flex-direction: column; align-items: flex-start; }
       .toast { bottom: 90px; left: 16px; right: 16px; text-align: center; }
     }
+
+    /* DRAG AND DROP */
+    .drag-handle {
+      cursor: grab; font-size: 16px; color: #D1D5DB; padding: 4px;
+      user-select: none; flex-shrink: 0; touch-action: none;
+    }
+    .drag-handle:hover { color: var(--gray); }
+    .drag-handle:active { cursor: grabbing; }
+    .card[draggable="true"] { cursor: default; transition: opacity 0.2s, transform 0.2s; }
+    .card[draggable="true"].dragging { opacity: 0.4; transform: scale(0.98); }
+    .card.drag-over-top { border-top: 3px solid var(--orange); }
+    .card.drag-over-bottom { border-bottom: 3px solid var(--orange); }
+    .item-row[draggable="true"] { transition: opacity 0.2s; }
+    .item-row[draggable="true"].dragging { opacity: 0.3; background: #FFF7ED; }
+    .item-row.drag-over-top { box-shadow: inset 0 3px 0 var(--orange); }
+    .item-row.drag-over-bottom { box-shadow: inset 0 -3px 0 var(--orange); }
   </style>
 </head>
 <body>
@@ -853,17 +869,19 @@ function renderCategories() {
     return;
   }
   container.innerHTML = categories.map(cat => `
-    <div class="card" data-cat-id="${cat.id}">
+    <div class="card" data-cat-id="${cat.id}" draggable="true" ondragstart="catDragStart(event, '${cat.id}')" ondragend="catDragEnd(event)" ondragover="catDragOver(event)" ondragleave="catDragLeave(event)" ondrop="catDrop(event, '${cat.id}')">
       <div class="category-header">
+        <span class="drag-handle" title="Drag to reorder category">⠿</span>
         <h3 contenteditable="true" onblur="updateCategoryName('${cat.id}', this.textContent)">${escHtml(cat.name)}</h3>
         <div class="category-actions">
           <button class="btn btn-sm btn-green" onclick="openAddItem('${cat.id}')">+ Add Item</button>
           <button class="btn btn-sm btn-danger" onclick="deleteCategory('${cat.id}')">🗑</button>
         </div>
       </div>
-      ${cat.items.length === 0 ? '<p style="color:var(--gray);font-size:13px;padding:8px 0;">No items yet.</p>' : ''}
+      ${cat.items.length === 0 ? '<p style="color:var(--gray);font-size:13px;padding:8px 0;">No items yet. Drag items here or click + Add Item.</p>' : ''}
       ${cat.items.map(item => `
-        <div class="item-row${item.is_available ? '' : ' unavailable'}">
+        <div class="item-row${item.is_available ? '' : ' unavailable'}" draggable="true" data-item-id="${item.id}" data-cat-id="${cat.id}" ondragstart="itemDragStart(event, '${item.id}', '${cat.id}')" ondragend="itemDragEnd(event)" ondragover="itemDragOver(event)" ondragleave="itemDragLeave(event)" ondrop="itemDrop(event, '${item.id}', '${cat.id}')">
+          <span class="drag-handle" title="Drag to reorder">⠿</span>
           ${item.image_url
             ? `<img class="item-thumb" src="${item.image_url}" alt="">`
             : `<div class="item-thumb-placeholder">🍽</div>`}
@@ -880,6 +898,7 @@ function renderCategories() {
             <span class="slider"></span>
           </label>
           <div class="item-actions">
+            <button class="icon-btn" onclick="duplicateItem('${item.id}')" title="Duplicate">📋</button>
             <button class="icon-btn" onclick="openEditItem('${cat.id}', '${item.id}')">✏️</button>
             <button class="icon-btn" onclick="deleteItem('${item.id}', '${cat.id}')">🗑</button>
           </div>
@@ -1180,6 +1199,153 @@ async function downloadQRCard() {
 document.querySelectorAll('.modal-overlay').forEach(o => {
   o.addEventListener('click', e => { if (e.target === o) o.classList.remove('show'); });
 });
+
+
+// ============ DRAG & DROP ============
+let dragType = null; // 'category' or 'item'
+let dragId = null;
+let dragCatId = null;
+
+function catDragStart(e, catId) {
+  // Only drag if initiated from drag handle
+  if (!e.target.closest('.drag-handle') && e.target.className !== 'drag-handle') {
+    e.preventDefault(); return;
+  }
+  dragType = 'category';
+  dragId = catId;
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', catId);
+  setTimeout(() => e.target.closest('.card').classList.add('dragging'), 0);
+}
+function catDragEnd(e) {
+  document.querySelectorAll('.card').forEach(c => c.classList.remove('dragging','drag-over-top','drag-over-bottom'));
+  dragType = null; dragId = null;
+}
+function catDragOver(e) {
+  if (dragType !== 'category') return;
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  const card = e.target.closest('.card[data-cat-id]');
+  if (!card) return;
+  document.querySelectorAll('.card').forEach(c => c.classList.remove('drag-over-top','drag-over-bottom'));
+  const rect = card.getBoundingClientRect();
+  const mid = rect.top + rect.height / 2;
+  card.classList.add(e.clientY < mid ? 'drag-over-top' : 'drag-over-bottom');
+}
+function catDragLeave(e) {
+  const card = e.target.closest('.card[data-cat-id]');
+  if (card) card.classList.remove('drag-over-top','drag-over-bottom');
+}
+async function catDrop(e, targetCatId) {
+  e.preventDefault();
+  if (dragType !== 'category' || !dragId || dragId === targetCatId) return;
+  document.querySelectorAll('.card').forEach(c => c.classList.remove('drag-over-top','drag-over-bottom','dragging'));
+  
+  const fromIdx = categories.findIndex(c => c.id === dragId);
+  const toIdx = categories.findIndex(c => c.id === targetCatId);
+  if (fromIdx < 0 || toIdx < 0) return;
+  
+  const card = document.querySelector(`.card[data-cat-id="${targetCatId}"]`);
+  const rect = card.getBoundingClientRect();
+  const insertBefore = e.clientY < rect.top + rect.height / 2;
+  
+  const [moved] = categories.splice(fromIdx, 1);
+  let newIdx = categories.findIndex(c => c.id === targetCatId);
+  if (!insertBefore) newIdx++;
+  categories.splice(newIdx, 0, moved);
+  
+  renderCategories();
+  const order = categories.map(c => c.id);
+  await fetch(`/api/menus/${currentMenu.id}/reorder-categories`, {
+    method: 'PUT', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ order }),
+  });
+  showToast('Categories reordered! ✅');
+}
+
+function itemDragStart(e, itemId, catId) {
+  if (!e.target.closest('.drag-handle') && e.target.className !== 'drag-handle') {
+    e.preventDefault(); return;
+  }
+  e.stopPropagation();
+  dragType = 'item';
+  dragId = itemId;
+  dragCatId = catId;
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', itemId);
+  setTimeout(() => e.target.closest('.item-row').classList.add('dragging'), 0);
+}
+function itemDragEnd(e) {
+  document.querySelectorAll('.item-row').forEach(r => r.classList.remove('dragging','drag-over-top','drag-over-bottom'));
+  dragType = null; dragId = null; dragCatId = null;
+}
+function itemDragOver(e) {
+  if (dragType !== 'item') return;
+  e.preventDefault();
+  e.stopPropagation();
+  e.dataTransfer.dropEffect = 'move';
+  const row = e.target.closest('.item-row[data-item-id]');
+  if (!row) return;
+  document.querySelectorAll('.item-row').forEach(r => r.classList.remove('drag-over-top','drag-over-bottom'));
+  const rect = row.getBoundingClientRect();
+  const mid = rect.top + rect.height / 2;
+  row.classList.add(e.clientY < mid ? 'drag-over-top' : 'drag-over-bottom');
+}
+function itemDragLeave(e) {
+  const row = e.target.closest('.item-row[data-item-id]');
+  if (row) row.classList.remove('drag-over-top','drag-over-bottom');
+}
+async function itemDrop(e, targetItemId, targetCatId) {
+  e.preventDefault();
+  e.stopPropagation();
+  if (dragType !== 'item' || !dragId || dragId === targetItemId) return;
+  document.querySelectorAll('.item-row').forEach(r => r.classList.remove('drag-over-top','drag-over-bottom','dragging'));
+  
+  // Find source category and item
+  const srcCat = categories.find(c => c.id === dragCatId);
+  const tgtCat = categories.find(c => c.id === targetCatId);
+  if (!srcCat || !tgtCat) return;
+  
+  const srcIdx = srcCat.items.findIndex(i => i.id === dragId);
+  if (srcIdx < 0) return;
+  const [movedItem] = srcCat.items.splice(srcIdx, 1);
+  
+  const row = document.querySelector(`.item-row[data-item-id="${targetItemId}"]`);
+  const rect = row.getBoundingClientRect();
+  const insertBefore = e.clientY < rect.top + rect.height / 2;
+  
+  let tgtIdx = tgtCat.items.findIndex(i => i.id === targetItemId);
+  if (!insertBefore) tgtIdx++;
+  tgtCat.items.splice(tgtIdx, 0, movedItem);
+  
+  renderCategories();
+  // Persist order for the target category
+  const order = tgtCat.items.map(i => i.id);
+  await fetch(`/api/categories/${targetCatId}/reorder-items`, {
+    method: 'PUT', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ order }),
+  });
+  // If moved between categories, also update source
+  if (dragCatId !== targetCatId) {
+    const srcOrder = srcCat.items.map(i => i.id);
+    await fetch(`/api/categories/${dragCatId}/reorder-items`, {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ order: srcOrder }),
+    });
+  }
+  showToast('Items reordered! ✅');
+}
+
+// ============ DUPLICATE ITEM ============
+async function duplicateItem(itemId) {
+  const res = await fetch(`/api/items/${itemId}/duplicate`, { method: 'POST' });
+  if (res.ok) {
+    await loadCategories();
+    showToast('Item duplicated! 📋');
+  } else {
+    showToast('Failed to duplicate');
+  }
+}
 
 init();
 </script>
